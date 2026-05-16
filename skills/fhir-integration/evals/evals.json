@@ -1,0 +1,94 @@
+{
+  "skill_name": "fhir-integration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a new patient-facing app that pulls problems, medications, allergies, and immunizations from an Epic FHIR R4 endpoint. What resources, search params, and US Core profiles should we plan around?",
+      "expected_output": "Should check for .agents/healthcare-context.md first (or ask the smallest set of clarifying questions). Should call out FHIR R4 plus US Core (note the version needs to be confirmed). Should list the relevant resources: Condition (problem-list-item category), MedicationRequest / MedicationStatement, AllergyIntolerance, Immunization, and Patient as the subject anchor. Should note the binding strengths and code-system expectations (SNOMED CT for problems, RxNorm for meds, CVX for immunizations) but mark them as IG-version-dependent. Should recommend reading the CapabilityStatement at /metadata before coding. Should mention SMART App Launch for patient-context auth and link to the smart-on-fhir skill. Should provide example search URLs with synthetic IDs.",
+      "assertions": [
+        "Reads or asks for healthcare-context.md before answering",
+        "Identifies FHIR R4 and US Core (with version caveat) as the binding contract",
+        "Lists Condition, MedicationRequest/Statement, AllergyIntolerance, Immunization, Patient",
+        "Mentions SNOMED/RxNorm/CVX bindings without inventing specific codes",
+        "Recommends reading CapabilityStatement (/metadata)",
+        "Defers SMART auth to smart-on-fhir skill",
+        "Provides example search URLs with synthetic identifiers",
+        "Flags must-support and binding-strength as IG-version-dependent"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I need to write a transaction Bundle that creates a Patient, an Encounter referencing that Patient, and an Observation referencing the Encounter. Show me the structure and explain how the references resolve.",
+      "expected_output": "Should produce a Bundle with type=transaction. Should use urn:uuid: fullUrl on the Patient and Encounter entries and reference them via Reference.reference. Should explain that the server resolves urn:uuid references during the transaction and rewrites them to real resource IDs in the response. Should include conditional-create (ifNoneExist) on the Patient to avoid duplicates. Should show request.method/url on each entry. Should warn that transactions are atomic (all-or-nothing) and that batches are independent. Should note that some servers limit transaction size.",
+      "assertions": [
+        "Uses Bundle.type = transaction",
+        "Uses urn:uuid: fullUrl for cross-entry references",
+        "Includes request.method and request.url on each entry",
+        "Demonstrates ifNoneExist conditional create",
+        "Explains atomic vs. batch semantics",
+        "Notes that the server rewrites urn:uuid: to canonical IDs in the response",
+        "Uses synthetic identifiers throughout"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "how do i kick off a bulk export of all my patient group's labs and conditions from a fhir server?",
+      "expected_output": "Should trigger on casual phrasing. Should explain the Bulk Data Access IG and the $export operation at Group, Patient, or System scope. Should show the kickoff request: GET /Group/{id}/$export with Accept: application/fhir+json, Prefer: respond-async, and _type / _since / _typeFilter query parameters. Should explain the 202 Accepted + Content-Location polling pattern. Should describe the JSON manifest with NDJSON file URLs once status is 200. Should mention that auth typically uses SMART Backend Services (asymmetric client credentials with JWS-signed JWT) and defer to smart-on-fhir for the auth details. Should point to references/bulk-export-guide.md.",
+      "assertions": [
+        "Triggers on casual lowercase phrasing",
+        "Names the $export operation and Group-level scope",
+        "Includes Accept and Prefer: respond-async headers",
+        "Explains 202 + Content-Location polling",
+        "Describes NDJSON manifest response",
+        "Defers backend-services auth to smart-on-fhir",
+        "Uses _type / _since / _typeFilter parameters"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're getting intermittent 412 Precondition Failed errors when our worker updates Observations during a nightly batch. Two workers sometimes pick up the same record. How do we design this correctly?",
+      "expected_output": "Should explain optimistic concurrency in FHIR: ETag/W/{versionId} returned on read, If-Match: W/{versionId} on update or patch, server returns 412 Precondition Failed on conflict. Should describe two design options: (a) read-modify-write with retry on 412 (refetch, re-merge, re-PUT), (b) PATCH (JSON Patch or FHIRPath Patch) over PUT to minimize the conflict window. Should recommend idempotency keys and conditional updates (If-None-Exist) for create operations. Should warn against ignoring the 412 and overwriting. Should suggest splitting work by subject/_id ranges so workers don't collide. Should mention that some servers expose a queue/lease pattern; if not, application-side locks are an option but introduce coupling.",
+      "assertions": [
+        "Explains ETag / versionId / If-Match concurrency model",
+        "Describes 412 Precondition Failed handling",
+        "Recommends read-modify-write retry pattern",
+        "Suggests PATCH as an alternative to PUT",
+        "Warns against blind overwrite",
+        "Recommends partitioning work to avoid collisions",
+        "Mentions idempotency / conditional create for safety",
+        "Uses synthetic data in any examples"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We need a SMART on FHIR app launch that gets patient context and the right OAuth scopes. Can you walk through standalone vs. EHR launch and the scope syntax?",
+      "expected_output": "Should recognize that this is a SMART App Launch question and defer to the smart-on-fhir skill, which is the canonical place for SMART launch flows, scope syntax (patient/*.read, user/*.read, system/*.read, launch/patient, openid fhirUser), PKCE, and standalone vs. EHR launch sequences. Should not attempt to fully reproduce SMART specs here; should give a brief pointer and offer to cover the FHIR-side of resource access once auth is in place.",
+      "assertions": [
+        "Recognizes this as a SMART on FHIR launch question",
+        "Defers to or references the smart-on-fhir skill",
+        "Does not attempt to fully reproduce SMART specs in fhir-integration",
+        "Offers to handle the FHIR resource access side after auth is established"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Validate this Patient resource against US Core. It has a name but no identifier, and our $validate keeps complaining. What's going on?",
+      "expected_output": "Should explain the role of $validate (POST to /Patient/$validate with the resource in the body and profile= parameter pointing at the US Core Patient profile URL). Should note that US Core (verify version) requires Patient.identifier with at least one entry plus name and other must-support elements. Should walk through reading the OperationOutcome response — severity, code, expression — to pinpoint the violating element. Should warn that asserting meta.profile does not enforce conformance; only $validate or a validator does. Should suggest running against a reference validator (FHIR Validator CLI, Inferno, etc.) and pinning the IG package version.",
+      "assertions": [
+        "Explains $validate operation and how to invoke it",
+        "References US Core Patient profile (with version-verification caveat)",
+        "Identifies missing required identifier as the likely root cause",
+        "Shows how to interpret OperationOutcome (severity, code, expression)",
+        "Notes meta.profile alone does not enforce conformance",
+        "Recommends a reference validator + pinned IG package",
+        "Uses synthetic data"
+      ],
+      "files": []
+    }
+  ]
+}

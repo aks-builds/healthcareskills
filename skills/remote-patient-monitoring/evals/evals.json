@@ -1,0 +1,89 @@
+{
+  "skill_name": "remote-patient-monitoring",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're launching an RPM program for HTN and CHF patients. Cellular BP cuffs and weight scales. What do we need before go-live?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should ask Task-Specific Questions or clarify: device categories (BP cuff + scale — confirm FDA-cleared medical devices, not wellness), connectivity (cellular — preferred for elderly / low-tech), monitoring staffing, CPT codes targeted, eligibility / consent flow, alert routing, EHR write-back. Should require: validated arm BP cuffs, device-pairing-to-patient with attested human step, FHIR Observation modeling with Device + UDI + LOINC + UCUM, device-local and server-receive timestamps with timezone offsets, alert rules in clinical terms with documented escalation SLA and disposition, time tracking for 99457/99458, days-with-readings tracking for the 16-day rule on 99454. Should explicitly mark CPT 99453/99454/99457/99458/99091 with verify-current-CMS-rules caveat. Should require auditable evidence trail per billable code.",
+      "assertions": [
+        "Checks for .agents/healthcare-context.md or asks Task-Specific Questions",
+        "Requires FDA-cleared medical-device validation (not wellness)",
+        "Requires FHIR Observation + Device modeling with LOINC and UCUM",
+        "Mentions 16-day rule on 99454 with verify-current caveat",
+        "Mentions 99457/99458 time tracking",
+        "Marks CPT codes with verify-current-CMS-rules caveat",
+        "Requires auditable evidence trail per billable code"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our 99454 billing is getting denied. What audit findings should I be checking?",
+      "expected_output": "Should walk through the common CMS RPM audit findings: billing 99454 without 16+ days of readings in the 30-day window, missing initial education documentation (99453), use of a consumer wellness device that is not a 510(k)-cleared medical device, time logs lacking interactive communication, billing 99457 and 99091 in the same period when current rules disallow, same-month 99457/99458 from multiple practitioners, device readings auto-generated when patient was not actually using the device (e.g., heartbeats counted as readings). Should require fixing root causes: tighten days-with-actual-readings tracking, surface at-risk patients before period end, ensure interactive communication is logged, audit device clearance status, never count pings as readings. Should mark all CPT specifics with verify-current-CMS-rules caveat.",
+      "assertions": [
+        "Lists 16-day rule failure as top finding",
+        "Mentions missing 99453 setup education documentation",
+        "Mentions wellness-vs-medical-device device misuse",
+        "Mentions 99457/99091 concurrency rule with verify caveat",
+        "Mentions auto-generated reading anti-pattern",
+        "Recommends surfacing at-risk patients before period end",
+        "Marks CPT specifics with verify-current caveat"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "ble or cellular for our BP devices?",
+      "expected_output": "Should trigger on casual phrasing. Should compare connectivity architectures: cellular (LTE-M / NB-IoT) — no app, no Wi-Fi, no phone, best for elderly / low-tech; per-unit hardware cost; carrier coverage matters. BLE-to-app-to-cloud — lower hardware cost, richer in-app context, requires working phone, OS upgrades, BLE pairing UX issues, data loss when app is killed. Wi-Fi — low cost but provisioning is the hardest UX problem. Hybrid hub — common for multi-device chronic care. Should land on: pick connectivity that fits the patient, not the engineering team. For HTN seniors, cellular usually wins; for a tech-comfortable younger cohort, BLE may be fine.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Compares cellular vs. BLE vs. Wi-Fi vs. hub",
+        "Identifies cellular advantage for elderly / low-tech patients",
+        "Identifies BLE app-killed data loss risk",
+        "Lands on patient-fit-first recommendation"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Two patients in the same household are both enrolled in our HTN RPM program. The data is getting mixed up. How do we prevent this?",
+      "expected_output": "Should identify this as a patient-identification / device-pairing problem — the most common source of bad RPM data. Should require: pair device-to-patient at enrollment with an attested human step (label the device, scan a QR from the patient's chart), give each patient a distinct labeled device, detect pairing anomalies (sudden 20cm height change, weight jumping 50lb between readings, two patients reading simultaneously on the same SIM), on device replacement transfer history via Patient + Device link not device serial. Should require FHIR Device + DeviceUseStatement + Patient linkage and an Observation.identifier that includes a device-side ID for idempotency.",
+      "assertions": [
+        "Identifies pairing as the root cause",
+        "Recommends attested human pairing step",
+        "Recommends per-patient labeled devices in shared households",
+        "Recommends anomaly detection (height/weight jumps, simultaneous reads)",
+        "Mentions Patient + Device + DeviceUseStatement linkage",
+        "Mentions idempotency via Observation.identifier"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our RPM dashboard has 1,800 alerts per day across the panel. Nurses are burning out. What's the playbook?",
+      "expected_output": "Should treat as alert-fatigue problem. Should require: define alerts in clinical terms (threshold, trend, non-adherence, data-quality) with per-patient and per-condition tuning; assign clear ownership per alert type (RN, MA, pharmacist, physician); define SLA per tier (e.g., 1 business hour for critical, 24 hours for routine); document disposition of every alert (CMS audits look for this); track alert→action conversion rate as a primary metric; mute alerts the clinician has already addressed within a defined window. Should require panel-level dashboard sorted by risk / non-adherence / new alerts so nurses don't drown. Should mention that thresholds set globally without per-patient tuning are the most common over-alerting cause.",
+      "assertions": [
+        "Recommends per-patient and per-condition threshold tuning",
+        "Defines alert types (threshold, trend, non-adherence, data-quality)",
+        "Requires ownership and SLA per tier",
+        "Requires alert disposition documentation",
+        "Recommends tracking alert-to-action conversion rate",
+        "Recommends panel-level dashboard sorted by risk"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Can we bill 99454 if our RPM device is an Apple Watch?",
+      "expected_output": "Should answer no in the typical case: 99453/99454 specifically require a device that meets the definition of a medical device under section 201(h) of the FFDCA, and a consumer wellness wearable like an Apple Watch generally does not qualify. Should note exceptions exist for cleared signals (Apple Watch ECG / AFib notification are FDA-cleared) but those clearances do not turn the whole device into a billable RPM medical device for vital-sign monitoring. Should defer to or cross-reference wearables-integration for consumer-wearable patterns and fda-samd for clearance analysis if the user wants to pursue a regulated use case. Should mark CPT specifics with verify-current-CMS-rules caveat.",
+      "assertions": [
+        "Answers no for typical 99454 case with Apple Watch",
+        "References FFDCA 201(h) medical-device definition",
+        "Notes Apple Watch ECG / AFib clearances do not generalize to RPM billing",
+        "Cross-references wearables-integration and fda-samd",
+        "Marks CPT specifics with verify-current caveat"
+      ],
+      "files": []
+    }
+  ]
+}

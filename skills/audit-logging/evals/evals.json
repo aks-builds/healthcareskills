@@ -1,0 +1,91 @@
+{
+  "skill_name": "audit-logging",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Design an audit logging program for a 4-hospital health system. We have Epic, GE Centricity PACS, a lab system, a pharmacy system, and Active Directory. We need to satisfy HIPAA and we have a 6-month deadline.",
+      "expected_output": "Should attempt to read healthcare-context.md first. Should propose a phased plan: (1) inventory of in-scope systems and the event types each produces, (2) time synchronization across sources (NTP/PTP, UTC storage), (3) standardize on a healthcare audit format (FHIR AuditEvent for FHIR-native systems, IHE ATNA / DICOM Audit Message for PACS, syslog/CEF for AD and infrastructure — cross-reference fhir-auditevent.md and atna-audit-format.md), (4) SIEM ingestion (centralize and protect the audit store, separation of duties so app admins are not audit-log admins), (5) detection use cases (privilege misuse, mass-record access, after-hours, break-the-glass) and review SOPs, (6) accounting of disclosures workflow (6-year non-TPO disclosures), (7) break-the-glass enhanced logging + review cadence, (8) retention per HIPAA documentation rule (6 years) and any state/CMS overlays (cross-reference retention-by-jurisdiction.md). Should cross-reference hipaa-compliance and phi-handling. Should not assume a specific SIEM product.",
+      "assertions": [
+        "Attempts to read healthcare-context.md",
+        "Time synchronization addressed",
+        "Format standardization (FHIR AuditEvent, IHE ATNA, syslog/CEF)",
+        "References fhir-auditevent.md and atna-audit-format.md",
+        "Accounting of disclosures workflow",
+        "Break-the-glass enhanced logging and review",
+        "Retention with state/CMS overlay (retention-by-jurisdiction.md)",
+        "Separation of duties for audit store"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "A patient asked for an accounting of disclosures going back 5 years. What do we need to produce?",
+      "expected_output": "Should explain the HIPAA right: an accounting of disclosures covers PHI disclosures NOT for TPO and a few other carve-outs, for the prior 6 years (or shorter as elected). The accounting must include: date, name of recipient (and address if known), brief description of the PHI disclosed, and brief statement of the purpose (or a copy of the written request). Should describe operationally: the response is due within 60 days (one 30-day extension), the first accounting in a 12-month period is free, subsequent accountings can carry a reasonable cost-based fee. Should walk through how this maps to the audit-log program: events must carry a purpose-of-use field so TPO disclosures can be filtered out; disclosures from BA / external systems must be retrievable; the workflow should ideally be queryable rather than manual log review. Should cross-reference hipaa-compliance and reference fhir-auditevent.md for the audit content. Should defer the binding interpretation of any edge case (e.g., research disclosures under a waiver) to the Privacy Officer.",
+      "assertions": [
+        "Explains the accounting scope (non-TPO disclosures, 6 years)",
+        "Identifies the required content (date, recipient, PHI, purpose)",
+        "60-day response window with extension",
+        "Fees: first free, reasonable cost-based after",
+        "Maps to audit-log purpose-of-use field",
+        "Cross-references hipaa-compliance and fhir-auditevent.md",
+        "Routes edge cases to Privacy Officer"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "quick - we keep audit logs for 90 days. that's enough right? cheaper that way.",
+      "expected_output": "Should respond proportionally to casual phrasing. Should explain that 90 days is almost certainly insufficient. HIPAA documentation retention is 6 years from creation or last effective date for required documentation; the Security Rule audit controls have specific log-retention discussion under HHS guidance — verify the current expectation. Should explain that 90 days breaks: accounting of disclosures (6-year right), breach investigations (timeline can extend long after the incident), state breach laws (longer windows in some states), CMS overlays (often 7 years for Medicare-related records), federal contracts (FedRAMP-aligned often 1+ year hot / 7+ year cold), and litigation hold. Should reference retention-by-jurisdiction.md. Should recommend a tiered retention (hot in SIEM, warm in cheaper storage, cold in archive) to manage cost without breaking the requirements. Should defer the specific number to Privacy Officer / counsel.",
+      "assertions": [
+        "Responds proportionally to casual phrasing",
+        "Clearly states 90 days is insufficient",
+        "Lists the multiple reasons (accounting, breach, state law, CMS, federal contracts, litigation hold)",
+        "References retention-by-jurisdiction.md",
+        "Recommends tiered retention to manage cost",
+        "Defers specific number to Privacy Officer / counsel"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Design our break-the-glass workflow for the EHR. A clinician needs to access a patient outside their normal care team in an emergency. What does the audit trail need to look like?",
+      "expected_output": "Should propose: explicit UI prompt at the point of access (not after the fact), mandatory reason text from a controlled vocabulary plus free-text, capture of who/what/when/which-patient/which-system, marking of the access in the audit record as a break-the-glass event (distinct event subtype), enhanced-logging escalation (additional context captured for the session — actions, records viewed, exported data), routing to a review queue, mandatory periodic review by a Privacy Officer or designee on a defined cadence (weekly is common), notification to the patient's care team where appropriate, sanction policy reference if abuse is found. Should reference fhir-auditevent.md for the AuditEvent structure (with reasonForUse / purposeOfEvent encoding the BTG context). Should cross-reference phi-handling and hipaa-compliance. Should note that the BTG path should be available but auditable — making it too friction-free encourages abuse; making it too friction-heavy encourages workarounds.",
+      "assertions": [
+        "UI prompt at point of access with mandatory reason",
+        "Distinct event subtype / flag for break-the-glass",
+        "Enhanced logging during the BTG session",
+        "Review queue and cadence",
+        "Sanction policy reference",
+        "References fhir-auditevent.md AuditEvent fields",
+        "Balances friction vs. abuse-prevention"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our SIEM costs are killing us. Should we just turn off logging on the lower-risk systems?",
+      "expected_output": "Should push back firmly on the framing. Should explain that turning off logging on systems handling PHI is a Security Rule audit-controls failure and a recipe for an OCR finding. Should redirect to cost-management strategies that don't break the program: tiered storage (hot/warm/cold with different retention), filtering at the source (collect only relevant event types instead of everything), sampling where defensible (low-value verbose categories), index-only-what-you-search-on patterns, moving to log-volume-based pricing alternatives, deduplication, summarization. Should note the cost vs. forensic-readiness trade-off — a too-aggressive cut can leave incident investigation crippled. Should defer the architectural decision to the Security Officer.",
+      "assertions": [
+        "Refuses the 'turn off logging on PHI systems' framing",
+        "Identifies it as a Security Rule audit-controls failure",
+        "Offers cost-management alternatives (tiered storage, filtering, sampling, indexing)",
+        "Notes the forensic-readiness trade-off",
+        "Defers architectural decision to Security Officer"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our system is in scope for Part 11 and HIPAA. Can the same audit log satisfy both?",
+      "expected_output": "Should cross-reference 21-cfr-part-11 skill for the Part 11 framing. Should explain that a well-designed audit log can satisfy both Part 11 §11.10(e) and HIPAA §164.312(b) — both require secure, computer-generated, time-stamped recording of who/what/when. But the regimes serve different purposes and have different retention and review expectations: Part 11 retention is tied to the predicate rule (often longer than HIPAA's 6-year documentation rule), and Part 11 has specific content for before/after values and reason-for-change on modifications. Should recommend: design the audit log to satisfy the stricter of the two on each axis (content, retention, review). Should note the audit log can be ingested into the same SIEM but the Part 11 records should be preserved in a tamper-resistant store separately. Should defer the binding cross-regime program design to QA + Privacy Officer + Security Officer.",
+      "assertions": [
+        "Cross-references 21-cfr-part-11",
+        "Explains both regimes overlap technically but differ in purpose, retention, content",
+        "Recommends designing to the stricter of the two on each axis",
+        "Mentions tamper-resistance for Part 11 records",
+        "Routes binding design to QA + Privacy Officer + Security Officer"
+      ],
+      "files": []
+    }
+  ]
+}

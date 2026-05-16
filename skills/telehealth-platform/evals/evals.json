@@ -1,0 +1,88 @@
+{
+  "skill_name": "telehealth-platform",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a multi-state telehealth urgent care platform. Patients in 20 states, providers split across 5 hubs. What do we need to nail before we go live?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should ask the Task-Specific Questions or use context to clarify modality (synchronous video for urgent care), specialties, states, controlled-substance scope, recording, consent UX, and video vendor. Should explain that providers must be licensed where the patient is physically located at start of visit; should reference IMLC for MD/DO expedited licensure across participating states (with verify-current-member-list caveat). Should require: capturing patient location at start of encounter, per-encounter licensure recheck (not just at onboarding), state-aware informed-consent module rendering the correct form, BAA-covered video vendor, ePHI handling in recordings if applicable. Should mention state parity matrix (coverage / payment / modality axes) and CMS POS codes plus telehealth modifiers (95, 93, GT, GQ — confirm current values per payer).",
+      "assertions": [
+        "Checks for .agents/healthcare-context.md or asks Task-Specific Questions",
+        "Explains licensure-where-patient-is-located rule",
+        "References IMLC and notes verify-current-member-states",
+        "Requires capturing patient location at start of encounter",
+        "Requires state-aware telehealth informed consent",
+        "Requires BAA-covered video vendor",
+        "Mentions parity laws (coverage vs payment vs modality) without hardcoding state assumptions"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our tele-psych providers want to prescribe Adderall and Xanax over video. What's the path?",
+      "expected_output": "Should treat this as a controlled-substance e-prescribing question under Ryan Haight Act. Should explain Ryan Haight generally requires an in-person medical evaluation before a controlled substance can be prescribed via the internet, with seven enumerated practice-of-telemedicine exceptions. Should note that DEA telemedicine flexibilities have been extended and modified multiple times and explicitly tell the user to verify the current DEA rule before designing prescribing workflows. Should require EPCS-certified e-prescribing flow with two-factor authentication, the practitioner's DEA registration covering the patient's state, and an auditable order-signature-transmission trail. Should not invent specific current DEA rule text.",
+      "assertions": [
+        "References Ryan Haight Act and DEA telemedicine framework",
+        "Explicitly says verify the current DEA rule",
+        "Requires EPCS with two-factor for controlled substances",
+        "Notes DEA registration must cover patient's state",
+        "Does not invent current DEA rule text"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what video vendor should we use for hipaa?",
+      "expected_output": "Should trigger on casual phrasing. Should explain that vendor selection drives BAA scope and that video, audio, chat, and shared files are all ePHI. Should list HIPAA-eligible options (Zoom for Healthcare, Microsoft Teams with healthcare BAA, Doxy.me, Twilio Video, Vonage Video, Daily, LiveKit, AWS Chime SDK, Azure Communication Services) and explicitly call out vendors that are generally NOT appropriate for ePHI without specific BAA terms (consumer Zoom, FaceTime, non-Workspace Google Meet, WhatsApp). Should note PHE enforcement discretion has ended and verify current OCR guidance. Should require BAA-on-file before production traffic, TLS in transit, AES at rest, recording routed to a BAA-covered store, log sanitization.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Lists HIPAA-eligible video vendors",
+        "Calls out vendors not appropriate without BAA",
+        "Notes PHE enforcement discretion ended; verify current OCR guidance",
+        "Requires BAA before production traffic",
+        "Mentions recording routed to BAA-covered store"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We want to record visits for quality review. What are the rules and how should we architect it?",
+      "expected_output": "Should explain recording is regulated and that some states require two-party consent (e.g., CA, FL, IL, MA, MD, NV, PA, WA — verify current list). Should require explicit recording consent captured separately from the telehealth informed consent, stored as a FHIR Consent resource linked to the Encounter. Should require BAA-covered storage with same access controls as the chart, retention aligned with the org's medical-record retention schedule, and FHIR AuditEvent entries for session start, recording start/stop, participant join/leave, and recording access. Should note that consumer-grade video vendor logs can leak PHI in URL paths — sanitize logs.",
+      "assertions": [
+        "Notes two-party consent states with verify-current caveat",
+        "Requires explicit recording-specific consent",
+        "Requires BAA-covered storage of recordings",
+        "Requires FHIR AuditEvent for session and recording lifecycle",
+        "Mentions retention aligned to medical-record retention",
+        "Does not invent a definitive current list of two-party states"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Step me through what happens at the moment a patient joins a video visit — from licensure check to claim generation. We want a checklist.",
+      "expected_output": "Should walk a step-by-step encounter flow: 1) capture patient's physical location (state, country) at start of encounter; 2) re-check provider licensure against that state (compact / federal / state-specific exception); 3) state-aware informed consent (telehealth-specific), captured as FHIR Consent linked to Encounter; 4) recording consent if recording; 5) bandwidth/RTT probe with audio-only fallback option; 6) ID verification at visit start (display name and DOB, capture attestation); 7) the encounter (chat, file share, e-Rx, RPM data view as needed); 8) write-back as FHIR Encounter / DocumentReference / Consent to the EHR; 9) AuditEvent emission; 10) claim generation with POS code (e.g., POS 02 or 10) and telehealth modifier per payer rules. Should mention verifying current POS codes and modifier values per payer.",
+      "assertions": [
+        "Lists capturing patient location at start of encounter",
+        "Lists per-encounter licensure recheck",
+        "Lists state-aware telehealth consent capture",
+        "Lists audio-only / low-bandwidth fallback",
+        "Lists write-back to EHR via FHIR resources",
+        "Lists claim generation with POS code and telehealth modifier",
+        "Notes verify current values per payer"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our telehealth platform pulls in Apple Watch heart-rate and Withings BP data during the visit. How do we model that?",
+      "expected_output": "Should recognize this is a wearables / RPM data-modeling question, not a core telehealth platform question. Should defer to or cross-reference the wearables-integration skill (for HealthKit / Withings → FHIR Observation mapping, BAA gaps, provenance) and to remote-patient-monitoring (if billable RPM is in scope). Should briefly note that telehealth-platform owns rendering the data in the encounter view and writing the encounter back to the EHR, but the wearable-source modeling is handled elsewhere.",
+      "assertions": [
+        "Recognizes wearable data modeling is out of scope",
+        "Defers to wearables-integration skill",
+        "Cross-references remote-patient-monitoring if billing-relevant",
+        "Does not attempt to fully solve wearable mapping inside telehealth-platform"
+      ],
+      "files": []
+    }
+  ]
+}

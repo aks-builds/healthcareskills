@@ -1,0 +1,95 @@
+{
+  "skill_name": "dicom-imaging",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We need to send CT studies from our new GE scanner to our on-prem PACS. The PACS vendor gave us an AE title and IP. What do I configure on the modality, and how do I verify the connection before pushing real studies?",
+      "expected_output": "Should check for .agents/healthcare-context.md (or ask minimum questions). Should describe the DICOM association config on the modality: calling AE title (the modality's), called AE title (the PACS's), called IP and port, presentation contexts (at least CT Image Storage with Implicit VR Little Endian, plus any compressed transfer syntaxes the PACS supports). Should require C-ECHO before any C-STORE — call out that C-ECHO verifies association connectivity without sending images. Should mention bidirectional whitelisting (PACS must also know the modality's AE title and IP). Should note that transfer syntax negotiation is the second-most-common cause of association abort. Should recommend logging association negotiation on both sides for the initial integration test. Should not invent SOP Class UIDs.",
+      "assertions": [
+        "Reads or asks for healthcare-context.md (or smallest questions)",
+        "Describes calling/called AE title, IP, port configuration",
+        "Names presentation contexts including CT Image Storage and Implicit VR Little Endian",
+        "Requires C-ECHO before C-STORE",
+        "Mentions bidirectional AE whitelisting on PACS side",
+        "Calls out transfer syntax negotiation as a common abort cause",
+        "Recommends association logs on both sides for debugging",
+        "Does not fabricate specific SOP Class UIDs"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our cloud AI vendor wants to consume studies via DICOMweb. The PACS doesn't speak DICOMweb natively. What architecture works here?",
+      "expected_output": "Should propose a DICOMweb proxy/gateway in front of the PACS — translates QIDO-RS / WADO-RS / STOW-RS to DIMSE C-FIND / C-MOVE / C-STORE on the back end. Should mention common options conceptually (commercial DICOMweb gateways, OSS dcm4chee, vendor-included proxies) without claiming feature parity. Should describe the URL pattern (`/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}`). Should address authentication (IUA / OAuth 2.0 bearer or mTLS) and transport (HTTPS). Should call out that AI results should come back as DICOM SR (or Segmentation Storage / Secondary Capture as appropriate) rather than only non-DICOM JSON if they need to be archived. Should warn about partial DICOMweb support (many gateways implement QIDO/WADO but not STOW). Should defer model-deployment specifics to medical-imaging-ai.",
+      "assertions": [
+        "Proposes a DICOMweb proxy/gateway pattern",
+        "Names QIDO-RS / WADO-RS / STOW-RS by purpose",
+        "Describes the URL pattern with synthetic UIDs",
+        "Addresses authentication (IUA / OAuth or mTLS)",
+        "Recommends SR for AI results over Secondary Capture",
+        "Warns about partial DICOMweb implementations",
+        "Defers AI model deployment details to medical-imaging-ai",
+        "Does not invent specific SOP Class UIDs"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "i need to anonymize a batch of MR studies before shipping them to a research collaborator. burned-in PHI shouldn't be a problem since it's MR but how do we do this safely?",
+      "expected_output": "Should trigger on casual phrasing. Should describe the PS3.15 Annex E Application Confidentiality Profile and its options (Basic Profile + Retain Patient Characteristics, Retain Longitudinal Temporal Information, Clean Pixel Data, etc.). Should recommend using a vetted library (DCMTK, pixelmed, dcm-anonymizer, GDCM) rather than hand-rolling. Should challenge the assumption that MR can't have burned-in PHI — some MR sequences and screen captures can; recommend at least a sample manual review or OCR pass on pixel data. Should require documenting which profile and which options were applied (auditors will ask). Should mention regenerating UIDs (StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID, FrameOfReferenceUID) from your organization's registered root. Should warn that PatientID alone is not enough — date shifts must be consistent within a study; private tags can leak PHI.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Names PS3.15 Annex E Application Confidentiality Profile and options",
+        "Recommends a vetted library over hand-rolled anonymization",
+        "Challenges 'MR has no burned-in PHI' assumption",
+        "Requires documenting profile + options applied",
+        "Mentions UID regeneration",
+        "Warns about private tags and date-shift consistency",
+        "Uses no real PHI in any examples"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We have a complex workflow: an order is placed in the RIS, the CT modality needs the worklist entry, completes the scan, and PACS needs to receive images and notify the EHR with a report. Walk through the DICOM and HL7 v2 message flow.",
+      "expected_output": "Should walk the end-to-end flow: (1) RIS receives order (often via HL7 v2 ORM/OMI from EHR), creates an MWL entry. (2) Modality C-FINDs the Modality Worklist Information Model against the MWL SCP, populates patient demographics and accession number into the scanner. (3) At scan start, modality sends MPPS N-CREATE (IN PROGRESS); at end, N-SET (COMPLETED) with dose info for CT. (4) Modality C-STOREs the image SOP Instances to PACS (often via a router/gateway). (5) PACS / RIS notifies the EHR via HL7 v2 ORU^R01 (or an IHE Imaging Document Source). (6) Radiologist dictates → SR/report. (7) VNA replicates for long-term archive; DICOMweb proxy exposes images for downstream consumers. Should call out IHE SWF.b as the formal profile that codifies this flow and mention XDS-I.b for cross-enterprise sharing. Should defer ATNA audit specifics to ihe-profiles. Should use synthetic UIDs / MRNs.",
+      "assertions": [
+        "Walks through RIS order → MWL → modality flow",
+        "Describes MPPS N-CREATE / N-SET for scan start/end with dose",
+        "Includes C-STORE of images to PACS",
+        "Mentions HL7 v2 ORU^R01 (or Imaging Document Source) for EHR notification",
+        "Mentions report/SR and VNA archive",
+        "References IHE SWF.b and XDS-I.b",
+        "Defers ATNA specifics to ihe-profiles",
+        "Uses synthetic UIDs and MRNs"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our radiologists are asking to deploy a chest X-ray triage AI model. What's the right way to handle the model output?",
+      "expected_output": "Should recognize that model deployment, regulatory classification, and AI workflow are the medical-imaging-ai skill's territory. Should defer to medical-imaging-ai for FDA/SaMD considerations, performance monitoring, and integration patterns. Should give a brief DICOM-side pointer: if results need to be archived as DICOM, prefer DICOM SR for measurements/findings and Segmentation Storage or Secondary Capture for image overlays. Should not attempt to fully answer the AI side here.",
+      "assertions": [
+        "Recognizes this as a medical-imaging-ai question",
+        "Defers to medical-imaging-ai skill",
+        "Provides brief DICOM-side guidance (SR / Segmentation / Secondary Capture)",
+        "Does not attempt to fully reproduce model deployment or SaMD guidance here"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We're seeing 'association abort' errors when our new modality tries to push lossless-compressed CR images to PACS. C-ECHO works fine. What's going on?",
+      "expected_output": "Should diagnose: C-ECHO succeeds because Verification SOP Class uses the default Implicit VR Little Endian, so the association negotiates fine. C-STORE of compressed CR images fails because the modality is offering a compressed transfer syntax (e.g., JPEG Lossless Non-Hierarchical Process 14 SV1) that the PACS hasn't accepted in the presentation context. The PACS may not have a codec for that transfer syntax, or its conformance statement omits it. Fix options: (a) configure modality to also offer Implicit/Explicit VR Little Endian as a fallback; (b) configure PACS to accept the specific compressed transfer syntax; (c) insert a transcoding gateway. Should recommend reading the PACS's DICOM Conformance Statement and the modality's, comparing accepted transfer syntaxes per SOP Class. Should call out that lossless compression is generally safe diagnostically; lossy is more controversial and may have regulatory implications for primary read.",
+      "assertions": [
+        "Diagnoses transfer-syntax presentation-context mismatch",
+        "Explains why C-ECHO passes but C-STORE fails",
+        "Names specific transfer syntaxes (Implicit VR LE, JPEG Lossless variants)",
+        "Recommends reading DICOM Conformance Statements on both sides",
+        "Provides fix options: modality config, PACS config, or transcoding gateway",
+        "Notes regulatory considerations around lossy compression for primary read"
+      ],
+      "files": []
+    }
+  ]
+}

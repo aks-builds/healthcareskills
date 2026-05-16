@@ -1,0 +1,91 @@
+{
+  "skill_name": "billing-claims",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a claims submission system for a multi-specialty physician group. We need to generate 837P, submit through Availity, and post 835s back. Walk us through the architecture and what we need to handle.",
+      "expected_output": "Should check for healthcare-context.md first or ask role, claim types, payer mix, clearinghouse. Should describe the lifecycle: charge capture → scrubber → 837P generation conforming to 5010 TR3 (005010X222A1) → clearinghouse → 999 → 277CA → payer adjudication → 835 ERA → cash posting. Should mention building a companion-guide registry rather than hard-coding payer rules. Should describe scrubber components: structural validation, NCCI PTP/MUE, LCD/NCD, payer-specific edits, modifier reasonableness, COB sequencing. Should explain 835 components (BPR, TRN, CLP, CAS with group codes CO/PR/OA/PI/CR, CARC, RARC, SVC, PLB) and reassociation via TRN to the EFT/820. Should stress retaining original 837 + every TA1/999/277CA/835 for audit, and warn not to hard-code CARC/RARC from memory (load from WPC).",
+      "assertions": [
+        "Checks for or asks about healthcare-context",
+        "Describes 837P → clearinghouse → 999 → 277CA → 835 lifecycle",
+        "Mentions 5010 TR3 version (005010X222A1) conformance",
+        "Recommends companion-guide registry",
+        "Lists scrubber components including NCCI and LCD/NCD",
+        "Describes 835 segments (BPR/TRN/CLP/CAS/SVC/PLB) and group codes",
+        "Mentions TRN reassociation to EFT",
+        "Recommends retaining original 837 and all acknowledgments",
+        "Warns against hard-coding CARC/RARC from memory"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How should we classify denials coming off the 835? We want to route them to the right workqueues.",
+      "expected_output": "Should explain denial classification is built on group code (CO, PR, OA, PI, CR) + CARC + RARC plus payer- and service-line-specific signals. Should describe actionable buckets: eligibility/coverage (front-end fix), authorization/referral (refer prior-authorization), medical necessity (LCD/NCD or proprietary policy), coding (invalid code, bundling, modifier required — refer medical-coding), timely filing (often non-appealable), duplicate, COB (wrong order, missing primary EOB), contract (fee schedule mismatch). Should recommend loading the WPC CARC and RARC lists rather than hard-coding. Should mention core KPIs: first-pass yield, denial rate, net collection rate, days in A/R, denial overturn rate. Should note that CR group code typically pairs with reversal of a prior payment.",
+      "assertions": [
+        "Describes denial taxonomy by group code + CARC + RARC",
+        "Lists actionable denial buckets",
+        "References prior-authorization and medical-coding for relevant denial types",
+        "Recommends sourcing WPC CARC/RARC lists",
+        "Lists denial KPIs",
+        "Mentions CR group code pairs with reversals"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "can you walk us through how 270/271 eligibility works in real-time, our front desk staff need it before checkin",
+      "expected_output": "Should respond to casual phrasing. Should describe 270 = eligibility/benefit inquiry from provider to payer, 271 = response from payer with coverage information. Should mention CAQH CORE operating rules mandate real-time response SLAs (and batch alternatives), and CORE Phase II Connectivity. Should mention that 270/271 returns plan/coverage info but may not return full benefit details for every service category — supplemental real-time benefit inquiry products may be needed. Should mention that some payers also expose FHIR-based eligibility (Coverage / CoverageEligibilityRequest/Response) alongside X12 270/271. Should recommend caching with a short TTL (eligibility can change daily) and re-checking on date of service.",
+      "assertions": [
+        "Handles casual phrasing",
+        "Explains 270 request and 271 response",
+        "Mentions CAQH CORE operating rules and Phase II Connectivity",
+        "Notes 270/271 may not return all benefit detail",
+        "Mentions FHIR Coverage/CoverageEligibilityRequest alternative",
+        "Recommends caching with short TTL and re-check on DOS"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We need to handle Medicare secondary payer (MSP) and COB for our institutional claims. We have a lot of dual-eligibles and workers' comp scenarios. What do we need to build?",
+      "expected_output": "Should describe COB sequencing rules: birthday rule for dependents, employee-vs-spouse rules, court orders, Medicare/Medicaid-of-last-resort. Should explain MSP situations (working aged, ESRD coordination period, workers' comp, no-fault, liability) and that Medicare pays secondary in these cases. Should describe that secondary 837I claims must carry the primary payer's paid amount and CAS adjustments (Loop 2320/2330) so the secondary can adjudicate. Should mention COB-related denial patterns and reference billing-claims COB section. Should recommend storing the full primary EOB / 835 alongside the secondary claim for evidence. Should mention that Medicaid is generally payer of last resort but state rules vary.",
+      "assertions": [
+        "Lists COB sequencing rules including birthday rule",
+        "Identifies MSP categories",
+        "Mentions secondary claim must carry primary paid amount and CAS adjustments",
+        "References Loop 2320/2330",
+        "Recommends storing primary EOB/835 with secondary claim",
+        "Notes Medicaid is payer of last resort with state variation"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We need to add prior auth status tracking into the claim assembly process. The PA number isn't always coming through and we get denials. Where in the workflow should this live?",
+      "expected_output": "Should recognize that the underlying problem is a prior-authorization workflow integration, and defer to prior-authorization for PA capture, submission, status, and authorization-data model details. Can briefly describe the billing-claims side: PA number lands on the 837 (loop/REF segments — verify specific qualifier in 5010 TR3), authorization should be a structured object (auth number, code(s), units, date range, conditions) rather than a boolean, and PA-related denials surface as specific CARC/RARC patterns. Should recommend coupling PA decision capture to claim assembly so claims do not submit without a valid PA when one is required, and that scheduling/order entry surface the PA requirement upstream — the claim assembly stage is too late.",
+      "assertions": [
+        "Identifies this is a prior-authorization workflow issue",
+        "Refers to prior-authorization skill",
+        "Notes PA number lands on 837 in REF segments",
+        "Recommends structured PA object (number, codes, units, dates) not boolean",
+        "Recommends PA requirement check upstream at scheduling/order entry",
+        "Does not invent specific X12 segment qualifiers"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We're a provider building a member-facing app that shows patients their EOBs. What FHIR APIs should we use, and do they replace our X12 work?",
+      "expected_output": "Should describe CARIN Blue Button as the FHIR API standard for patient access to claims/EOB data, required under the CMS Interoperability and Patient Access rule for MA, Medicaid, CHIP, and FFE QHPs. Should explain the relevant FHIR resources (ExplanationOfBenefit, Coverage, Patient). Should make clear that CARIN BB and similar FHIR APIs do NOT replace X12 — HIPAA still mandates X12 5010 for claims, eligibility, status, ERA, etc. FHIR sits alongside X12. Should mention Da Vinci PDex for payer-to-payer data exchange and PDex Drug Formulary as related but distinct. Should not invent current effective dates of the Interoperability rule provisions.",
+      "assertions": [
+        "Identifies CARIN Blue Button for patient access",
+        "Lists relevant FHIR resources (ExplanationOfBenefit, Coverage, Patient)",
+        "Clarifies FHIR does not replace X12 for HIPAA-mandated transactions",
+        "Mentions Da Vinci PDex (payer-to-payer) as distinct",
+        "Does not invent specific effective dates"
+      ],
+      "files": []
+    }
+  ]
+}

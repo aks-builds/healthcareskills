@@ -1,0 +1,85 @@
+{
+  "skill_name": "wearables-integration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building an iOS patient app that pulls Apple Watch heart-rate, steps, sleep, and BP from Withings via HealthKit. Where do I start?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should ask or clarify wellness vs. medical-grade intent (HR / steps / sleep are wellness; AFib notification is the cleared signal), BAA status with cloud, mobile platforms (iOS only here), and target FHIR profile (US Core Observation likely). Should require requesting only the HealthKit data types needed, per-type read permission, and bundling the authorization request at a clear in-app moment. Should call out the HealthKit read-permission opacity (the app cannot tell the difference between 'permission denied' and 'no data'). Should require HealthKit → FHIR Observation mapping with UCUM units, LOINC codes (look up current LOINC per parameter — do not guess), preserved provenance (HKSourceRevision productType / version), preserved time zones, BP modeled as a single Observation with component for systolic / diastolic / mean (not separate Observations). Should note Apple generally does not sign a BAA for HealthKit data on-device; once the app pulls it server-side, the app becomes the regulated handler.",
+      "assertions": [
+        "Checks for .agents/healthcare-context.md or asks Task-Specific Questions",
+        "Distinguishes wellness HR/steps/sleep from cleared AFib signal",
+        "Mentions per-data-type authorization and read-permission opacity",
+        "Maps HK samples to FHIR Observation with UCUM and LOINC verify-current",
+        "Requires preserved provenance via HKSourceRevision",
+        "Models BP as single Observation with components",
+        "Notes Apple BAA gap and on-device vs. server-side regulatory shift"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Android side — can we just use Google Fit?",
+      "expected_output": "Should answer no for new apps: Google Fit APIs are being deprecated / sunset, new Android health-data integrations should use Google Health Connect. Should describe Health Connect as a single on-device store aggregating data across apps and wearables with a per-data-type permission model similar to HealthKit. Should describe the same FHIR mapping pattern (Observation with preserved provenance to the originating app or device) as for HealthKit. Should mention background reads via HealthConnectClient + JobScheduler. Should note that older code reading from Fit needs a migration plan.",
+      "assertions": [
+        "Says no — Google Fit is deprecated for new apps",
+        "Recommends Google Health Connect instead",
+        "Describes Health Connect per-data-type permission model",
+        "Same FHIR Observation mapping pattern with provenance",
+        "Notes Fit migration plan needed for older code"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what wearables sign baas",
+      "expected_output": "Should trigger on casual phrasing. Should explain that most consumer wearable vendors do not sign BAAs with most customers. Should call out: Apple HealthKit — Apple generally does not sign a BAA for HealthKit data on the user's device; on-device data under the user's control is generally not a HIPAA-regulated disclosure from Apple, but once your app pulls it server-side, your app becomes the regulated handler. Google Health Connect — similar pattern (on-device). Fitbit, Garmin, Oura, Whoop, Withings — typically no BAA for standard developer access; you receive data on behalf of a covered entity and become its BA, not the wearable vendor's BA. Dexcom and other regulated device vendors — partner agreements that may include BAA-equivalent terms for clinical use cases (verify per vendor). Should recommend designing so the device vendor's cloud doesn't store PHI on your behalf — pull, transform, store in your own BAA-covered infrastructure.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "States most consumer wearable vendors do not sign BAAs",
+        "Distinguishes on-device (Apple/Google) from vendor-cloud (Fitbit/Garmin/etc.)",
+        "Notes regulated device vendors (Dexcom etc.) may have partner BAA-equivalents",
+        "Recommends architecture: pull, transform, store in own BAA-covered infrastructure"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We want to pull CGM data from Dexcom and Libre and surface trends in our chronic-care dashboard. What's the partner / data path?",
+      "expected_output": "Should explain CGMs are typically medical-device-grade with stricter terms. Should describe Dexcom — Dexcom API (real-time and EGV API), separate partner / clinical-use access; real-time data requires Dexcom partner agreement. Abbott LibreView — clinician-facing dashboard with API access for partners. Medtronic CareLink — pump + CGM data; partner access required. Should require verifying the labeled use of the signal pulled and the partner agreement scope. Should require modeling values as FHIR Observation with Device, UCUM units, LOINC code, preserved timestamps and time zones, source provenance. Should mark all vendor specifics as verify-current.",
+      "assertions": [
+        "Identifies CGMs as medical-device-grade",
+        "Describes Dexcom partner / API requirement",
+        "Mentions Abbott LibreView and Medtronic CareLink partner access",
+        "Requires verifying labeled use of the signal",
+        "FHIR Observation mapping with Device and Provenance",
+        "Marks vendor specifics with verify-current caveat"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our app shows step counts and heart rate next to lab results. A clinician wants to use the HR data to titrate a beta-blocker. Can we do that?",
+      "expected_output": "Should treat as a wellness-vs-medical-grade rail issue. Should answer not with consumer Apple Watch HR alone: consumer wearable HR is not FDA-cleared for diagnostic / treatment decisions and should be displayed as supportive context with clear source labeling ('Apple Watch — not for diagnosis'). Should refuse auto-triggered clinical interventions from non-cleared signals and require clinician review. Should note that for FDA-cleared signals (e.g., Apple Watch AFib notification, Dexcom CGM) the cleared indication and label apply but a beta-blocker titration use case typically exceeds the cleared indication. Should cross-reference fda-samd for whether the downstream use turns the software into a SaMD. Should require source labeling, wellness-vs-medical badging, and no auto-trigger of treatment changes.",
+      "assertions": [
+        "Distinguishes consumer wellness HR from FDA-cleared signals",
+        "Refuses auto-triggered clinical intervention from non-cleared HR",
+        "Requires clear source labeling and wellness-vs-medical badging",
+        "Notes cleared indication scope (AFib, CGM) does not generalize",
+        "Cross-references fda-samd for SaMD analysis"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our wearables data is going into an ML model that predicts deterioration. How do we validate the model?",
+      "expected_output": "Should recognize this is a clinical-ML question, not a wearables-ingestion question. Should defer to or cross-reference clinical-ai-ml for cohort definition, time-causal feature engineering, leakage analysis, temporal / site-level splits, calibration, fairness, monitoring, and shutdown criteria. Should briefly remind that wearables-integration owns the upstream data shape (FHIR Observation with provenance, source labels, wellness-vs-medical badge) but model design and validation live in clinical-ai-ml. May also cross-reference fda-samd if the model is regulated.",
+      "assertions": [
+        "Recognizes clinical ML validation is out of scope",
+        "Defers to clinical-ai-ml skill",
+        "Cross-references fda-samd if regulated",
+        "Reminds that wearables-integration owns upstream data shape only"
+      ],
+      "files": []
+    }
+  ]
+}

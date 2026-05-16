@@ -1,0 +1,95 @@
+{
+  "skill_name": "terminology-services",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a problem list capture UI for a US ambulatory EHR. What code system should we use, where do we get the value sets, and how should the FHIR resource look?",
+      "expected_output": "Should check for .agents/healthcare-context.md (or ask minimum questions). Should identify SNOMED CT as the US Core required binding for Condition.code on problem-list-item, with FHIR system URI `http://snomed.info/sct`. Should mention that the US Edition is what to load for US deployments (versioned by release date) and that NLM provides US access under the UMLS license. Should recommend VSAC as the source for problem-list value sets (e.g., specific clinical condition subsets) and the US Core IG value set for the problem-list itself. Should describe the FHIR Condition resource shape: category = problem-list-item, code with SNOMED CT coding (system + code + display + version), clinicalStatus, verificationStatus, subject, recordedDate, onset[x]. Should warn not to fabricate SCTIDs and to verify through a SNOMED browser (SNOMED International or NLM US-Edition browser). Should defer FHIR resource modeling depth to fhir-integration.",
+      "assertions": [
+        "Reads or asks for healthcare-context.md (or smallest questions)",
+        "Identifies SNOMED CT (US Edition) as the required binding for problem-list",
+        "Names the FHIR system URI http://snomed.info/sct",
+        "Mentions VSAC as the value-set source",
+        "Mentions US Core problem-list value set",
+        "Describes Condition resource shape (category, code, clinicalStatus, verificationStatus, subject, recordedDate)",
+        "Warns not to fabricate SCTIDs",
+        "Recommends SNOMED browser for verification",
+        "Defers FHIR resource modeling to fhir-integration"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How do I use FHIR $translate to map an ICD-10-CM code to a SNOMED CT concept? What can go wrong?",
+      "expected_output": "Should describe the $translate operation on ConceptMap: `GET /ConceptMap/$translate?source=...&code=I10&system=http://hl7.org/fhir/sid/icd-10-cm&target=http://snomed.info/sct` (or use a named ConceptMap with `url=` parameter). Should explain the response Parameters resource with a `result` boolean, multiple `match` items each containing `equivalence` and `concept`. Should highlight equivalence values (`equivalent`, `equal`, `wider`, `subsumes`, `narrower`, `specializes`, `inexact`, `unmatched`, `disjoint`) and warn that `wider` or `narrower` are NOT `equal` — preserve the equivalence rather than silently treating it as a match. Should warn about 1:N mappings (ICD-10-CM is often less specific than SNOMED) and that the equivalent SNOMED concept may not exist for some ICD-10 codes. Should recommend a curated ConceptMap (e.g., UMLS-derived, ONC's I-MAGIC, or a clinically reviewed map) over inference. Should remind to pin code-system versions on both sides.",
+      "assertions": [
+        "Shows $translate URL with source code, source system, and target system",
+        "Describes response Parameters with result + match[] + equivalence",
+        "Lists ConceptMap equivalence values",
+        "Warns that wider/narrower equivalence is not equal",
+        "Warns about 1:N mappings and unmatched codes",
+        "Recommends a curated map over inference",
+        "Mentions pinning code-system versions"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "i need to validate that an observation's loinc code is in the us core vital signs value set. what's the api call?",
+      "expected_output": "Should trigger on casual phrasing. Should show: `GET /ValueSet/$validate-code?url=http://hl7.org/fhir/us/core/ValueSet/us-core-vital-signs&system=http://loinc.org&code=8480-6&display=Systolic+blood+pressure` (note URL and display are illustrative — verify the exact value-set URL against the US Core version in scope). Should describe the response Parameters resource with `result` (Boolean), optional `display`, and `message` on failure. Should mention POST-to-$validate-code as the form-encoded alternative when params include PHI. Should note that some servers prefer the parameters in a Parameters resource POST body. Should recommend pinning the value-set version (`url|version=` or `valueSetVersion=`).",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Shows $validate-code URL with url, system, code parameters",
+        "Notes URL and code are illustrative (verify against US Core version)",
+        "Describes response Parameters with result boolean and display/message",
+        "Mentions POST alternative",
+        "Recommends pinning value-set version"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Our data team has years of legacy lab data tagged with internal local codes. We need to map these to LOINC for a FHIR R4 ingestion pipeline. What's the right approach and what should we worry about?",
+      "expected_output": "Should propose a multi-step approach: (1) inventory the local codes with their units, specimens, and lab method/instrument info; (2) build a master mapping file from local code → LOINC using clinical SME review, not auto-inference alone; (3) load the map into a FHIR ConceptMap resource; (4) run pipeline transforms via $translate (or in-process map lookup); (5) capture provenance per ingested observation. Should call out the LOINC six-part name (Component, Property, Time, System, Scale, Method) as the structural anchor — local codes that don't differentiate on these axes can map ambiguously. Should warn about: unit mismatches (UCUM required), specimen mismatches (a serum potassium ≠ a urine potassium even with same Component), reference-range differences across LOINC codes, and version drift as new LOINC releases ship. Should recommend Regenstrief's RELMA tool for SME-assisted mapping. Should require pinning LOINC version and signing off on each mapping. Should defer FHIR Observation modeling to fhir-integration.",
+      "assertions": [
+        "Proposes a multi-step local-to-LOINC mapping pipeline",
+        "Requires SME clinical review (not auto-inference)",
+        "Mentions building a ConceptMap resource",
+        "Mentions LOINC six-part name structure (Component, Property, Time, System, Scale, Method)",
+        "Warns about unit, specimen, reference-range differences",
+        "Recommends RELMA or equivalent SME mapping tool",
+        "Requires UCUM for units",
+        "Requires pinning LOINC version",
+        "Defers FHIR Observation modeling to fhir-integration"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We need to bill Medicare for an inpatient hip replacement procedure. Which CPT code do we use?",
+      "expected_output": "Should recognize this as a coding-for-billing question. Should defer to the medical-coding skill for revenue-cycle workflow, code selection, payer rules, and modifiers. Should also note that inpatient hospital procedures bill on ICD-10-PCS, not CPT (CPT is for physician services; the hospital uses ICD-10-PCS); CPT may be used by the operating surgeon's professional claim. Should not invent specific CPT or ICD-10-PCS codes. Should remind that CPT is licensed by the AMA.",
+      "assertions": [
+        "Recognizes this as a coding-for-billing question",
+        "Defers to medical-coding skill",
+        "Distinguishes ICD-10-PCS (hospital inpatient) vs. CPT (physician services)",
+        "Does not invent specific CPT or ICD-10-PCS codes",
+        "Mentions CPT licensing by AMA"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We have MedicationRequest resources with `medication.coding.code` populated but `medication.coding.system` is missing. Is this safe to leave alone?",
+      "expected_output": "Should answer no — `code` without `system` is meaningless. The same numeric string `854242` is a different concept in NDC than in RxNorm than in a local code system. Should require backfilling `system` for every coding: `http://www.nlm.nih.gov/research/umls/rxnorm` for RxNorm, `http://hl7.org/fhir/sid/ndc` for NDC, etc. Should note that US Core requires RxNorm for MedicationRequest.medication and that asserting `meta.profile` without a valid system will fail validation. Should recommend running a $validate-code pass on every coding during ingestion to catch this kind of issue early. Should mention that some servers will reject resources missing `system`.",
+      "assertions": [
+        "Asserts that code without system is unsafe",
+        "Explains the same numeric string can mean different things in different code systems",
+        "Names FHIR system URIs for RxNorm and NDC",
+        "Cites US Core requirement for RxNorm on MedicationRequest",
+        "Recommends $validate-code in ingestion",
+        "Notes some servers reject resources missing system"
+      ],
+      "files": []
+    }
+  ]
+}

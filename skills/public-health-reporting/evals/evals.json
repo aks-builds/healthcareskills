@@ -1,0 +1,89 @@
+{
+  "skill_name": "public-health-reporting",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our hospital needs to start electronic case reporting (eCR) to the state public health department. We have an Epic EHR. Walk us through what we need to build and connect to.",
+      "expected_output": "Should check for .agents/healthcare-context.md before answering. Should explain the eCR architecture: EHR generates an eICR (FHIR or CDA) on RCTC-trigger match, submits to APHL AIMS Platform, RCKMS evaluates jurisdiction reportability, and a Reportability Response (RR) is returned to the EHR. Should note that Epic ships eCR as a built-in capability and the work is largely configuration + onboarding. Should call out the need to subscribe to current RCTC value sets from VSAC and not hard-code trigger logic. Should outline onboarding steps with the state PHA and AIMS (pre-production, validation, production). Should mark current IG versions, RCTC value sets, and AIMS endpoints as items to verify against current sources rather than inventing them.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Explains eICR + RR + AIMS + RCKMS flow",
+        "Notes RCTC value sets from VSAC for triggering",
+        "Mentions Epic native eCR capability",
+        "Outlines onboarding stages (pre-prod, validation, production)",
+        "Marks current versions and endpoints as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "What's the difference between ELR and eCR, and when do we need each?",
+      "expected_output": "Should distinguish ELR (lab-result-driven, HL7 v2.5.1 ORU^R01 from the LIS to public health, governed by CDC ELR 2.5.1 IG, with FHIR US Public Health Lab Reporting IG as the emerging path) from eCR (case-driven, triggered by RCTC matches in the EHR on problems/encounters/orders/results, eICR sent to AIMS and routed by RCKMS, with a Reportability Response back). Should note they are complementary: ELR carries the test result, eCR carries the broader case context. Should note both contribute to Promoting Interoperability and ONC §170.315(f)(3) and (f)(5) certification criteria respectively. Should mark current IG versions as items to verify.",
+      "assertions": [
+        "Distinguishes ELR (lab-result-driven, ORU^R01) from eCR (case-driven, eICR)",
+        "Notes RCTC triggering for eCR",
+        "Mentions AIMS + RCKMS routing for eCR",
+        "Identifies them as complementary not redundant",
+        "References ONC §170.315(f) criteria and Promoting Interoperability",
+        "Marks IG versions as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we keep getting NACKs from the state immunization registry on our VXU messages. help",
+      "expected_output": "Should trigger on casual phrasing. Should approach systematically: confirm the HL7 v2.5.1 VXU^V04 message structure against the state IIS's implementation guide (states constrain the CDC IIS HL7 v2.5.1 R1.5+ IG), check CVX and MVX code currency from CDC, validate required segments (MSH, PID, NK1, PV1 if used, ORC, RXA, RXR, OBX for VIS/forecasting), verify patient demographic data (race/ethnicity per CDC code sets, address with county), and inspect the ACK text for the actual rejection reason. Should recommend pulling the receiving state's onboarding guide and ACK code table rather than guessing. Should note that bidirectional flow (submit + QBP^Q11 query) is required for Promoting Interoperability credit. Should not invent specific CVX codes or state error codes.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Recommends checking state IIS implementation guide",
+        "Calls out CVX/MVX code currency from CDC",
+        "Suggests reading the ACK rejection reason text",
+        "Mentions bidirectional flow for PI credit",
+        "Does not invent state-specific error codes"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're a multi-state hospital system. We need to send ELR for COVID and a handful of other reportable conditions to 12 different state public health departments. What's the right architecture so we're not building 12 one-off interfaces?",
+      "expected_output": "Should recommend a hub-and-spoke architecture: a single internal ELR engine producing CDC ELR 2.5.1 conformant ORU^R01 messages, with per-state routing/transport adapters. Should highlight the APHL AIMS Platform as a national hub for several streams and the role of state HIEs as intermediaries in many states. Should recommend driving reportability from RCTC value sets (VSAC) and RCKMS, not from per-state hard-coded condition lists. Should call out that each state still has its own onboarding, validation, ACK conventions, and transport (MLLP/sFTP/web service), so the variation is in adapters not in message content. Should note ONC §170.315(f)(3) certification and Promoting Interoperability implications. Should mark current AIMS service catalog and state gateways as items to verify against each state's onboarding documentation.",
+      "assertions": [
+        "Recommends hub-and-spoke with single conformant message + per-state adapters",
+        "Names APHL AIMS Platform as national hub option",
+        "Drives reportability from RCTC + RCKMS, not state-hard-coded lists",
+        "Acknowledges per-state onboarding/transport variation",
+        "References ONC §170.315(f)(3) and PI",
+        "Marks state-specific gateways as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Where do I find the official list of reportable conditions for our state so I can hard-code our EHR rules?",
+      "expected_output": "Should push back on hard-coding state-by-state reportable condition lists in the EHR. Should explain that RCKMS (Reportable Conditions Knowledge Management System), maintained by CSTE and APHL, encodes jurisdiction-aware reportability rules centrally, and that EHRs should trigger on the Reportable Conditions Trigger Codes (RCTC) value sets from VSAC and let RCKMS via AIMS determine which jurisdiction the case is actually reportable to. Should note the RCTC and RCKMS rules are updated regularly, so any local copy will drift. Should still acknowledge that the state PHA publishes its statutory reportable conditions list for clinician-facing reference and legal compliance, but that operational EHR triggers should not be implemented from a static copy. Should not enumerate any state's list inline.",
+      "assertions": [
+        "Pushes back on hard-coding state reportable conditions in the EHR",
+        "Explains RCKMS + AIMS as the routing/decision authority",
+        "References RCTC value sets on VSAC for triggering",
+        "Notes RCTC/RCKMS updates regularly so static copies drift",
+        "Acknowledges legal/clinical reference role of the state list",
+        "Does not enumerate any specific state's reportable conditions"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our LIS has a backlog of reportable COVID and flu test results that never made it to the state. Can you draft the SQL to pull and resend them?",
+      "expected_output": "Should recognize this is a remediation / message-replay operation that crosses public-health-reporting, hl7-v2 (for the ORU^R01 message mechanics and resend semantics), and audit-logging (for tracking the replay) — possibly also ehr-integration if the LIS is EHR-integrated. Should defer the actual SQL to skills that know the source LIS schema, but should advise on the public-health side: confirm with the receiving state PHA how to handle backlog resends (some prefer dated batch with a flag, some want corrected/replacement messages), preserve original specimen collection dates, mark the messages appropriately so they aren't treated as new cases, and audit the entire replay. Should not invent specific LIS schemas or state-specific replay protocols.",
+      "assertions": [
+        "Recognizes this crosses public-health-reporting, hl7-v2, and audit-logging",
+        "Does not invent LIS schemas or write speculative SQL",
+        "Advises coordinating replay handling with the receiving state PHA",
+        "Calls out preserving original collection dates and avoiding duplicate-case interpretation",
+        "Requires auditing the replay",
+        "References related skills rather than overreaching"
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "skill_name": "prior-authorization",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're a health system planning to modernize our prior authorization workflow. Today we use fax and payer portals. We want to move toward FHIR-based ePA with Da Vinci. Where do we start?",
+      "expected_output": "Should check for healthcare-context.md or ask role, service categories, payer mix, current submission method. Should describe the Da Vinci stack: CRD (Coverage Requirements Discovery) via CDS Hooks at order entry to surface whether PA is required; DTR (Documentation Templates and Rules) to fetch payer Questionnaire + CQL rules and pre-fill from FHIR data; PAS (Prior Authorization Support) to submit FHIR Claim/ClaimResponse which the payer intermediary transforms to/from X12 278 (the legally-recognized record under HIPAA). Should describe a phased roadmap: stand up CDS Hooks consumer in EHR, host DTR SMART app or use EHR-native, then PAS submission for payers that support it. Should mention legacy channels (fax, portal, X12 278, NCPDP SCRIPT ePA) remain dominant and the system must support all in parallel. Should mention CMS-0057-F binds MA/Medicaid/CHIP/FFE QHPs and verify current effective dates from the CMS rule.",
+      "assertions": [
+        "Checks for or asks about healthcare-context",
+        "Explains CRD / DTR / PAS roles and how each fires",
+        "Mentions CDS Hooks for CRD",
+        "Notes PAS converts to X12 278 at the payer intermediary (HIPAA)",
+        "Recommends phased roadmap",
+        "Acknowledges legacy channels remain in parallel",
+        "Mentions CMS-0057-F scope (MA, Medicaid, CHIP, FFE QHPs)",
+        "Does not invent CMS-0057-F effective dates"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How should we model the prior auth case data internally so we can support fax, portal, 278, and PAS submission against the same case?",
+      "expected_output": "Should propose a PA case object with: case ID, provider, member, plan, payer, UMO/RBM; requested service(s) with CPT/HCPCS/NDC/CDT, units, dates, place of service, ordering/rendering provider; diagnosis (ICD-10-CM); clinical evidence (Questionnaire responses, documents, observations); channel(s) used; state history (submitted → pended → approved/denied/withdrawn) with timestamps and actors; decision (auth number, valid date range, authorized units, authorized codes, conditions/limits); appeal trail; TAT clock and breach flag. Should emphasize storing authorization as a structured object, not a boolean. Should note attachments need traceability (X12 PWK segment / FHIR DocumentReference references) regardless of channel. Should mention channel-agnostic state machine with per-channel adapters.",
+      "assertions": [
+        "Proposes structured PA case object with state history",
+        "Lists requested service fields (codes, units, dates, place of service)",
+        "Treats authorization as structured object (number, codes, units, dates) not boolean",
+        "Includes TAT clock and breach flag",
+        "Notes attachment traceability via PWK and FHIR DocumentReference",
+        "Recommends channel-agnostic state machine"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "our specialty pharmacy keeps getting PA denials on biologics, can ePA help",
+      "expected_output": "Should respond to casual phrasing. Should explain specialty Rx ePA runs over NCPDP SCRIPT (PARequest / PAResponse / PAAppealRequest / PACancelRequest) typically intermediated by Surescripts and/or CoverMyMeds, integrated with the prescriber's e-prescribing flow. Should describe the workflow: prescriber initiates Rx → e-prescribing system queries PBM for formulary + PA requirement → if PA needed, send PARequest with payer-specific question set → PBM returns approval, denial, or additional-info request. Should advise checking which PBMs are in scope and which intermediary the EHR's e-prescribing module supports. Should recommend not routing every drug through medical PA — using pharmacy ePA on retail / specialty Rx reduces friction at the pharmacy counter. Should not invent specific drug PA requirements.",
+      "assertions": [
+        "Handles casual phrasing",
+        "Identifies NCPDP SCRIPT PARequest/PAResponse and the intermediaries (Surescripts, CoverMyMeds)",
+        "Describes ePA workflow inside e-prescribing",
+        "Recommends pharmacy ePA over medical PA for retail / specialty Rx",
+        "Does not invent specific drug PA requirements"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We want to use an LLM to extract clinical evidence from notes and auto-submit prior auths. What guardrails do we need?",
+      "expected_output": "Should warn that LLMs must not decide medical necessity in a way that bypasses clinician review. Should mention multiple state AGs and CMS have issued guidance, and some states (e.g., California SB 1120) explicitly require licensed-clinician decision-making for medical-necessity determinations. Should recommend: human-in-the-loop confirmation of every clinical claim that drives a submission; never silently auto-submit OCR or LLM outputs; model documentation (version, training data, performance, monitoring) for regulator and accreditor (NCQA, URAC) scrutiny; bias monitoring (denial-rate disparities by demographics); attachment provenance and audit trail. Should mention that on the payer side these same constraints apply for auto-denial. Should suggest LLM be positioned as PA team assistant, not autonomous submitter.",
+      "assertions": [
+        "Warns LLM cannot decide medical necessity without clinician review",
+        "References California SB 1120 or equivalent state/CMS guidance",
+        "Recommends human-in-the-loop on auto-submission",
+        "Requires model documentation for regulator/accreditor scrutiny",
+        "Mentions bias monitoring on denial disparities",
+        "Positions LLM as assistant, not autonomous submitter"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our PA submissions are getting approved but then claims are still denied. The PA number is on the claim. What's happening?",
+      "expected_output": "Should recognize this is partly a billing-claims denial issue and refer to billing-claims for CARC/RARC patterns and claim assembly. Should also list PA-side root causes: PA-to-claim code mismatch (PA was for a specific CPT/HCPCS but the billed code differs), units mismatch (claim billed more units than authorized), date-of-service outside authorization validity window, ordering vs. rendering provider mismatch, place of service mismatch, conditional approval (e.g., approved subject to step therapy that wasn't documented). Should recommend storing PA decision as structured object (authorized codes, units, date range, ordering and rendering provider, place of service) and validating the claim against it at assembly time. Should mention that some payers require additional documentation to be submitted with the claim even when PA was approved.",
+      "assertions": [
+        "Refers to billing-claims for denial workflow",
+        "Lists PA-to-claim mismatch causes (code, units, dates, provider, place of service)",
+        "Recommends structured PA decision object",
+        "Recommends validating claim against PA at assembly",
+        "Notes some payers require additional documentation post-approval"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "How do we model gold carding so providers who qualify skip PA for in-scope services?",
+      "expected_output": "Should describe gold carding as exempting providers with high historical PA-approval rates from PA on selected services, with state laws (e.g., Texas) and individual payer programs (UnitedHealthcare, Cigna, others) defining eligibility and scope. Should recommend modeling provider × service × time-window eligibility — gold-card status is dynamic and re-evaluated periodically. Should describe how the PA-requirement check should consult gold-card eligibility before calling CRD or the payer rules engine. Should warn that gold-card status can be revoked and that the system must handle revocation cleanly (in-flight orders, scheduled services). Should not invent specific payer gold-card thresholds or eligibility rules.",
+      "assertions": [
+        "Defines gold carding",
+        "Mentions state laws (Texas) and payer programs",
+        "Recommends modeling provider × service × time-window eligibility",
+        "Notes gold-card status is dynamic and re-evaluated",
+        "Addresses revocation handling for in-flight orders",
+        "Does not invent specific thresholds or payer rules"
+      ],
+      "files": []
+    }
+  ]
+}

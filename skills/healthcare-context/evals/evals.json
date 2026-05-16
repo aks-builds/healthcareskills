@@ -1,0 +1,101 @@
+{
+  "skill_name": "healthcare-context",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to set up our healthcare context. We're a 4-hospital regional health system in Ohio with about 600,000 patients, on Epic, and we participate in Medicare ACO REACH.",
+      "expected_output": "Should check whether .agents/healthcare-context.md already exists. If not, should walk through the 10 sections conversationally — not dump all questions at once — and capture what the user already said (provider org, ~600k patients, Ohio, Epic, ACO REACH) while filling in what's missing: HIPAA covered-entity confirmation, vulnerable populations served, FHIR/HL7/C-CDA versions, identity stack, security frameworks (HITRUST, SOC 2), AI/ML in production, cloud posture and BAAs, current goals and fires. Should ask about Ohio-specific overlays (state breach notification, mental health statutes). Should write the file to .agents/healthcare-context.md using the exact template structure from the skill. Should use TBD for sections the user hasn't answered, never invent values.",
+      "assertions": [
+        "Checks for existing .agents/healthcare-context.md",
+        "Captures the facts the user already provided",
+        "Walks through sections conversationally, not all at once",
+        "Asks specifically about HIPAA covered-entity role",
+        "Asks about vulnerable populations (Part 2, behavioral, reproductive, etc.)",
+        "Asks about FHIR/HL7/C-CDA versions and IGs",
+        "Asks about state-specific overlays (Ohio)",
+        "Writes file at .agents/healthcare-context.md using exact template",
+        "Uses TBD for unanswered sections, never invents values"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Update our healthcare context. We just signed a deal to migrate our ambulatory clinics from Athenahealth to Epic, and we're now selling our patient-engagement product to a VA medical center, which means we need to add Section 508 / VPAT to our compliance posture.",
+      "expected_output": "Should check for and read existing .agents/healthcare-context.md. Should identify the specific sections that need updating: Clinical & Operational Systems (EHR change from Athena to Epic, including transition timeline and dual-running period), Standards & Terminology (likely FHIR R4 + US Core for Epic; HL7 v2 versions Epic supports), Regulatory Jurisdiction (Section 508 / Revised 508 Standards added to required frameworks), Engineering Constraints (VA-specific BAAs, FedRAMP posture if cloud-hosted services touch VA), and Goals & Priorities (active fires now include the migration and the VA deal). Should preserve sections that have not changed. Should bump the 'Last updated' date. Should ask follow-up questions only where the new facts have second-order implications the user has not addressed (e.g., does the VA deal mean FedRAMP-Moderate is required for any cloud component).",
+      "assertions": [
+        "Reads existing healthcare-context.md",
+        "Identifies the specific sections that need updating",
+        "Updates Clinical & Operational Systems for Athena to Epic",
+        "Updates Standards & Terminology for Epic's FHIR/HL7 posture",
+        "Adds Section 508 to required frameworks",
+        "Updates Engineering Constraints for VA BAAs and FedRAMP question",
+        "Updates Goals & Priorities with the active fires",
+        "Preserves unchanged sections",
+        "Bumps the Last updated date",
+        "Asks follow-ups only on second-order implications"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "set up healthcare context for our startup. we're building a remote patient monitoring app for chf patients. we just got our first pilot signed with a small cardiology group.",
+      "expected_output": "Should trigger on casual phrasing. Should check for existing context file. Should run a structured discovery interview but adapt the depth to an early-stage startup: capture organization type (digital health vendor, likely Business Associate to the cardiology group), HIPAA role (BA), patient population (CHF, adult, cardiology referral), regulatory jurisdiction (US, state of the pilot, FDA SaMD question for the device-software piece), EHR target for integration (which one the cardiology group uses), FHIR / HL7 posture, identity (patient + clinician), security framework (likely working toward SOC 2 or HITRUST), AI/ML if any (e.g., decompensation prediction), cloud and BAAs (AWS HIPAA-eligible regions, BAA with cloud and analytics vendors), goals (close the pilot, prep for SOC 2 or HITRUST, ship the FDA-clearance question). Should accept TBD answers on sections that don't apply yet (e.g., HIE / network may be deferred). Should write to .agents/healthcare-context.md. Should explicitly flag the FDA SaMD question as the highest-leverage open issue.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Checks for existing context file",
+        "Adapts depth to early-stage startup",
+        "Identifies likely Business Associate role",
+        "Asks about FDA SaMD posture for the device software",
+        "Asks about EHR integration target for the cardiology group",
+        "Asks about cloud HIPAA-eligible regions and BAAs",
+        "Accepts TBD for sections that don't apply yet",
+        "Writes file at .agents/healthcare-context.md",
+        "Flags FDA SaMD as highest-leverage open issue"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We've never written down our healthcare context. Can you just interview me right now and we'll build it together?",
+      "expected_output": "Should activate a guided discovery-interview mode (the intake-script reference). Should walk through the 10 sections in order — Organization, Patient/Member Population, Regulatory Jurisdiction, Clinical & Operational Systems, Standards & Terminology, Data & Analytics, Security Posture, AI / ML, Engineering Constraints, Goals & Priorities — asking one section at a time, summarizing the answer, and moving on. Should not ask all questions at once. Should branch based on answers (e.g., if the user says 'we're a payer,' adapt subsequent questions toward member, claims, EDI X12, plan-side considerations; if 'we're a digital health vendor,' adapt toward BA role, BAAs, EHR integration target). Should write to .agents/healthcare-context.md when complete or at a natural stopping point. Should use TBD for sections the user wants to defer.",
+      "assertions": [
+        "Activates guided discovery-interview mode",
+        "Walks through 10 sections in order, one at a time",
+        "Asks one section at a time, summarizes, moves on",
+        "Branches questions based on org type",
+        "Does not ask all questions at once",
+        "Writes file at .agents/healthcare-context.md",
+        "Uses TBD for deferred sections"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Do we have a healthcare context document set up? I want to make sure the other healthcare skills have context before I start a HIPAA risk analysis.",
+      "expected_output": "Should check both .agents/healthcare-context.md and the older .claude/healthcare-context.md location. Should report whether the file exists and summarize its contents if found (covered-entity vs BA, EHR(s), jurisdiction, standards in use, security frameworks, AI/ML posture, current goals). If it doesn't exist, should offer to create one and explain why it matters — every other healthcare skill (hipaa-compliance, fhir-integration, ehr-integration, healthcare-cybersecurity, fda-samd, gdpr-health-data, etc.) checks for this file before asking the user redundant questions. Should explain that hipaa-compliance specifically uses the HIPAA-role, jurisdiction, EHR, BAA, and security-posture sections to scope the risk analysis correctly.",
+      "assertions": [
+        "Checks both .agents and .claude locations",
+        "Reports whether context exists",
+        "Summarizes contents if found",
+        "Offers to create if missing",
+        "Explains how other skills use it",
+        "Specifically explains hipaa-compliance dependencies"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Help me design our FHIR integration for sharing lab results with patients.",
+      "expected_output": "Should recognize this is a FHIR integration design task, not a context-setup task. Should check whether .agents/healthcare-context.md exists. If not, should offer to run a *minimal* context intake — just the questions that change the FHIR answer (FHIR version, IGs, EHR vendor, jurisdiction, identity stack, BAA-covered analytics) — and then defer to the fhir-integration skill for the actual design work. Should not attempt the full FHIR design using context-creation patterns, and should not run the full 10-section intake when only a few questions are blocking.",
+      "assertions": [
+        "Recognizes this as a fhir-integration task",
+        "Checks for existing context file",
+        "Offers minimal context intake if file is missing",
+        "Defers to fhir-integration skill for the design work",
+        "Does not run full 10-section intake when only a few questions matter",
+        "Does not attempt full FHIR design using context patterns"
+      ],
+      "files": []
+    }
+  ]
+}

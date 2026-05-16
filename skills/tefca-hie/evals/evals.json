@@ -1,0 +1,93 @@
+{
+  "skill_name": "tefca-hie",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our health system wants to join TEFCA for treatment-purpose exchange. We're on Epic. What are the practical steps and what decisions do we need to make?",
+      "expected_output": "Should check for .agents/healthcare-context.md (or ask minimum questions). Should explain that as an Epic shop the most common path is to join via Epic Nexus (a designated QHIN — verify current designation against the RCE list) which auto-onboards Epic customers. Should outline practical steps: (1) review the Common Agreement and Participant Terms (legal review essential); (2) confirm which Exchange Purposes (treatment, payment, healthcare operations, public health, government benefits, IAS, RIfC) are in scope; (3) inventory patient-matching demographic data quality; (4) configure audit logging, BAA chain, and breach notification with the QHIN; (5) pilot treatment-purpose query; (6) plan for FHIR Roadmap migration. Should warn that this list reflects current state — verify QHIN designations and SOP versions with the RCE before committing. Should ask about existing Carequality / CommonWell membership (often overlapping but distinct from TEFCA) and any regional HIE memberships.",
+      "assertions": [
+        "Reads or asks for healthcare-context.md (or smallest questions)",
+        "Recommends Epic Nexus as the typical Epic path, with verify caveat",
+        "Outlines practical steps (legal review, XPs, patient matching, audit, BAA, pilot)",
+        "Lists Exchange Purposes (treatment, payment, operations, public health, government benefits, IAS, RIfC)",
+        "Asks about existing Carequality / CommonWell / regional HIE membership",
+        "Warns that QHIN list and SOPs change — verify with the RCE",
+        "Mentions FHIR Roadmap migration"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Walk me through how Individual Access Services (IAS) actually works end-to-end. We're a vendor planning to offer IAS to consumers.",
+      "expected_output": "Should walk the IAS flow: (1) the consumer creates an account with the IAS Provider; (2) the IAS Provider performs identity proofing (NIST IAL2 — e.g., document + biographic check or via a CSP) and enrolls an authenticator (NIST AAL2 — multi-factor); (3) the consumer designates which data and from which sources; (4) the IAS Provider issues a query under Exchange Purpose = IAS through its QHIN; (5) the responding QHIN / Participant authenticates the IAS request, validates the identity assertion, and returns data per applicable law and consent; (6) audit events are written on both ends. Should warn about cost and operational complexity of IAL2 — building it in-house is expensive; consider a CSP. Should note that TEFCA does not preempt state law on sensitive categories (Part 2 SUD, behavioral health, reproductive, HIV, genetic, minor consent) — IAS Providers must respect those. Should defer technical OAuth flow details to smart-on-fhir. Should defer IAL/AAL technical controls to healthcare-cybersecurity. Should require verifying the current IAS SOP version with the RCE.",
+      "assertions": [
+        "Walks the 6-step IAS flow end-to-end",
+        "Names NIST IAL2 and AAL2 with explanations",
+        "Mentions CSP option vs. in-house identity proofing",
+        "Calls out cost/operational complexity of IAL2",
+        "Warns about state law on sensitive categories",
+        "Defers OAuth details to smart-on-fhir",
+        "Defers IAL/AAL controls to healthcare-cybersecurity",
+        "Requires verifying current IAS SOP with RCE"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what's the difference between tefca and carequality and commonwell? aren't they the same thing?",
+      "expected_output": "Should trigger on casual phrasing. Should distinguish: TEFCA is a federal framework with the Common Agreement, the RCE (Sequoia Project), and designated QHINs — exchange of healthcare information nationally under federally defined rules and Exchange Purposes. Carequality is a framework (administered by Sequoia before it became the RCE) for cross-network exchange — many EHRs and HIEs participate; it predates TEFCA and uses XCA / XCPD over SOAP for query-based treatment exchange. CommonWell Health Alliance is a network (and a designated TEFCA QHIN — verify) that started as an EHR vendor consortium. Should note these overlap and interconnect — many organizations are members of all three, and the networks cross-connect — but the agreements and obligations are distinct. Should remind that the QHIN landscape changes and verify against the RCE list.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Defines TEFCA as a federal framework with Common Agreement, RCE, QHINs",
+        "Defines Carequality as a framework (pre-TEFCA) with XCA / XCPD",
+        "Defines CommonWell as a network (and TEFCA QHIN with verify caveat)",
+        "Notes overlap and interconnection between the three",
+        "Notes the agreements and obligations are distinct",
+        "Reminds to verify current QHIN designations with RCE"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're a public health agency that wants to start receiving electronic case reports under TEFCA. How does this fit into the framework and what should we plan for?",
+      "expected_output": "Should map this to Exchange Purpose = Public Health under TEFCA. Should describe the workflow: providers / EHRs trigger an electronic case report (eCR) when reportable conditions are detected; the report flows through the provider's QHIN to the public health agency's QHIN (or directly to a designated public health endpoint). Content is currently CDA-based (eICR CDA) with a FHIR-based path emerging (eCR FHIR IG). Should call out: (1) the public health agency typically needs to be a TEFCA Participant or Sub-Participant connected via a QHIN that supports Public Health XP; (2) reportable condition trigger codes (RCKMS, AIMS Platform) drive when reports fire; (3) data flow goes through APHL's AIMS or similar public-health intermediary in many states. Should mention CDC's Reportable Condition Knowledge Management System (RCKMS) as the rules source. Should defer underlying technical exchange details to ihe-profiles and fhir-integration. Should require verifying current Public Health SOP with the RCE.",
+      "assertions": [
+        "Maps to Exchange Purpose = Public Health",
+        "Describes provider → QHIN → PH agency flow",
+        "Names eCR (eICR CDA today; eCR FHIR IG emerging)",
+        "Mentions RCKMS / AIMS Platform",
+        "Notes PH agency needs to be Participant/Sub-Participant",
+        "Defers technical exchange to ihe-profiles and fhir-integration",
+        "Requires verifying current Public Health SOP with RCE"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "How do I configure ATNA audit on our XDS.b Document Source actor?",
+      "expected_output": "Should recognize this is an IHE technical-profile question, not a TEFCA policy question. Should defer to the ihe-profiles skill for ATNA configuration (audit message schema, syslog over TLS transport, AuditMessage XML format, integration with Audit Record Repository). Should briefly note that TEFCA requires comprehensive audit logging and that ATNA is the standard audit mechanism beneath, but should not attempt to fully reproduce ATNA technical guidance here.",
+      "assertions": [
+        "Recognizes this as an IHE technical question",
+        "Defers to ihe-profiles skill",
+        "Briefly notes TEFCA's audit requirement",
+        "Does not attempt to fully reproduce ATNA technical guidance"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our patient match rates against incoming TEFCA queries are poor — we miss about 12% of patients we know we have. Where do we start?",
+      "expected_output": "Should treat patient matching as the operational pain point it is. Should walk through diagnostic steps: (1) confirm the QHIN's Patient Discovery SOP and which demographic attributes are being passed (typically first name, last name, DOB, gender, address, phone, last 4 of SSN, sometimes more); (2) audit your own demographic data quality (USPS address normalization, phone formatting, name variations — Maria vs. María, hyphenation, suffix handling, maiden names); (3) check matching algorithm thresholds — auto-match vs. manual review vs. reject; (4) review false-positive rate alongside false-negative; (5) examine specific miss patterns (do you miss new patients in the last N days? patients with recent name changes? Spanish-speaking populations?); (6) consider an EMPI / referential matching service (e.g., LexisNexis, Verato) if internal matching is the bottleneck. Should warn that fixing demographic data quality is unglamorous but high-leverage. Should require auditing match decisions for HIPAA disclosure-accounting reasons. Should cite the current TEFCA Patient Matching SOP for required attributes (verify with RCE).",
+      "assertions": [
+        "Treats patient matching as the central operational problem",
+        "Lists diagnostic steps including demographic data quality",
+        "Mentions specific normalization issues (USPS, phone format, name variations)",
+        "Discusses threshold tuning and false-positive vs. false-negative tradeoff",
+        "Suggests EMPI / referential matching services",
+        "Requires auditing match decisions",
+        "Cites TEFCA Patient Matching SOP with verify caveat"
+      ],
+      "files": []
+    }
+  ]
+}

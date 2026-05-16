@@ -1,0 +1,92 @@
+{
+  "skill_name": "medical-coding",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a computer-assisted coding (CAC) product for a multi-specialty physician group on Medicare Advantage. We need to suggest ICD-10-CM and CPT codes from clinical notes and validate them before submission. Where should we start architecturally?",
+      "expected_output": "Should check for healthcare-context.md first, or ask for setting, payer mix, and product role if missing. Should describe the typical CAC pipeline: document ingest, section segmentation, concept extraction with NLP linked to SNOMED CT / RxNorm / LOINC, code mapping to ICD-10-CM and CPT, specificity and modifier suggestion, edit validation (NCCI PTP/MUE, LCD/NCD), coder review UI, and audit log. Should flag that CPT is AMA-licensed content and the product needs an AMA license. Should mention MA + HCC capture overlap (annual recapture, MEAT) and refer to value-based-care. Should warn against autocoding without human-in-the-loop coder review, and stress the need for gold-set regression testing across model versions and code-set releases.",
+      "assertions": [
+        "Checks for or asks about healthcare-context",
+        "Describes a multi-stage CAC pipeline including NLP extraction and edit validation",
+        "Mentions NCCI PTP/MUE and LCD/NCD validation step",
+        "Flags CPT AMA licensing requirement",
+        "Mentions MA HCC capture and MEAT, refers to value-based-care",
+        "Stresses human-in-the-loop coder review and gold-set regression",
+        "Does not invent specific ICD-10-CM or CPT codes"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How should our autocoder handle E/M leveling for office/outpatient visits after the 2021 revisions?",
+      "expected_output": "Should describe that office/outpatient E/M is now leveled by MDM or by total time on the date of service; history and exam must be medically appropriate but do not drive the level. Should describe MDM's three elements (number/complexity of problems addressed, amount/complexity of data reviewed, risk of complications/morbidity/mortality) with two-of-three driving the level. Should mention inpatient/observation E/M was similarly revised (2023). Should warn that engineers should extract MDM elements via targeted NLP plus rules rather than free-form summarization, and that current CPT and CMS guidance must be the source of truth (not hard-coded interpretations). Should mention that time-based coding includes non-face-to-face activities on the same date.",
+      "assertions": [
+        "Identifies MDM and total time as the two leveling paths",
+        "Lists the three MDM elements and the two-of-three rule",
+        "Mentions 2023 inpatient/observation revision",
+        "Warns against free-form summarization for MDM extraction",
+        "Recommends current AMA CPT / CMS guidance as source of truth",
+        "Notes time-based coding includes non-face-to-face activities"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we keep getting NCCI denials on our outpatient claims, what's going on",
+      "expected_output": "Should respond to casual phrasing without requiring formal framing. Should explain NCCI has two edit tables: Procedure-to-Procedure (PTP) edits with a modifier indicator (0 = no bypass, 1 = bypass with appropriate modifier, 9 = deleted) and Medically Unlikely Edits (MUE) with an MAI (1, 2, 3). Should explain that NCCI is updated quarterly and has separate Practitioner, Outpatient Hospital, and DME tables. Should recommend loading NCCI tables in the scrubber, applying edits before submission, and reviewing whether a -59 / X-modifier (XE/XS/XP/XU) is clinically supported on denied pairs. Should suggest analyzing the denied claims to confirm whether the underlying coding is correct or whether a missing modifier is the issue. Should refer to billing-claims for the denial workflow side and not invent specific NCCI code pairs.",
+      "assertions": [
+        "Handles casual phrasing without forcing strict format",
+        "Explains PTP edits with modifier indicators and MUE with MAI",
+        "Notes quarterly updates and separate Practitioner/OPH/DME tables",
+        "Mentions -59 and X-modifiers (XE/XS/XP/XU) as the modern distinct-service pattern",
+        "Suggests scrubber loads NCCI before submission",
+        "Refers to billing-claims for denial workflow",
+        "Does not invent specific NCCI code pairs"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're building an HCC capture module for an ACO REACH organization. Walk us through how it should integrate with our existing problem-list and encounter-coding workflows, and what the audit trail must support.",
+      "expected_output": "Should describe the distinction between problem list (longitudinal, SNOMED CT, not directly billable) and encounter-level diagnoses (ICD-10-CM on the claim, what was addressed today). Should explain HCC capture requires annual recapture with MEAT evidence (Monitored, Evaluated, Assessed/Addressed, Treated) at the encounter level — not pulling from problem list alone. Should describe a pre-visit suspect-condition list, in-visit assessment prompt, post-visit coding review, then encounter submission. Audit trail must include document provenance for every submitted diagnosis, signed-by, amendments, and an immutable timestamped log. Should refer to value-based-care for CMS-HCC model details, RAF, and RADV; should warn against hard-coding HCC coefficients or ICD-to-HCC maps from memory and instead source from CMS each model year. Should not invent specific HCC IDs or coefficients.",
+      "assertions": [
+        "Distinguishes problem list vs. encounter-level coding",
+        "Explains MEAT criteria",
+        "Describes annual recapture requirement",
+        "Outlines a multi-step suspect → in-visit → post-visit workflow",
+        "Specifies audit-trail requirements (provenance, signed-by, amendments, immutable log)",
+        "Refers to value-based-care for CMS-HCC, RAF, RADV",
+        "Warns against hard-coding coefficients; sources CMS",
+        "Does not invent HCC IDs or coefficients"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our clearinghouse is rejecting 837P claims with structural errors. Can you help us debug the X12 envelope and segment issues?",
+      "expected_output": "Should recognize this is primarily a billing-claims / EDI X12 question, not a coding question. Should defer to or cross-reference billing-claims for 5010 TR3 conformance, ISA/GS/ST envelope control numbers, 999 vs. 277CA acknowledgments, and clearinghouse companion guides. Can briefly note that if rejections include coding-related elements (invalid ICD-10-CM by date of service, modifier conflicts, NCCI failures surfacing at the clearinghouse), medical-coding can help on those specific issues — but the envelope/structural debugging belongs in billing-claims.",
+      "assertions": [
+        "Identifies this as a billing-claims / EDI question",
+        "Defers to or references billing-claims",
+        "Does not attempt full X12 envelope debugging",
+        "Offers to help only on coding-derived rejections"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "What edge cases do we need to handle when storing ICD-10-CM codes for use in our scrubber and analytics warehouse?",
+      "expected_output": "Should list: code validity by date of service (codes are added, deleted, and revised each Oct 1 with mid-year errata); decimal vs. no-decimal storage (claims/X12 carry no decimal, documentation typically with decimal); 7th-character extensions in injury / OB / external-cause chapters and the placeholder X; laterality variants (right/left/bilateral/unspecified) and combination codes; Excludes1 (mutually exclusive) vs. Excludes2 (both can be coded) handling; Z-code and R-code behavior for HCC and severity scoring (many do not risk-adjust); annual ICD-10-CM Official Guidelines updates. Should recommend storing the date-of-service-effective version of the code and not normalizing away the placeholder X. Should mention SNOMED CT to ICD-10-CM mapping is many-to-many and not lossless.",
+      "assertions": [
+        "Mentions date-of-service validity and Oct 1 annual update",
+        "Mentions decimal vs no-decimal storage",
+        "Mentions 7th-character extensions and placeholder X",
+        "Mentions Excludes1 vs Excludes2",
+        "Mentions Z-codes / R-codes and HCC implications",
+        "Recommends storing effective version of code",
+        "Notes SNOMED CT to ICD mapping is not lossless"
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "skill_name": "smart-on-fhir",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a clinician-facing SMART app that launches from the Epic chart and reads US Core data. Walk us through the full OAuth flow and what we need to register.",
+      "expected_output": "Should read healthcare-context.md or ask about EHR + FHIR version. Should identify this as Epic EHR launch (confidential client likely, since clinician-facing server-side). Should walk through the SMART App Launch sequence: EHR opens app URL with launch + iss, app fetches .well-known/smart-configuration, app redirects to authorize with response_type=code, client_id, redirect_uri, scope, state, aud, launch, code_challenge, code_challenge_method=S256; EHR redirects back with code; app exchanges code at token endpoint with code_verifier (plus client_secret or JWT assertion); receives access_token + context (patient, encounter). Should recommend minimum scopes (launch openid fhirUser user/*.read or specific resource scopes). Should mandate state for CSRF and PKCE. Should describe security checklist: TLS, state validation, encrypted refresh token storage, audit logging. Should reference ehr-integration for Epic-specific specifics.",
+      "assertions": [
+        "Identifies EHR launch flow",
+        "Walks through full SMART App Launch sequence",
+        "Mentions .well-known/smart-configuration discovery",
+        "Recommends PKCE with S256 and state for CSRF",
+        "Requires aud parameter on authorize",
+        "Recommends minimum-necessary scopes",
+        "Provides security checklist (TLS, encrypted storage, audit)",
+        "References ehr-integration skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We're building a bulk-export pipeline that pulls quality measure data nightly with no user involved. What auth do we use?",
+      "expected_output": "Should identify this as SMART Backend Services (client_credentials with JWT assertion). Should walk through: generate an asymmetric key pair (RS384 or ES384), register public key with the EHR (upload JWK or publish JWKS URL), build a JWT (iss/sub = client_id, aud = token endpoint, short exp, unique jti), sign with private key, POST to token endpoint with grant_type=client_credentials, scope=system/*.read, client_assertion_type=jwt-bearer, client_assertion=<signed_jwt>, receive short-lived access token, no refresh token. Should describe Bulk Data Access ($export): kick off async export, poll status endpoint, download NDJSON files; plan for files in the 1-100 GB range. Should warn against using a long-lived client_secret for Backend Services. Should mention key rotation via JWKS.",
+      "assertions": [
+        "Identifies SMART Backend Services pattern",
+        "Walks through JWT assertion (RS384 or ES384)",
+        "Mentions JWKS publication and key rotation",
+        "Names client_credentials grant + scope=system/*.read",
+        "Describes Bulk Data Access $export and NDJSON",
+        "Warns against client_secret for Backend Services"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what are smart v2 scopes and should we use them instead of v1",
+      "expected_output": "Should trigger on casual lowercase phrasing. Should explain v1 scopes (patient/Observation.read, patient/*.read, user/*.write, system/*.read, plus launch, launch/patient, openid, fhirUser, online_access, offline_access). Should explain v2 adds resource-level granularity with action letters c/r/u/d/s and optional search-parameter restriction (e.g., patient/Observation.rs?category=laboratory, user/MedicationRequest.cruds, user/Patient.r). Should recommend using v2 if the EHR advertises permission-v2 in capabilities and using minimum-necessary scopes. Should warn about scope downgrade: the EHR may grant fewer scopes than requested, so handle that gracefully.",
+      "assertions": [
+        "Triggers on casual lowercase phrasing",
+        "Explains v1 scope syntax with examples",
+        "Explains v2 c/r/u/d/s action letters",
+        "Mentions v2 search-parameter restriction",
+        "Recommends checking permission-v2 capability",
+        "Warns about scope downgrade"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Our SPA is calling the FHIR API. It does standalone launch, the user picks a patient, and we want long-lived access without re-prompting every hour. How do we design this securely?",
+      "expected_output": "Should identify this as standalone launch from a public client (SPA). Should require PKCE (S256), no client_secret. Should request launch/patient, openid, fhirUser, the necessary patient/*.read or v2 scopes, and offline_access for the long-lived refresh token (only if truly needed). Should warn that public clients cannot keep a secret; refresh tokens stored in browser are a known risk and should be considered. Should recommend short access-token lifetime, refresh-on-demand, encrypted storage (e.g., httpOnly cookie via a thin backend if possible), and that some EHRs rotate refresh tokens on each use. Should mention security checklist: TLS, state, validate id_token signature against EHR JWKS, never log tokens, handle 401/403/429 cleanly. Should consider moving to a backend-for-frontend pattern if security posture demands.",
+      "assertions": [
+        "Identifies standalone launch with public client",
+        "Mandates PKCE with S256 and no client_secret",
+        "Requests offline_access only when needed",
+        "Warns about refresh-token storage risk in SPA",
+        "Recommends short access-token lifetime and rotation handling",
+        "Mentions id_token validation against EHR JWKS",
+        "Considers backend-for-frontend pattern"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We want to push a CDS alert to providers when a patient is overdue for a screening. What pattern should we use?",
+      "expected_output": "Should recognize this is a CDS Hooks design question, not a SMART OAuth question. Should defer to or cross-reference the clinical-decision-support skill, which covers CDS Hooks design, hook selection (patient-view or encounter-start for an overdue screening), card structure, and alert fatigue mitigation. May briefly note that if the CDS card includes a smart link, the SMART app behind it follows the EHR launch flow this skill covers, but the primary skill is clinical-decision-support. Should not attempt to design the full CDS card inside smart-on-fhir.",
+      "assertions": [
+        "Recognizes this is a CDS Hooks design question",
+        "Defers to clinical-decision-support skill",
+        "Notes the SMART link launch pattern as the integration point",
+        "Does not attempt full CDS card design inside this skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We deployed our SMART app and the EHR is rejecting our authorize call. Symptoms: invalid_request, missing aud. What's going on?",
+      "expected_output": "Should identify the missing aud parameter as a common pitfall. Should explain that SMART requires the aud parameter on the authorize call to be set to the FHIR base URL (iss). Should walk through additional common failures: state missing, redirect_uri mismatch with registered value, scope not supported by the EHR (check .well-known/smart-configuration), client_id wrong for this tenant. Should recommend logging the full authorize URL (minus secrets) to verify the request shape. Should note that PKCE code_challenge / code_challenge_method are required for public clients and recommended for confidential.",
+      "assertions": [
+        "Identifies missing aud parameter as the primary issue",
+        "Explains aud should equal iss (FHIR base URL)",
+        "Lists other common authorize-call failures",
+        "Recommends checking .well-known/smart-configuration",
+        "Recommends logging full authorize URL for debugging"
+      ],
+      "files": []
+    }
+  ]
+}

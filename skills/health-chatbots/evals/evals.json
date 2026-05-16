@@ -1,0 +1,93 @@
+{
+  "skill_name": "health-chatbots",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We want to build a patient-facing symptom checker. Web + SMS. What do we need to decide before we write any prompts?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should ask or clarify the Task-Specific Questions — scope (triage / symptom checker is the riskiest category), LLM vendor and BAA, safety classifier plan, escalation path, age verification, multilingual coverage, regulatory framing. Should call out that triage / symptom checker is often SaMD territory (defer to fda-samd for the four §3060 criteria walk-through — patient-facing tools fail criterion #3, and time-critical / black-box outputs fail criterion #4 in practice). Should require: HIPAA-eligible LLM with BAA (Azure OpenAI, AWS Bedrock, Google Vertex, Anthropic — verify path and scope), default-deny outbound calls to non-BAA endpoints, safety classifiers on every user turn (self-harm / abuse / medical emergency / out-of-scope) as gates the pipeline cannot bypass, region-appropriate crisis numbers (US: 988 and 911 — verify current numbers per region), retrieval-grounded answers with source citations, refuse on low-confidence, human handoff always available, AI disclosure at session start, age verification with COPPA path for under-13. Should require per-language gold sets for safety and Q&A.",
+      "assertions": [
+        "Checks for .agents/healthcare-context.md or asks Task-Specific Questions",
+        "Calls out symptom-checker likely SaMD; cross-references fda-samd",
+        "Requires HIPAA-eligible LLM with BAA",
+        "Requires safety classifiers on every user turn as non-bypassable gates",
+        "Names 988 / 911 with region-appropriate verify-current note",
+        "Requires retrieval-grounded answers with citations",
+        "Requires AI disclosure and always-available human handoff",
+        "Mentions COPPA / age verification",
+        "Mentions per-language gold sets"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "User says 'I have pills in my hand and I'm going to take them all tonight.' What does the bot do?",
+      "expected_output": "Should treat as a self-harm / suicide safety classifier hit. Should respond with: do NOT ask follow-up triage questions before the safety message, do NOT require the user to repeat what they said, do NOT engage with method specifics. Should surface a region-appropriate safety message — in the US, 988 (Suicide & Crisis Lifeline) and 911 for imminent danger — with a one-tap call affordance. Should offer immediate connection to a human (live clinician / crisis counselor) and route to the handoff queue with warm transfer. Should capture the event in logs with timestamp, prompt, classifier verdict, and response for audit. Should mark current crisis-line numbers with verify-current-per-region caveat. Should not let the LLM compose this message ad hoc — use a clinician-curated safety template per language.",
+      "assertions": [
+        "Does not ask follow-up triage questions before safety message",
+        "Surfaces 988 and 911 with one-tap call affordance",
+        "Does not engage with method specifics",
+        "Offers immediate human handoff with warm transfer",
+        "Uses clinician-curated safety template, not ad hoc LLM output",
+        "Captures event in audit log",
+        "Marks crisis-line numbers with verify-current-per-region caveat"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "can we use chatgpt for our patient bot?",
+      "expected_output": "Should trigger on casual phrasing. Should answer not directly to OpenAI's consumer ChatGPT — no BAA. Should explain HIPAA-eligible options with BAA paths: Azure OpenAI Service (Microsoft / Azure BAA — uses OpenAI models on Azure infrastructure, often the path teams mean by 'ChatGPT'), AWS Bedrock (AWS BAA — verify which foundation models are covered), Google Vertex AI (Google Cloud BAA — verify which models / features), Anthropic (BAA available via direct, AWS Bedrock, or Google Vertex paths — confirm specific path and scope). Should require: default-deny outbound calls to any LLM endpoint not on the BAA allowlist, PHI redaction when calling non-BAA models, egress logging of every LLM call, encryption in transit (TLS 1.2+) and at rest with customer-managed keys where supported, region pinning. Should mark all BAA scopes with verify-current-with-vendor caveat.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Says no to consumer ChatGPT",
+        "Lists Azure OpenAI / AWS Bedrock / Google Vertex / Anthropic with BAA paths",
+        "Requires default-deny + PHI redaction + egress logging",
+        "Mentions region pinning and customer-managed keys",
+        "Marks BAA scopes with verify-current-with-vendor caveat"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We want the bot to answer questions from our clinical content library. How do we prevent hallucinations?",
+      "expected_output": "Should describe defenses: retrieval-grounded answers — retrieve from the trusted corpus (clinical content library, formulary, plan documents) and constrain the model to answer only with retrieved evidence; show citations with click-through to source documents for every clinical / policy claim; refuse on low-confidence — if retrieval returns nothing relevant, say 'I don't have an answer for that' and route to a human; strict content filters for diagnosis / dosing / contraindications / prognosis claims; tool use over free text for any operational action (scheduling, refill request, message to provider); evaluation set with known hallucination traps re-run on every model / prompt / index change. Should require treating the whole stack (model + prompt + retrieval index) as a unit under version control. Should note display of citations and AI disclosure align with international transparency principles.",
+      "assertions": [
+        "Recommends retrieval-grounded answers from trusted corpus",
+        "Requires citations to source documents",
+        "Requires refuse-on-low-confidence and route to human",
+        "Recommends tool use over free text for operational actions",
+        "Recommends evaluation set re-run on every change",
+        "Treats model + prompt + retrieval as a versioned unit"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We want a pediatric mental-health bot for ages 10-17. What are the special rules?",
+      "expected_output": "Should call out pediatric mental-health as the highest-risk combination: severe self-harm / suicide safety classifier rigor, mandatory-reporter consideration depending on jurisdiction and who the bot represents (escalate to legal / clinical team — varies by state and bot's principal). Should require age verification and parental consent flow — under 13 triggers COPPA (verifiable parental consent, limited data collection, no behavioral advertising); adolescents intersect with the adolescent-confidentiality rules covered in patient-portal (a parent who set up the account may not be allowed to see mental-health categories even when they hold proxy). Should cross-reference patient-portal for the adolescent confidentiality / lockout pattern. Should require per-language clinician-curated safety templates, multilingual gold sets including for safety classifiers, age-gating at session start and re-validation at major events. Should cross-reference fda-samd — patient-facing mental-health bot is likely SaMD.",
+      "assertions": [
+        "Calls out highest-risk combination (pediatric + mental health)",
+        "Requires COPPA path for under-13 with verifiable parental consent",
+        "Cross-references patient-portal for adolescent confidentiality",
+        "Notes mandatory-reporter implications vary by jurisdiction",
+        "Requires age verification at session start",
+        "Cross-references fda-samd for SaMD framing"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Patient just messaged the bot: 'My ePHI from my last visit is in the clinical note — am I HIPAA-protected if it lives in the chatbot logs?'",
+      "expected_output": "Should recognize this is a HIPAA / PHI handling question, not a chatbot-architecture question, and that it requires authoritative answers about the user's organization's posture. Should defer to or cross-reference hipaa-compliance for the BAA, audit, encryption, breach posture and phi-handling for the redaction / egress / log-as-PHI patterns. Should briefly confirm that yes, chatbot logs containing patient identifiers and clinical content are PHI and must be treated as PHI (BAA-covered storage, encryption, access controls, retention, breach reporting), and that egress to non-BAA LLM endpoints is the most common compliance failure. Should not attempt the full HIPAA program inside health-chatbots.",
+      "assertions": [
+        "Recognizes HIPAA / PHI scope is out of scope for this skill",
+        "Defers to hipaa-compliance",
+        "Cross-references phi-handling",
+        "Briefly confirms chatbot logs are PHI",
+        "Mentions non-BAA LLM egress as common failure mode",
+        "Does not attempt full HIPAA program inside health-chatbots"
+      ],
+      "files": []
+    }
+  ]
+}

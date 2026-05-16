@@ -1,0 +1,95 @@
+{
+  "skill_name": "accessibility-healthcare",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We need to audit our patient portal for WCAG 2.2 AA conformance. Where do we start?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should propose an audit plan covering: automated scan (axe-core / Lighthouse / WAVE) for the ~30-40% of issues those catch, followed by structural manual review (heading order, landmarks, focus order, name/role/value), AT testing across at minimum VoiceOver/iOS, TalkBack/Android, NVDA or JAWS on Windows, keyboard-only walkthrough of critical flows (login, schedule, secure message, AVS download), zoom/reflow at 200% and 400%, color/contrast simulation, and usability testing with people with disabilities (compensated). Should call out WCAG 2.2 AA's healthcare-relevant additions (3.3.8 accessible authentication, 2.5.8 target size, 2.4.11 focus not obscured, 3.3.7 redundant entry). Should mention Section 1557 and ADA Title III posture (with 'verify current rule' caveat). Should recommend a VPAT/ACR pass if procurement is in scope.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Proposes automated + manual + AT + user-testing layered plan",
+        "Names specific AT platforms across iOS / Android / Windows",
+        "Calls out WCAG 2.2 healthcare-relevant SC additions",
+        "References Section 1557 and ADA Title III with verify caveat",
+        "Recommends compensated user testing with people with disabilities",
+        "Mentions VPAT/ACR if procurement applies"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our telehealth video platform needs to be accessible. Help me think through captions, sign-language interpretation, and pre-visit accessibility intake.",
+      "expected_output": "Should distinguish ASR (auto-captions, acceptable for casual context, inadequate for clinical communication) from CART (human captioner, standard for high-stakes encounters when requested). Should call out caption user controls — resize, reposition, restyle — and default-on for users with the preference. Should explain sign-language interpretation routing: third video tile with pinning and sufficient resolution, qualified interpreter in the patient's language (ASL is not universal — LIBRAS, BSL, LSF), VRI vendor BAA posture (LanguageLine, Stratus, Cyracom with verify caveats). Should recommend pre-visit accessibility intake that persists across visits. Should call out audio description for embedded patient education, visual indicators of speaker / mute / connection not by color alone, and Section 1557 + ADA Title III posture.",
+      "assertions": [
+        "Distinguishes ASR vs CART with appropriate use cases",
+        "Calls out caption user controls and default-on",
+        "Addresses sign-language routing with third tile and pinning",
+        "Notes ASL is not universal",
+        "References VRI vendors with verify / BAA caveats",
+        "Recommends pre-visit accessibility intake that persists",
+        "Calls out audio description and color-independent indicators",
+        "References Section 1557 / ADA Title III"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "our patient portal login uses a math captcha and we got an accessibility complaint. what do we do?",
+      "expected_output": "Should trigger on casual phrasing. Should identify the math CAPTCHA as failing WCAG 2.2 SC 3.3.8 Accessible Authentication (Minimum) — depends on a cognitive function test. Should recommend acceptable alternatives: passkeys / WebAuthn, MFA-via-device push, biometric, magic-link to email, password managers (do not block paste), SSO. Should warn against type-the-letter / distorted-text CAPTCHA without an accessible alternative, and against OTP forms that disable paste / autofill. Should call out audio CAPTCHA alone is insufficient (deaf-blind users, screen-reader users). Should recommend honoring autocomplete attributes (username, current-password, one-time-code). Should call out the legal exposure (1557, ADA, Section 504) and suggest a remediation timeline.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Identifies WCAG 2.2 SC 3.3.8 failure",
+        "Recommends passkeys / WebAuthn / MFA / magic-link / SSO",
+        "Warns against blocking paste and distorted-text CAPTCHAs",
+        "Notes audio CAPTCHA alone is insufficient",
+        "Recommends honoring autocomplete attributes",
+        "Calls out legal exposure under 1557 / ADA / Section 504",
+        "Suggests remediation timeline"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're a state Medicaid plan and a hospital system is asking for our VPAT before they will procure our member-facing app. What is a VPAT, what edition do we need, and what should it actually say?",
+      "expected_output": "Should explain VPAT (Voluntary Product Accessibility Template) produces an Accessibility Conformance Report (ACR), the lingua franca of accessibility procurement. Should ask which edition is needed (Section 508, WCAG 2.x, EN 301 549, or INT) and recommend the buyer's request drive the choice. Should explain conformance levels per criterion (Supports / Partially Supports / Does Not Support / Not Applicable) with required explanations. Should warn against bogus VPATs (procurement risk, lawsuits) and recommend a real human auditor signs. Should recommend updating VPAT per major release, dated and versioned. Should suggest aligning to Section 1557 (HHS-funded entities) and to state mini-508 if the buyer is a state agency. Should call out 'verify current edition' with the ITI VPAT page.",
+      "assertions": [
+        "Explains VPAT vs ACR and procurement role",
+        "Asks which edition (508 / WCAG / EN 301 549 / INT)",
+        "Explains conformance levels with required explanations",
+        "Warns against bogus VPATs and recommends auditor sign-off",
+        "Recommends per-release update with version + date",
+        "References Section 1557 and state mini-508",
+        "Calls out verify current edition"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our clinical UI for the registration desk is dense and information-rich. Staff complain about screen-reader use, color-blindness, small touch targets on the tablet kiosk, and form errors that aren't announced. Help us prioritize.",
+      "expected_output": "Should map the complaints to specific WCAG criteria: name/role/value (4.1.2) and live status (4.1.3) for screen-reader, contrast (1.4.3, 1.4.11) and color-as-meaning (1.4.1) for color-blindness, target size (2.5.8, WCAG 2.2) for tablet kiosk, labels/instructions (3.3.2) and error association via aria-describedby for forms. Should prioritize by user impact (forms that block staff completing their work first, then screen-reader name/role/value, then contrast, then target size). Should propose fixes: native HTML controls before ARIA, polite live regions for status, fieldset/legend grouping, autocomplete attributes, design-token-level contrast enforcement, color + icon + text (not color alone). Should call out testing with a real color-blind simulator and AT, and that this is a clinician-facing surface so clinical-documentation accessibility considerations also apply.",
+      "assertions": [
+        "Maps complaints to specific WCAG criteria",
+        "Prioritizes by user impact and workflow blocking",
+        "Recommends native HTML before ARIA",
+        "Recommends polite aria-live for status",
+        "Recommends fieldset/legend and aria-describedby for form errors",
+        "Calls out color + icon + text (not color alone)",
+        "Mentions design-token-level contrast enforcement",
+        "Recommends testing with simulator and real AT"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Can you rewrite our medication instruction copy at a 5th-grade reading level so it's more accessible?",
+      "expected_output": "Should recognize that reading level / plain language is health-content-writing scope, not accessibility-healthcare (which covers WCAG, AT, motor / cognitive / sensory access on the surface the content renders in). Should defer or hand off to health-content-writing for the rewrite, and offer to cover the accessibility of the rendering surface (contrast, semantic structure, AT compatibility) in parallel. Should not attempt the full plain-language rewrite using accessibility patterns.",
+      "assertions": [
+        "Recognizes reading level is health-content-writing scope",
+        "Defers or hands off to health-content-writing",
+        "Offers to cover rendering-surface accessibility in parallel",
+        "Does not attempt plain-language rewrite using accessibility patterns"
+      ],
+      "files": []
+    }
+  ]
+}

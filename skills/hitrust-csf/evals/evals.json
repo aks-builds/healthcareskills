@@ -1,0 +1,84 @@
+{
+  "skill_name": "hitrust-csf",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our largest health-system customer is demanding HITRUST certification within 12 months. We're a 200-person digital health SaaS. Where do we start?",
+      "expected_output": "Should attempt to read healthcare-context.md first. Should walk through: confirm which assessment type makes sense given the driver (customer requirement typically points to i1 or r2; if r2 is contractually required, plan for r2). Should reference assessment-types.md. Should propose a sequence: (1) scope definition (product, environment, data flows, business units), (2) MyCSF tenant + self-assessment to surface the gap profile, (3) inheritance program engagement with CSPs (cross-reference inheritance-program.md), (4) remediation roadmap by control domain, (5) External Assessor selection and engagement, (6) evidence collection cadence, (7) validated assessment and certification. Should be realistic about the 12-month timeline — r2 readiness typically takes longer for a first-time organization; flag the trade-offs (e1 or i1 first as a stepping stone, scope reduction). Should not invent specific HITRUST control reference IDs. Should defer the binding scoping decision to a HITRUST Authorized External Assessor.",
+      "assertions": [
+        "Attempts to read healthcare-context.md",
+        "Discusses which assessment type fits (e1/i1/r2)",
+        "References assessment-types.md and inheritance-program.md",
+        "Realistic about 12-month timeline trade-offs",
+        "Mentions MyCSF, External Assessor, validated assessment",
+        "Does not invent HITRUST control reference IDs",
+        "Defers binding scoping to an Authorized External Assessor"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We're on AWS. Can we inherit AWS's HITRUST controls?",
+      "expected_output": "Should explain the HITRUST Shared Responsibility and Inheritance Program: CSPs (AWS, Azure, GCP, others) publish HITRUST-validated inheritance packages that customers can inherit in their own MyCSF assessment — at the CSP-managed control level (physical security of data centers, hypervisor security, baseline platform controls). The customer remains responsible for controls in the shared-responsibility line (configuration of services, identity, data classification, app-layer controls). Should reference inheritance-program.md. Should note that inheritance requires the customer to be using qualifying AWS services, with the customer's configuration aligned to the inheritance package, and the inheritance documented in MyCSF. Should warn that 'we use AWS, therefore we're HITRUST-inherited' is not how it works — inheritance is per-control and per-service. Should defer the specific inheritance decisions to the External Assessor and the CSP's current published HITRUST inheritance scope.",
+      "assertions": [
+        "Explains the Shared Responsibility and Inheritance Program at the right level",
+        "Distinguishes CSP-managed from customer-responsible controls",
+        "References inheritance-program.md",
+        "Warns against blanket-inheritance assumption",
+        "Defers per-control decisions to External Assessor"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "quick - we're SOC 2 Type 2 already. is HITRUST just SOC 2 with extra steps?",
+      "expected_output": "Should respond proportionally to the casual phrasing. Should explain that SOC 2 and HITRUST are different frameworks with different goals: SOC 2 is an AICPA attestation against Trust Services Criteria (security, availability, processing integrity, confidentiality, privacy) — the auditor designs tests against the criteria, and the criteria are principle-based. HITRUST CSF is a prescriptive control framework with specific control requirements scored on maturity (policy, process, implementation, measured, managed for r2), with formal validated certification by HITRUST itself, not just an auditor opinion. Healthcare buyers often prefer HITRUST because the control content is healthcare-specific and the scoring is more rigorous and standardized across organizations. Should mention that SOC 2 evidence and controls often map to HITRUST control requirements (so it's not duplicate effort, but it is additional rigor). Should defer the program-design decision to the CISO / compliance leader.",
+      "assertions": [
+        "Responds proportionally to casual phrasing",
+        "Explains SOC 2 vs. HITRUST distinction (principle-based audit vs. prescriptive controls)",
+        "Notes HITRUST is healthcare-tailored and maturity-scored",
+        "Acknowledges SOC 2 evidence can map to HITRUST controls",
+        "Defers program-design decision to CISO/compliance leader"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're a Series B health-tech. We have HITRUST e1 today. Our enterprise customer wants r2. What's the gap and what's the work?",
+      "expected_output": "Should explain the e1-to-r2 jump: e1 is foundational (small static control set focused on essential security hygiene); r2 is the comprehensive, tailored, 2-year certification with hundreds of controls scoped via the MyCSF questionnaire to the organization's factors (size, regulatory drivers, data types, geography). Should describe the work: scoping interview in MyCSF that selects the applicable controls; full control implementation with documented policy, process, implementation, and (for higher maturity) measurement and management; evidence package per control; validated assessment by an Authorized External Assessor; interim assessment at year 1 between certifications. Should reference assessment-types.md. Should warn that scope reduction is the main lever for managing the work (right-size the boundary). Should defer specifics to the External Assessor.",
+      "assertions": [
+        "Explains e1 vs. r2 difference (foundational vs. comprehensive)",
+        "Describes scoping via MyCSF and PRISMA maturity scoring",
+        "Identifies external assessor + interim assessment requirement",
+        "Recommends scope-reduction as the main lever",
+        "Defers specifics to External Assessor"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Can you tell me the exact HITRUST control reference ID for MFA?",
+      "expected_output": "Should refuse to invent or recall a specific HITRUST CSF reference ID. Should explain that HITRUST CSF reference IDs (e.g., the 09.xx.yy structure historically used) have evolved across CSF versions and are the canonical content published only in MyCSF — citing a specific ID without checking the current MyCSF tenant risks pointing to a deprecated or moved control. Should describe the right approach: in MyCSF, search for 'multi-factor authentication' to retrieve the current applicable controls based on the organization's scoping factors. Should defer the binding identification to MyCSF and the External Assessor.",
+      "assertions": [
+        "Refuses to invent a specific HITRUST control ID",
+        "Explains IDs evolve across CSF versions",
+        "Points to MyCSF as the canonical source",
+        "Defers to External Assessor"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We just got SOC 2 Type 2 last month. Now sales wants HIPAA. Should we use HITRUST?",
+      "expected_output": "Should explain that HIPAA is a regulation, not a certification — there is no 'HIPAA certification' issued by HHS. The decision is whether to pursue HITRUST (or another certification framework) as a way to demonstrate HIPAA Security Rule maturity to customers. Should cross-reference hipaa-compliance for the regulation itself. Should outline the options: (a) HITRUST r2 with HIPAA scoring factors selected (the strongest signal to enterprise healthcare buyers), (b) HITRUST e1 / i1 as a lighter signal, (c) maintain SOC 2 + a HIPAA-specific attestation (some auditors offer HIPAA-mapped SOC 2 reports), (d) document HIPAA Security Rule compliance directly (risk analysis, policies, evidence) without a third-party seal. Should note the buyer's actual ask matters — some require HITRUST specifically; others accept a HIPAA-mapped SOC 2. Should defer the decision to leadership and the External Assessor for HITRUST scoping.",
+      "assertions": [
+        "Clarifies HIPAA is a regulation, not a certification",
+        "Cross-references hipaa-compliance",
+        "Lists the realistic options (HITRUST, HIPAA-mapped SOC 2, direct compliance)",
+        "Notes buyer-driven framing",
+        "Defers decision to leadership / External Assessor"
+      ],
+      "files": []
+    }
+  ]
+}

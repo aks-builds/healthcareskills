@@ -1,0 +1,88 @@
+{
+  "skill_name": "phi-handling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We want to share a clinical dataset with a university research partner. It has demographics, dates of service, and ZIP codes. What's the right de-identification approach?",
+      "expected_output": "Should attempt to read healthcare-context.md first. Should walk through the three HIPAA paths: Safe Harbor (mechanical, but loses dates of service and full ZIP), Expert Determination (statistician applies methods to retain useful fields like dates while documenting 'very small' risk), and Limited Data Set + Data Use Agreement (retains dates and city/state/limited geographic info, still PHI, requires a DUA). Should recommend LDS + DUA as often the right fit for university research partners when dates are clinically needed. Should reference safe-harbor-identifiers.md and de-identification-techniques.md for the trade-offs. Should mention re-identification risk re-assessment when datasets change. Should defer the legal framing (research vs. operations basis, IRB) to counsel / Privacy Officer.",
+      "assertions": [
+        "Attempts to read healthcare-context.md",
+        "Presents all three HIPAA de-identification paths",
+        "Identifies LDS + DUA as commonly appropriate for this scenario",
+        "References the relevant reference files",
+        "Notes re-identification risk re-assessment",
+        "Routes the legal framing to Privacy Officer / counsel",
+        "Does not declare a single 'correct' answer without context"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our ML team wants to train a model on chest X-rays from our PACS. The dataset has DICOM files. What PHI do we need to strip and how?",
+      "expected_output": "Should identify that DICOM PHI lives in two places: header tags (PatientName, PatientID, PatientBirthDate, StudyDate, etc., plus many secondary tags) AND burned-in pixel data (text annotations baked into the image, especially in modalities like ultrasound and secondary capture but also in radiology screenshots). Should recommend the DICOM PS3.15 Confidentiality Profile with the appropriate options (e.g., basic + retain-longitudinal-temporal if dates are needed for the model). Should explicitly require burned-in PHI detection (pixel inspection + OCR + masking). Should require post-de-identification validation. Should note that chest X-rays themselves are not photographs but the underlying patient may still be re-identifiable through linkage; cross-reference Expert Determination if released externally. Should mention dicom-imaging skill if present.",
+      "assertions": [
+        "Identifies both DICOM tag PHI and burned-in pixel PHI",
+        "References DICOM PS3.15 Confidentiality Profile",
+        "Requires burned-in text detection and masking",
+        "Requires validation after de-identification",
+        "Addresses linkage risk for external release",
+        "Cross-references the dicom-imaging skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "can we use pseudonyms instead of patient names in our analytics warehouse, then it's not phi right?",
+      "expected_output": "Should respond proportionally to the casual phrasing. Should correct the misconception: pseudonymization is a useful security control but it does NOT remove HIPAA or GDPR coverage if the organization can re-identify (which it almost always can when the linkage key is held by the same legal entity). Should reference the anonymization vs. pseudonymization distinction. Should recommend pseudonymization as part of a defense-in-depth strategy (limit blast radius, separate the key store), but explain that the data is still PHI and full HIPAA/GDPR protections apply. Should suggest the user revisit the analytics use case and whether Safe Harbor or Expert Determination de-identification is feasible if the goal is to exit HIPAA scope.",
+      "assertions": [
+        "Responds proportionally to casual phrasing",
+        "Corrects the 'pseudonyms means not PHI' misconception",
+        "Distinguishes pseudonymization from anonymization",
+        "Recommends pseudonymization as part of defense in depth",
+        "Points back to Safe Harbor / Expert Determination if exiting HIPAA scope is the goal"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Design a complete PHI handling architecture for a new SaaS that ingests clinical notes (free text), audio from ambient scribes, and DICOM images. We're a BA serving multiple hospitals. Cover encryption, access control, de-identification, retention.",
+      "expected_output": "Should provide a layered design: ingest (per-tenant TLS endpoints, multi-tenant isolation), at-rest encryption (AES-256 GCM, per-tenant or per-record envelope encryption via KMS/HSM, key rotation), access control (RBAC + ABAC + purpose-of-use + break-the-glass with enhanced logging), de-identification pipelines for each modality (clinical NER for free text; DICOM PS3.15 + burned-in detection for images; speaker diarization + transcript redaction for audio). Should cover retention with cryptographic erasure on tenant offboarding, secure deletion across snapshots/backups, and a documented retention schedule by data class. Should mention BAA requirements (cross-reference hipaa-compliance), audit logging (cross-reference audit-logging), and the encryption-cheatsheet.md / de-identification-techniques.md references. Should explicitly call out NOT using production PHI in dev/QA environments.",
+      "assertions": [
+        "Layered design covering ingest, storage, access, de-id, retention",
+        "AES-256 at rest with KMS/HSM and per-tenant/per-record keys",
+        "RBAC + ABAC + purpose-of-use + break-the-glass",
+        "De-identification pipeline specifics per modality (text/audio/DICOM)",
+        "Cryptographic erasure on tenant offboarding",
+        "Cross-references hipaa-compliance, audit-logging, and reference docs",
+        "Explicitly bans production PHI in dev/QA"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We just had an OCR investigation finding that our risk analysis is incomplete. What do you recommend?",
+      "expected_output": "Should recognize that risk analysis is fundamentally a hipaa-compliance / healthcare-cybersecurity topic, not a phi-handling topic. Should briefly note that PHI handling controls are inputs to the risk analysis (the data inventory, the encryption posture, the access model) but the risk analysis itself — scope, methodology, threat modeling, likelihood/impact, risk register — belongs in those skills. Should defer to hipaa-compliance and healthcare-cybersecurity. Should not attempt a full risk analysis here.",
+      "assertions": [
+        "Recognizes risk analysis is outside phi-handling's primary scope",
+        "Defers to hipaa-compliance and healthcare-cybersecurity",
+        "Notes the inputs phi-handling provides to a risk analysis",
+        "Does not attempt to deliver a full risk analysis"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "An EU hospital wants to send us pseudonymized clinical trial data for analysis. We're a US-based BA. What changes vs. handling HIPAA PHI?",
+      "expected_output": "Should identify the EU/EEA origin as triggering GDPR alongside HIPAA. Should note: pseudonymized data is still personal data under GDPR (so Article 9 conditions, lawful basis, DPIA, DPO involvement are in play); cross-border transfer to the US requires a transfer mechanism (SCCs 2021/914 with Transfer Impact Assessment, supplementary measures post-Schrems II); the sponsor/CRO/controller-processor relationship needs Art. 28 contracts; clinical trial data is also subject to GCP/Annex 11 if applicable. Should defer the regulatory mapping to gdpr-health-data skill. Should note that 'pseudonymized' does not exit GDPR scope. Should require DPO and counsel sign-off.",
+      "assertions": [
+        "Identifies GDPR + HIPAA dual coverage",
+        "Pseudonymized data is still personal data under GDPR",
+        "Cross-border transfer mechanism required (SCCs / TIA / Schrems II)",
+        "Article 28 controller-processor agreement required",
+        "Defers to gdpr-health-data for regulatory specifics",
+        "Routes to DPO and counsel"
+      ],
+      "files": []
+    }
+  ]
+}

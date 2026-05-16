@@ -1,0 +1,89 @@
+{
+  "skill_name": "medical-imaging-ai",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We want to build a chest CT model that detects incidental pulmonary nodules and re-prioritizes the radiologist worklist when the largest nodule is above a size threshold. We have ~80k chest CTs on our institutional PACS from three sites. What's the end-to-end plan, from DICOM pull through deployment and monitoring?",
+      "expected_output": "Should check for healthcare-context.md first and ask only missing scoping questions. Should propose pulling studies via DICOMweb (QIDO/WADO) from the institutional PACS, filtering by Modality, BodyPartExamined plus protocol heuristics, de-duplicating by StudyInstanceUID and splitting by patient (not by image). Should describe anonymization via PS3.15 with attention to pixel-burn-in for any captured screenshots, UID remapping for longitudinal joins, and date shifting. Should recommend nnU-Net or 3D detection architectures, isotropic resampling, HU-window-based normalization, and rescale slope/intercept handling. Should propose per-exam (not per-slice) evaluation with FROC / sensitivity at fixed FP per exam, subgroup analysis by scanner manufacturer/model/software version and slice thickness, and external validation on a held-out site. Should recommend worklist re-prioritization through an AI orchestrator (Nuance PIN, Blackford, Sirona, Calantic, GE Edison, Philips ISP - verify current capabilities) with DICOM SR results return and a hanging-protocol update. Should frame the regulatory path as SaMD (likely 510(k) with predicate or De Novo) and recommend a PCCP for retraining. Should describe post-deployment monitoring for input drift, prediction-rate drift, performance against follow-up imaging, and subgroup equity. Should not invent specific FDA clearance numbers or vendor feature claims.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Pulls via DICOMweb and de-duplicates / splits by patient",
+        "Addresses anonymization including pixel burn-in and UID remapping",
+        "Recommends 3D-appropriate preprocessing (resampling, HU windowing, rescale)",
+        "Uses per-exam evaluation with FROC or sensitivity at fixed FP",
+        "Recommends scanner / site / version subgroup analysis and external held-out site",
+        "Proposes worklist re-prioritization via an orchestrator with DICOM SR return",
+        "Frames SaMD path and recommends PCCP",
+        "Describes post-deployment monitoring including drift and equity",
+        "Does not invent FDA clearances or vendor capabilities"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How do I handle DICOM anonymization for a CXR training set that includes some bedside portable exams? I'm worried about burned-in PHI.",
+      "expected_output": "Should reference DICOM PS3.15 Annex E Basic Application Confidentiality Profile with appropriate options (Clean Pixel Data, Clean Recognizable Visual Features, Retain Longitudinal With Modified Dates as appropriate). Should specifically call out that portable / bedside CXR often carries burned-in technologist annotations and patient identifiers in the pixel array, and recommend OCR-based detection (e.g., Tesseract) or a trained burn-in detector followed by masking or exclusion. Should address private-tag handling (whitelist or remove per vendor), UID remapping via HMAC for longitudinal joins, and per-patient date shifting. Should mention that accompanying reports must be de-identified separately. Should not claim a specific tool fully removes risk - re-identification analysis still required, with Expert Determination an option for stronger releases.",
+      "assertions": [
+        "Cites DICOM PS3.15 Annex E and option sets",
+        "Explicitly addresses pixel-burn-in detection (OCR / detector) and mask-or-exclude policy",
+        "Addresses private tags, UID remapping, date shifting",
+        "Notes that reports require separate de-identification",
+        "Mentions Expert Determination as an option for higher-risk releases"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "trying to get our brain MR triage model into the reading workflow, what's the easiest way",
+      "expected_output": "Should trigger on casual phrasing. Should ask or assume the orchestrator question: most institutions deploy through an AI orchestrator (Nuance Precision Imaging Network, Blackford, Bayer Calantic, Sirona, GE Edison, Philips ISP - verify current capabilities) which handles DICOM routing, model containerization, and results return. Should describe the triage pattern: study arrives -> orchestrator routes to model -> model emits a flag -> RIS / PACS worklist updates priority -> radiologist sees the high-suspicion study at top of list. Should recommend DICOM SR (or at minimum a structured result) for the result so the flag is auditable and machine-readable, and note hanging-protocol implications if any new series is added. Should mention regulatory framing if the triage influences clinical decisions (likely SaMD).",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Recommends an AI orchestrator path and lists representative vendors with a 'verify' caveat",
+        "Describes the triage / worklist re-prioritization data flow end-to-end",
+        "Recommends a structured result return (DICOM SR or equivalent)",
+        "Flags regulatory framing (SaMD)"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Our chest X-ray classifier had 0.94 AUC on the internal test set but only 0.78 AUC at the new partner hospital. What's the most likely set of causes and how do we investigate?",
+      "expected_output": "Should walk through distribution shift sources: scanner manufacturer / model / software version difference, image-acquisition differences (kVp, exposure, grid use, view position), PhotometricInterpretation handling (MONOCHROME1 vs MONOCHROME2 inversion), prevalence shift in the partner population, label-definition differences in the partner reports, and possible patient-population demographics differences. Should recommend stratified analysis at the partner site by scanner, view position, and patient subgroup; checking preprocessing parity (windowing, normalization, resampling); confirming no data leakage at training (split by image vs by patient); and checking whether the model is learning the scanner / institution rather than the disease. Should propose mitigations: domain randomization, harmonization, test-time normalization, fine-tuning on a small labeled partner-site set, and ongoing input-drift monitoring. Should note this is a known pattern, not a bug per se.",
+      "assertions": [
+        "Identifies multiple distribution-shift sources including scanner, acquisition, photometric interpretation, prevalence, label definition, demographics",
+        "Recommends subgroup-stratified analysis at the partner site",
+        "Checks preprocessing parity and patient-vs-image split",
+        "Considers that the model may have learned scanner / institution shortcuts",
+        "Proposes mitigations (domain randomization, harmonization, fine-tuning, monitoring)"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Can you generate the FDA 510(k) clearance number and labeling document for our imaging AI submission?",
+      "expected_output": "Should recognize that FDA clearance numbers are issued by the FDA after substantive review and cannot be generated. Should defer to the fda-samd skill for SaMD regulatory work: risk class (IMDRF), submission pathway (510(k) vs De Novo vs PMA), predicate identification (from FDA databases - not invented), clinical validation requirements, indications for use, labeling requirements, and PCCP scope. Should offer to help with the materials medical-imaging-ai is in scope for - intended use, training data documentation, evaluation methodology, subgroup analyses, monitoring plan - while pointing the user to fda-samd (and Regulatory Affairs / FDA submissions counsel) for the submission itself. Should not invent a clearance number or a predicate device.",
+      "assertions": [
+        "Refuses to invent an FDA clearance number",
+        "References or defers to fda-samd skill",
+        "Lists the medical-imaging-ai-scoped artifacts the skill can help prepare",
+        "Recommends engaging Regulatory Affairs / submissions counsel",
+        "Does not invent a predicate device"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We have a mammography CAD model deployed across three sites. Last week the breast imaging team flagged a sudden rise in false-positive marks. What should I check first?",
+      "expected_output": "Should walk through a structured post-deployment incident investigation. First, confirm scope (which site(s), which scanner(s), which view positions, when did the rate change, baseline rate). Should check for input drift (scanner / detector software upgrade, new protocol or compression paddle, new reconstruction kernel, change in patient throughput), examine the cohort of false positives for shared characteristics (vendor, software version, view), and check whether a pipeline change (preprocessing, model version, orchestrator update) coincided with the change. Should mention pulling DICOM headers (Manufacturer, ManufacturerModelName, SoftwareVersions) for the affected studies and stratifying the false-positive rate by these fields. Should recommend invoking the documented pause / rollback procedure tied to the PCCP / quality plan if the rate is clinically significant, and notifying the QA / regulatory function. Should treat this as a monitoring success, not just a fire drill.",
+      "assertions": [
+        "Scopes the incident (site, scanner, time, baseline)",
+        "Lists scanner / software upgrade / protocol change as likely input-drift causes",
+        "Recommends stratified false-positive analysis by Manufacturer / Model / SoftwareVersions DICOM tags",
+        "Considers pipeline / model-version / orchestrator changes",
+        "References the documented pause/rollback procedure and PCCP / quality plan",
+        "Mentions notification to QA / regulatory function"
+      ],
+      "files": []
+    }
+  ]
+}

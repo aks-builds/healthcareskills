@@ -1,0 +1,94 @@
+{
+  "skill_name": "ehr-integration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We need to integrate our care coordination app with Epic for several of our customer hospitals. We're a third-party SaaS vendor and want to distribute through Epic's app program. Where do we start?",
+      "expected_output": "Should check for healthcare-context.md first. Should identify this as an Epic Connection Hub (formerly App Orchard / Showroom) path. Should explain that production OAuth uses SMART on FHIR, that each customer site has its own client ID and FHIR endpoint, and that vendor services review is needed before customer install. Should describe the sandbox at fhir.epic.com (Open Epic). Should call out the BAA requirement at each customer site and that the team is a Business Associate. Should reference smart-on-fhir for the OAuth flow details. Should note that USCDI patient-facing read scopes do not require Connection Hub but write scopes do.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Identifies Epic Connection Hub as the program",
+        "Mentions SMART on FHIR for OAuth",
+        "Notes per-customer client ID and endpoint",
+        "References fhir.epic.com sandbox",
+        "Calls out BAA requirement per customer",
+        "Refers to smart-on-fhir skill for OAuth specifics",
+        "Distinguishes USCDI read scopes from write scopes"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Set up Epic FHIR sandbox access for our developers. We have no Epic relationship yet.",
+      "expected_output": "Should direct the user to fhir.epic.com for documentation and the open sandbox. Should explain that the Open Epic / Open endpoints are publicly available for development without Connection Hub membership. Should walk through registering an app, obtaining a non-production client ID, and exercising SMART standalone or EHR launch against the sandbox. Should clarify the gap between sandbox access and production: production at any customer site requires per-customer client ID, customer security review, and (for most write scopes) Connection Hub membership and Epic vendor services review.",
+      "assertions": [
+        "Directs user to fhir.epic.com",
+        "Explains Open Epic sandbox is publicly available",
+        "Walks through app registration in sandbox",
+        "Distinguishes sandbox from per-customer production",
+        "Notes Connection Hub membership requirement for write scopes",
+        "References SMART App Launch for the OAuth flow"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we want to write notes back into cerner from our scribe app. how does that work",
+      "expected_output": "Should trigger on casual lowercase phrasing. Should identify Oracle Health / Cerner Millennium as the target. Should point to the Code Console developer portal and Ignite APIs for Millennium. Should describe FHIR DocumentReference write as the standard pattern with a user/DocumentReference.write or system scope. Should give a representative DocumentReference example. Should note that older sites without FHIR write support fall back to HL7 v2 MDM messages (T02/T08). Should mention that each tenant has its own tenant ID in the FHIR base URL. Should reference clinical-documentation for note structure and write-back patterns.",
+      "assertions": [
+        "Triggers on casual lowercase phrasing",
+        "Identifies Oracle Health / Cerner Millennium",
+        "References Code Console and Ignite APIs",
+        "Describes FHIR DocumentReference write pattern",
+        "Names required write scopes",
+        "Mentions HL7 v2 MDM fallback for older sites",
+        "Notes tenant ID in FHIR base URL",
+        "References clinical-documentation skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're shipping an app that reads US Core data and writes flowsheet observations back to Epic, Cerner, and Athena. Walk us through what we need to build and what differs per vendor.",
+      "expected_output": "Should treat this as a multi-vendor distribution build. Should structure response around shared concerns (SMART OAuth, US Core read profiles, paging, AuditEvent logging, error handling, BAA per customer) and per-vendor differences. For Epic: Connection Hub membership, Hyperdrive embedding, flowsheet IDs are per-customer and require local mapping, document write via DocumentReference. For Cerner: Code Console, Ignite APIs, tenant-aware base URLs. For Athena: MDP enrollment, athenaOne REST for document upload (not FHIR DocumentReference), practice ID in every call. Should warn that flowsheet write semantics differ across vendors and that hardcoding IDs is a top pitfall. Should reference smart-on-fhir, fhir-integration, hipaa-compliance, audit-logging, terminology-services.",
+      "assertions": [
+        "Addresses all three vendors with vendor-specific differences",
+        "Notes Epic Connection Hub and per-customer flowsheet IDs",
+        "Notes Cerner Code Console and tenant-aware URLs",
+        "Notes Athena MDP enrollment and athenaOne REST for documents",
+        "Mentions BAA required per customer site",
+        "References smart-on-fhir, fhir-integration, hipaa-compliance",
+        "Warns against hardcoding vendor-specific IDs",
+        "Mentions AuditEvent / audit logging requirement"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We're a third-party EHR integration vendor. Do we need a HIPAA Business Associate Agreement with each customer hospital? How should we handle PHI in transit?",
+      "expected_output": "Should recognize this as a HIPAA / privacy question rather than a vendor integration tactic. Should confirm that yes, integrating with a covered entity makes the vendor a Business Associate and a BAA is required before any production PHI flows. Should defer to or cross-reference the hipaa-compliance skill for BAA content, audit, breach-notification, and minimum-necessary requirements, and to phi-handling for de-identification. May briefly note that BAA is on the integration checklist but should not attempt a full HIPAA program in this response.",
+      "assertions": [
+        "Confirms BAA is required for third-party EHR vendors",
+        "Names Business Associate role explicitly",
+        "Defers to or references hipaa-compliance skill",
+        "References phi-handling for de-identification",
+        "Does not attempt a full HIPAA program inside ehr-integration"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Most of our customer practices are on eClinicalWorks and a few are on NextGen and OpenEMR. How should we approach integration for small/mid-size ambulatory deployments?",
+      "expected_output": "Should describe each vendor's program (eClinicalWorks Developer Program / EVA APIs, NextGen Connect Marketplace, OpenEMR self-hosted SMART on FHIR module) and the fact that all three support SMART on FHIR for USCDI. Should warn that smaller ambulatory sites often have older MIRTH-based integrations and that ECW sandbox access usually requires partner enrollment. Should note OpenEMR is self-hosted so the customer controls the sandbox and prod. Should recommend reading the customer's actual capability statement at /.well-known/smart-configuration before assuming scopes are available. Should suggest fhir-integration for resource-level details.",
+      "assertions": [
+        "Names each vendor's program correctly",
+        "Confirms SMART on FHIR support for USCDI",
+        "Notes ECW partner enrollment for sandbox",
+        "Notes OpenEMR self-hosted nature",
+        "Recommends checking .well-known/smart-configuration per site",
+        "References fhir-integration skill"
+      ],
+      "files": []
+    }
+  ]
+}

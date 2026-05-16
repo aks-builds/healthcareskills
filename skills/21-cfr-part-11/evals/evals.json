@@ -1,0 +1,86 @@
+{
+  "skill_name": "21-cfr-part-11",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building an EDC (electronic data capture) system for clinical trials. Does Part 11 apply, and what do we need to design for?",
+      "expected_output": "Should attempt to read healthcare-context.md first. Should confirm Part 11 applies because clinical trials are under GCP predicate rules (21 CFR Part 312, ICH E6(R2/R3), and the records the system creates/maintains are required by those predicate rules). Should classify the system as a closed system (typically) and walk through §11.10 controls: validation, secure computer-generated time-stamped audit trails, system access limited to authorized individuals, authority checks, device checks, person/entity authentication, and operational checks. Should require e-signature design (§11.100/§11.200/§11.300) — two distinct identification components, signature manifestation in the record, and a certification letter to FDA. Should reference gamp5-vs-csa.md for the validation approach (likely GAMP 5 Category 4 with a CSA risk-based mindset) and audit-trail-requirements.md. Should defer to QA/Validation/Regulatory Affairs for the binding determination. Should not invent specific subsection citations beyond §11.x structure.",
+      "assertions": [
+        "Attempts to read healthcare-context.md",
+        "Confirms Part 11 applies via GCP predicate rules",
+        "Classifies as closed system and walks through §11.10 controls",
+        "E-signature design with two components, manifestation, and FDA certification letter",
+        "References gamp5-vs-csa.md and audit-trail-requirements.md",
+        "Routes binding determination to QA/Validation/Regulatory Affairs",
+        "Does not invent subsection citations beyond §11.x"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our pharmacovigilance system uses an off-the-shelf SaaS for case intake. The vendor says they're 'Part 11 compliant.' Is that enough?",
+      "expected_output": "Should explain that vendor 'Part 11 compliance' is necessary but never sufficient — Part 11 applies to the regulated user's use of the system, not just the vendor's product features. Should describe what the regulated user still owns: system validation in the user's environment for the user's intended use (typically GAMP 5 Category 4 — a configured product), procedures (SOPs for use, training, change control, periodic review), access management in the user's IT, audit-trail review SOP, e-signature certification letter for the user's signers, and supplier qualification of the vendor (audit, quality agreement, SLAs, change notification). Should cross-reference gamp5-vs-csa.md. Should warn that vendor claims should be evidenced (independent audit, validation summary, change-control commitments). Should route the binding compliance position to QA / Regulatory Affairs.",
+      "assertions": [
+        "Explains vendor compliance is necessary but not sufficient",
+        "Lists the user-owned obligations (validation, SOPs, access, training, audit review, certification letter, supplier qualification)",
+        "Frames the system as GAMP 5 Category 4 (configured product)",
+        "Recommends evidencing vendor claims (audit, quality agreement)",
+        "Routes the binding position to QA/Regulatory Affairs"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "quick - we let users edit their own data without an audit trail in dev. ok if we only use part 11 in prod?",
+      "expected_output": "Should respond proportionally to the casual phrasing and confirm yes, Part 11 applies to systems that create/maintain records required by a predicate rule — pure development environments without regulated records are typically out of scope, BUT the moment dev data carries forward into validated environments, or if dev is used to support a regulated submission (e.g., method-development data filed in an IND), Part 11 obligations attach. Should warn about migration risk: data created in unvalidated environments cannot simply 'become' validated by promotion. Should recommend a clear separation policy with documented data classification (regulated vs. non-regulated), and route any edge cases (e.g., 'pilot prod') to QA.",
+      "assertions": [
+        "Responds proportionally to casual phrasing",
+        "Confirms pure dev outside of predicate-rule scope can be out of scope",
+        "Warns about migration / data carry-forward risk",
+        "Recommends clear data classification and separation",
+        "Routes edge cases to QA"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Design a Part 11 compliance program for a small biotech rolling out a new LIMS for GLP studies. We have 3 months and limited validation resources.",
+      "expected_output": "Should propose a CSA-aligned risk-based plan: scope statement and intended-use definition; GAMP 5 software category determination (likely Cat 4 — configured product); risk assessment focused on patient safety / data integrity / product quality (since the predicate rule is GLP, focus on data integrity); critical-thinking-led test strategy (test what matters, leverage vendor evidence, avoid wasted scripts on COTS features); validation plan (URS/FS, configuration spec, traceability matrix, test summary, validation summary); e-signature design + certification letter for signers; access control + audit trail review SOP; SOPs for change control, periodic review, deviation, training; supplier qualification of the vendor. Should reference gamp5-vs-csa.md and audit-trail-requirements.md. Should be realistic about the 3-month timeline — flag what may need to slip if the team is small. Should defer the binding regulatory position to QA / Regulatory Affairs.",
+      "assertions": [
+        "CSA risk-based approach",
+        "GAMP 5 category determination",
+        "Validation deliverables list (plan, URS, traceability, test summary, validation summary)",
+        "E-signature certification letter included",
+        "Audit trail review SOP and change control",
+        "Realistic about timeline / resource constraints",
+        "Routes binding determination to QA / Regulatory Affairs"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "What's the §11.10(e) audit trail format we have to use? Can you give me the exact schema FDA requires?",
+      "expected_output": "Should clarify that §11.10(e) requires secure, computer-generated, time-stamped audit trails to independently record the date and time of operator entries and actions that create, modify, or delete electronic records, with a defined retention period. FDA does NOT prescribe a specific schema or file format — the implementation is left to the regulated user, but the audit trail must capture the regulatory content (who, what, when, before/after where applicable, and reason for change where required by predicate rule or organizational policy). Should reference audit-trail-requirements.md. Should refuse to invent an 'FDA-required schema.' Should defer the design decision to the validation team and refer to current FDA Part 11 guidance for any interpretive language.",
+      "assertions": [
+        "Refuses to invent a specific FDA-mandated schema",
+        "Lists the substantive content required (who/what/when/before-after/reason)",
+        "References audit-trail-requirements.md",
+        "Points to current FDA Part 11 guidance for interpretation",
+        "Defers the design to the validation team"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our system is in scope for both Part 11 and HIPAA. How do the audit trail requirements interact?",
+      "expected_output": "Should explain that Part 11 §11.10(e) audit trail requirements and HIPAA §164.312(b) audit control requirements overlap substantially in technical content but serve different purposes: Part 11 protects record integrity for FDA-regulated activities (predicate rule), HIPAA protects PHI confidentiality and supports accounting of disclosures. A well-designed audit trail can satisfy both — but retention, review cadence, and content elements differ (Part 11 retention is tied to the predicate rule and FDA expectations; HIPAA documentation retention is 6 years; accounting of disclosures is 6 years of non-TPO disclosures). Should cross-reference audit-logging skill for technical design and hipaa-compliance for the HIPAA framing. Should defer the unified-program decision to QA + Privacy Officer.",
+      "assertions": [
+        "Explains the dual-purpose nature of the two regimes",
+        "Identifies retention differences (predicate rule vs. HIPAA 6 years vs. accounting of disclosures)",
+        "Cross-references audit-logging and hipaa-compliance",
+        "Routes the unified-program decision to QA + Privacy Officer"
+      ],
+      "files": []
+    }
+  ]
+}

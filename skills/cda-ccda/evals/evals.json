@@ -1,0 +1,92 @@
+{
+  "skill_name": "cda-ccda",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We need our EHR to produce a C-CDA Continuity of Care Document for transitions of care. What sections are required and how do I validate the output?",
+      "expected_output": "Should check for .agents/healthcare-context.md (or ask minimum questions). Should identify CCD (LOINC 34133-9) as the document type. Should list required sections — Allergies and Intolerances, Medications, Problem List, Procedures, Results, Vital Signs — plus commonly-recommended sections (Encounters, Plan of Treatment, Immunizations, Social History). Should call out that exact required-section list depends on C-CDA version (R2.1 vs. R3.0) — note 'verify against current C-CDA IG version'. Should describe the validation stack: XML well-formedness, CDA XSD, HL7 C-CDA Schematron, NIST CDA Validator / Lantana ETSA for ONC certification, and the ONC C-CDA Scorecard for quality. Should mention USCDI alignment (v3/v4/v5) drives required data classes. Should not invent templateIds, OIDs, or codes.",
+      "assertions": [
+        "Reads or asks for healthcare-context.md (or smallest questions)",
+        "Identifies CCD with LOINC 34133-9",
+        "Lists required sections (Allergies, Medications, Problems, Procedures, Results, Vital Signs)",
+        "Notes recommended sections (Encounters, Plan of Treatment, Immunizations, Social History)",
+        "Flags version dependence (R2.1 vs R3.0) and instructs verification",
+        "Describes validation stack: XSD, Schematron, NIST, ETSA, Scorecard",
+        "Mentions USCDI alignment",
+        "Does not fabricate templateIds, OIDs, or codes"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Show me what a minimal Allergies section with one penicillin allergy entry looks like, with both the narrative block and the structured entry, properly cross-referenced.",
+      "expected_output": "Should produce a `<section>` with a templateId for the Allergies and Intolerances section (note: verify the OID + extension against the C-CDA 2.1 IG), a `code` of `48765-2` (LOINC), a `<text>` narrative block with a table or list referencing an ID like `#allergy-1`, and an `<entry>` containing the Allergy Concern Act + nested Allergy - Intolerance Observation, both with templateIds. The observation should reference the narrative via `<originalText><reference value=\"#allergy-1\"/></originalText>` on the substance code. The penicillin code should be RxNorm or SNOMED CT (commonly RxNorm for drug allergens) — note that the displayed code is illustrative and must be verified. Should use synthetic effective times and IDs. Should explain why the narrative ↔ entry cross-reference matters (legal record and renderer parity).",
+      "assertions": [
+        "Produces a section with templateId, code (48765-2 LOINC), title, text, entry",
+        "Includes Allergy Concern Act and nested Allergy - Intolerance Observation templateIds",
+        "Cross-references narrative and entry via id/reference",
+        "Notes penicillin code is illustrative and needs verification against IG-bound value set",
+        "Uses synthetic effective times and IDs",
+        "Explains why narrative ↔ entry cross-reference matters",
+        "Marks templateId OIDs as 'verify against C-CDA 2.1 IG'"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "i'm consuming a c-cda from another hospital and the narrative shows medications but my parser finds zero medication entries. is the document broken?",
+      "expected_output": "Should trigger on casual phrasing. Should explain that legally the narrative is the record and is required to render, but it's common (and unfortunately allowed by ONC) for vendors to ship 'narrative-only' sections without structured entries. Should diagnose: (1) is the Medications section using the 'Entries Optional' template variant rather than 'Entries Required'? (2) Is there an `entry/medActivity` block but with a different templateId than expected? (3) Are entries present but with `nullFlavor='NI'` (no information)? (4) Is the document using a non-CCD template (e.g., Unstructured Document) that doesn't carry entries at all? Should recommend running the document through the C-CDA Scorecard which surfaces narrative-only sections explicitly. Should suggest contacting the sending EHR vendor and requesting the Entries Required variant. Should warn that fallback parsing from narrative tables is fragile and lossy.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Explains narrative-required vs. entry-optional distinction",
+        "Lists multiple diagnostic possibilities (Entries Optional, wrong templateId, nullFlavor, wrong document template)",
+        "Recommends C-CDA Scorecard to detect this pattern",
+        "Suggests requesting Entries Required variant from sender",
+        "Warns against fragile fallback parsing from narrative"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're building a CDA-to-FHIR pipeline. The input is a C-CDA 2.1 CCD and the output needs to be US Core resources for ingestion into our FHIR R4 server. How should we architect this and what should we worry about?",
+      "expected_output": "Should propose an architecture: parse CDA XML (XSD validation first), extract header → Patient, Practitioner, Organization, Encounter; walk sections → Conditions, MedicationStatements / MedicationRequests, AllergyIntolerances, Observations (results / vital signs), Immunizations, Procedures, CarePlans, Goals. Should reference HL7's CDA-on-FHIR and FHIR-to-CDA IGs as the canonical bridges (note FHIR-to-CDA goes the other direction — for ingestion the mapping work is similar but reversed). Should warn that round-tripping is lossy. Should call out key mapping decisions: ICD-10-CM encounter dx vs. SNOMED CT problem list; RxNorm requirement on medication.code; CVX on Immunization; LOINC on Observation. Should require US Core profile validation on outputs. Should mention Provenance per resource (the C-CDA is the source). Should defer FHIR resource design specifics to fhir-integration and code-system bindings to terminology-services.",
+      "assertions": [
+        "Proposes a multi-step CDA → FHIR pipeline architecture",
+        "Lists target FHIR resources mapped from CCD sections",
+        "References HL7 CDA-on-FHIR / FHIR-to-CDA IGs",
+        "Warns about lossy round-tripping",
+        "Notes coding binding choices (ICD-10-CM vs SNOMED CT, RxNorm, CVX, LOINC)",
+        "Requires US Core profile validation on outputs",
+        "Recommends Provenance per resource pointing at the source CDA",
+        "Defers FHIR resource design to fhir-integration and code systems to terminology-services"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We need to push a C-CDA to a regional HIE. They support XDS.b. What metadata do we need on the submission?",
+      "expected_output": "Should recognize XDS.b document submission belongs to the ihe-profiles skill. Should defer for the XDS metadata details (classCode, typeCode, healthcareFacilityTypeCode, practiceSettingCode, eventCodeList, confidentialityCode, formatCode, mimeType, authorRole, authorSpeciality, sourcePatientId). Should give a brief pointer on CDA-side specifics: the C-CDA's title, documentationOf service event, and code should align with the XDS typeCode; formatCode identifies the C-CDA template (e.g., a specific CCD format code). Should not attempt to fully reproduce XDS metadata semantics.",
+      "assertions": [
+        "Recognizes XDS.b submission as an ihe-profiles question",
+        "Defers to ihe-profiles skill",
+        "Provides brief pointer on C-CDA ↔ XDS metadata alignment",
+        "Does not attempt to fully reproduce XDS metadata semantics"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our C-CDAs pass the HL7 Schematron but the NIST validator complains about 'missing reference from entry to narrative.' What's wrong?",
+      "expected_output": "Should diagnose: structured entries are expected to reference their narrative counterparts using `<reference value=\"#some-id\"/>` (often inside `<originalText>` on the code, or inside `<text>` of the act). Narrative blocks must have matching `ID` attributes on the referenced element (`<content ID=\"some-id\">...`). The HL7 Schematron is lenient; the NIST validator catches these cross-reference gaps because they break rendering pipelines that hyperlink between entries and narrative. Fix: make sure every clinically meaningful entry has a `<reference value=\"#X\"/>` and that `#X` resolves to an existing narrative element. Should recommend running the C-CDA Scorecard which scores this pattern. Should remind that narrative is the legal record and entries must agree with it.",
+      "assertions": [
+        "Diagnoses missing #id references between entries and narrative",
+        "Explains the role of <reference> in <originalText> / <text>",
+        "Notes the narrative element must have a matching ID attribute",
+        "Explains why HL7 Schematron may pass but NIST validator fails",
+        "Recommends C-CDA Scorecard",
+        "Reinforces narrative as legal record"
+      ],
+      "files": []
+    }
+  ]
+}

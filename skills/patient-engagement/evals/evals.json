@@ -1,0 +1,95 @@
+{
+  "skill_name": "patient-engagement",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Design an SMS appointment-reminder program for a primary care clinic. We have a 22% no-show rate and want to reduce it.",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should produce a reminder design with: cadence (typically 7-day, 72-hour, 24-hour touchpoints), timing aligned to the action window, frequency caps, quiet hours, and an escalation rail (SMS to call to mail). Should address HIPAA + TCPA posture: treatment-message classification, prior express consent (not necessarily written) for treatment SMS to a wireless number, BAA on the messaging vendor (not just conduit), telling patients SMS is not fully secure. Should propose channel-level opt-out (STOP) handling. Should propose measurement with a control or comparison cohort to attribute no-show reduction, with equity stratification by language, age, and SDOH. Should call out 'verify current FCC rules and any recent orders' for TCPA specifics. Should mention Section 1557 language access.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Proposes multi-touch cadence aligned to action window",
+        "Addresses HIPAA + TCPA posture explicitly",
+        "Notes BAA requirement (conduit exception is narrow)",
+        "Includes STOP / opt-out handling",
+        "Proposes control / comparison cohort for measurement",
+        "Stratifies measurement by equity factors",
+        "References Section 1557 language access",
+        "Includes verify caveat for current regulations"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We want to launch a post-discharge follow-up program for CHF patients to reduce 30-day readmissions. What should the program look like?",
+      "expected_output": "Should propose a CHF-specific archetype: 24-48 hour callback, daily weight check, symptom check-in (often via SMS or app), medication reconciliation, follow-up booking, red-flag triage, 7-day and 30-day touchpoints. Should select an appropriate behavior-change framework (e.g., Health Belief Model or COM-B for self-care, BJ Fogg for daily-weight habit). Should match channels to a Medicare-leaning, older-adult population (consider IVR / human callback, mailed letters alongside SMS; address accessibility). Should plan measurement with a comparison cohort (matched controls or pre/post-with-controls), measuring readmission as primary, with reach/response/action intermediate metrics, equity stratification, and PMPM impact. Should call out HIPAA / BAA, accessibility, and language access.",
+      "assertions": [
+        "Proposes CHF-specific touchpoint pattern",
+        "Selects an appropriate behavior-change framework with rationale",
+        "Matches channels to older-adult / Medicare audience including IVR or callback",
+        "Plans measurement with comparison cohort, not pre/post only",
+        "Includes equity stratification",
+        "Addresses HIPAA + BAA",
+        "Addresses accessibility and language access"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "help us think through patient engagement for our medicaid plan. we have a lot of churn and low preventive screening rates.",
+      "expected_output": "Should trigger on casual phrasing. Should recognize Medicaid-specific constraints: high digital-divide risk, address volatility, language diversity, distrust, churn cycles tied to redetermination. Should propose channel mix that does not require smartphone + broadband by default (SMS + mail + IVR + community-health worker outreach). Should address SDOH screening and closed-loop referral (PRAPARE / AHC-HRSN; Unite Us / Findhelp — with verify caveats). Should call out 42 CFR Part 2 for any SUD-touching outreach and state-specific Medicaid managed-care rules. Should propose preventive screening outreach by birthday month or care-gap trigger, with equity stratification baked in. Should suggest measurement with a comparison cohort and warn that churn analysis is biased by enrollment volatility.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Recognizes Medicaid-specific constraints (digital divide, churn)",
+        "Proposes channel mix beyond smartphone-only",
+        "Addresses SDOH screening and closed-loop referral with verify caveats",
+        "Calls out 42 CFR Part 2 and state Medicaid managed-care rules",
+        "Proposes preventive-screening outreach (birthday month / care gap)",
+        "Stratifies measurement by equity factors",
+        "Warns about selection bias in churn analysis"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Can we use Twilio for HIPAA-regulated SMS to patients? And do we need a BAA?",
+      "expected_output": "Should explain that Twilio offers a BAA (verify current product positioning and which Twilio products are covered — not all are). Should clarify the HIPAA conduit exception is narrow and most messaging platforms that touch message content are not conduits and need a BAA. Should distinguish treatment messages from marketing under TCPA: treatment typically prior express consent on the wireless number; marketing requires prior express written consent. Should call out that the patient should be told SMS is not fully secure and offered a secure-channel alternative. Should not invent specific Twilio product capabilities; should recommend confirming current BAA scope, encryption posture, and any healthcare add-ons directly with Twilio. Should mention state-law overlays (e.g., Florida, Washington) and Part 2 / behavioral-health considerations.",
+      "assertions": [
+        "Confirms BAA is required (conduit exception is narrow)",
+        "References that Twilio offers a BAA with verify caveat",
+        "Distinguishes treatment vs marketing under TCPA",
+        "Notes patient should be told SMS is not fully secure",
+        "Does not invent specific Twilio capabilities",
+        "Mentions state law overlays and Part 2"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We want to add a chronic-care SMS program for our diabetic patients but our population is heavily older Medicare, many speak Spanish or Vietnamese, and we have a lot of patients with accessibility needs. How do we design for equity?",
+      "expected_output": "Should call out that an SMS-default program risks excluding the very patients with the highest unmet need. Should propose multi-channel architecture: IVR / human callback alongside SMS; mailed letters where appropriate; portal-with-notify-out for those who use it. Should require language variants (Spanish + Vietnamese at minimum, in-language readability scored separately) and culturally adapted content (defer to health-content-writing). Should require accessibility coverage (defer to accessibility-healthcare): screen-reader-friendly portal, captioned video, TTY / relay alternatives. Should ban race/ethnicity as a segmentation variable without a documented clinical equity rationale. Should propose equity-stratified measurement from day one (not 'add later'), and audit algorithmic prioritization for bias.",
+      "assertions": [
+        "Calls out digital-divide exclusion risk of SMS-default",
+        "Proposes multi-channel including IVR / callback / mail",
+        "Requires in-language variants with separate readability scoring",
+        "Defers cultural adaptation to health-content-writing",
+        "Defers accessibility specifics to accessibility-healthcare",
+        "Restricts race/ethnicity segmentation",
+        "Requires equity-stratified measurement from day one",
+        "Calls out algorithmic bias in prioritization"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Can you write the SMS body copy for our diabetes adherence reminder? We need it in English and Spanish, at a 5th-grade reading level.",
+      "expected_output": "Should recognize that writing the actual content of patient messages — plain language, readability scoring, transcreation to Spanish, cultural adaptation — is the scope of health-content-writing, not patient-engagement. Should defer or hand off to health-content-writing for the content work, while offering to scope the surrounding program (cadence, consent, measurement) if not already done. Should not attempt the full plain-language copywriting using engagement patterns.",
+      "assertions": [
+        "Recognizes content writing is health-content-writing scope",
+        "Defers or hands off to health-content-writing",
+        "Offers to scope surrounding program if useful",
+        "Does not attempt full plain-language copywriting"
+      ],
+      "files": []
+    }
+  ]
+}

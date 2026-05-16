@@ -1,0 +1,89 @@
+{
+  "skill_name": "population-health-analytics",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're a regional ACO with an MSSP contract. We want to build a population health analytics platform on Snowflake. Help us think through the architecture.",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should walk through the reference architecture: source feeds (CMS Claim and Claim Line Feed for MSSP, EHR clinical via FHIR Bulk Export or HIE, pharmacy, lab, ADT, SDOH, eligibility, provider directory) -> ingestion + terminology normalization -> persistent EMPI -> unified longitudinal record -> analytics marts (risk, quality, utilization, SDOH, attribution, cost/savings) -> apps (care management, dashboards, outreach). Should call out MSSP-specific concerns: attribution methodology, benchmarking, beneficiary alignment, the CCLF feed cadence. Should recommend a prospective CMS-HCC risk score for benchmarking work and identify rising-risk segmentation as the typical CM ROI sweet spot. Should mark current MSSP methodology and HCC coefficients as items to verify against current CMS guidance.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Lays out source -> EMPI -> longitudinal -> marts -> apps architecture",
+        "Names MSSP-specific feeds (CCLF) and attribution concerns",
+        "Recommends prospective CMS-HCC for benchmarking",
+        "Identifies rising-risk segmentation as high ROI",
+        "Marks CMS HCC coefficients and methodology as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We have a lot of high-cost members but our care management team isn't moving the needle. We just rank members by spend and call the top 200. What should we do differently?",
+      "expected_output": "Should explain that raw spend ranking misses impactability — the top-cost members are often at a plateau (end-stage disease, structural barriers) where additional CM has limited effect. Should recommend layering in an uplift/impactability score (predicted change in outcome from intervention, not baseline risk), focusing on the rising-risk segment (e.g., 60-90th percentile by predicted next-period cost), and adding contactability and engagement-propensity signals. Should mention closable care gaps (HEDIS/eCQM-aligned), care transitions from ADT, and SDOH/HRSN screens as actionable levers. Should warn about bias and equity stratification in uplift models — features can proxy for race/income. Should not invent specific vendor model accuracy numbers.",
+      "assertions": [
+        "Explains that raw spend ranking misses impactability",
+        "Recommends uplift / impactability modeling",
+        "Identifies rising-risk band as the CM ROI sweet spot",
+        "Mentions contactability and engagement propensity",
+        "Calls out HEDIS/eCQM gaps, ADT transitions, SDOH as actionable levers",
+        "Warns about bias / equity in uplift modeling",
+        "Avoids inventing vendor performance numbers"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what's the difference between HCC and ACG and which one should we use?",
+      "expected_output": "Should trigger on casual phrasing. Should compare CMS-HCC (CMS-owned, used for MA risk adjustment and ACO benchmarking, ICD-10-CM diagnoses + demographics + Medicaid/disability flags, payment-year-specific coefficients) with Johns Hopkins ACG (commercial license, diagnoses + age/sex + optionally pharmacy/utilization, broader commercial/Medicaid/integrated-system use, multiple output products including ADGs/EDCs and predictive models). Should note neither is universally 'right' — choice depends on line of business (MA / ACO -> HCC; commercial / Medicaid / integrated system -> often ACG or DxCG), whether the use is concurrent or prospective, and what the organization is contractually obligated to use for payment. Should mark current HCC version (payment year) and ACG version as items to verify; should not invent coefficients or relative accuracy claims.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Distinguishes CMS-HCC vs. ACG on owner, inputs, and use case",
+        "Notes line-of-business drives the choice",
+        "Mentions concurrent vs. prospective consideration",
+        "Notes contractual / payment-year specificity",
+        "Marks model versions as items to verify; does not invent coefficients"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We want to start integrating SDOH into our risk models and outreach. We're capturing PRAPARE in our FQHC sites. Walk us through how to ingest, code, and use this end-to-end.",
+      "expected_output": "Should cover the capture-to-use pipeline: PRAPARE responses captured at the FQHC encounter, coded via the Gravity Project FHIR IG (LOINC for screening instrument items and answers, SNOMED CT for derived HRSN conditions, goals, interventions), supplemented with ICD-10-CM Z55-Z65 where billable, plus area-level deprivation linkage (ADI or SVI by geocode). Should explain ingestion into the longitudinal record and creation of HRSN segmentation overlays. Should recommend routing positive HRSN screens to closed-loop community-resource referral platforms (Unite Us, findhelp, NowPow, Aunt Bertha) and tracking referral resolution. Should note that adding SDOH to risk models requires careful validation for bias and that some MA/CMS risk methodologies are evolving to include SDOH adjusters — verify current payment-year specification. Should not invent which specific Gravity LOINC codes apply to PRAPARE items.",
+      "assertions": [
+        "Covers capture -> code -> integrate -> use pipeline",
+        "References Gravity Project FHIR IG for SDOH coding",
+        "Mentions ICD-10-CM Z55-Z65 as billable but coarse",
+        "Includes area-level ADI / SVI linkage",
+        "Recommends closed-loop referral platform integration",
+        "Calls out bias validation when adding SDOH to risk models",
+        "Marks Gravity IG version and CMS SDOH adjuster status as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our HEDIS measure rates are dropping. Can you fix them?",
+      "expected_output": "Should reframe: a HEDIS rate drop is a symptom that requires diagnosis (denominator change, numerator capture failure, attribution drift, data feed gap, coding change between measurement years, real care-quality regression). Should propose a structured triage: which measure, denominator/numerator trend by month, attribution stability, supplemental data submission status to payers (NCQA SDS / non-standard SDS rules), and whether the eCQM or HEDIS value-set definitions changed in the new measurement year. Should recommend computing gap status via an audited rules engine driven by current VSAC value sets, not BI ad-hoc logic. Should not invent specific HEDIS numerator/denominator changes for any given measure year.",
+      "assertions": [
+        "Reframes the request as diagnosis-first",
+        "Lists candidate causes (denominator, numerator capture, attribution, feed gap, measure spec change)",
+        "Mentions supplemental data submission (SDS) to payers",
+        "Recommends audited rules engine over BI ad-hoc logic",
+        "References VSAC value sets and current measurement year",
+        "Does not invent specific HEDIS measure-year changes"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We need to design the underlying VBC contract terms with one of our payers. Can you help draft the shared-savings model?",
+      "expected_output": "Should recognize that VBC contract design (benchmark methodology, shared savings/risk percentages, quality gates, attribution method, risk corridors, MLR considerations) is the value-based-care skill's territory, not population-health-analytics. Should defer to value-based-care for the contract economics but offer the analytics-side perspective on what is needed to operate the contract once signed: attribution mechanics, point-in-time history, risk-adjusted benchmarking, quality measure feeds, savings reconciliation. Should not draft contract terms here.",
+      "assertions": [
+        "Recognizes this is a VBC contract-design request",
+        "Defers to or cross-references the value-based-care skill",
+        "Offers analytics-side complement (attribution, benchmarks, quality, reconciliation)",
+        "Does not draft contract economic terms"
+      ],
+      "files": []
+    }
+  ]
+}

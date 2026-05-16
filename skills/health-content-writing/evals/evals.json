@@ -1,0 +1,94 @@
+{
+  "skill_name": "health-content-writing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Rewrite this discharge instruction in plain language for our Medicaid population: 'Patients are advised to discontinue the prescribed antihypertensive medication and seek immediate medical evaluation if cerebrovascular symptoms manifest.'",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should rewrite into 6th-grade or lower plain language using active voice, short sentences, and common words (e.g., 'high blood pressure medicine,' 'stroke symptoms'). Should front-load the action ('Stop taking your blood pressure medicine and call us right away if...'). Should give concrete examples of stroke symptoms (face droop, arm weakness, slurred speech) rather than 'cerebrovascular symptoms.' Should recommend running the rewrite through at least two readability formulas (Flesch-Kincaid plus SMOG or Dale-Chall) and human review. Should mention clinician sign-off before release.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Rewrites at ~6th-grade reading level",
+        "Uses active voice and short sentences",
+        "Replaces 'antihypertensive' and 'cerebrovascular' with common words",
+        "Gives concrete stroke warning signs",
+        "Front-loads the action",
+        "Recommends multiple readability formulas plus human review",
+        "Calls out clinician sign-off"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Draft an after-visit summary template for a primary care clinic. Patients should be able to act on it without calling back.",
+      "expected_output": "Should produce an AVS structure covering: why the patient came in, what was found, what changed (meds added/stopped/dosed), what to do next with dates, follow-up appointments and tests with prep, warning signs that mean call / ED / 911, how to reach the practice, and resources. Should target 6th-grade reading level by default. Should recommend the patient's preferred language. Should pair instructions with teach-back style elements (a recap box, a 'Call us if...' section, fillable self-check lines). Should note EHR-template alignment and CMS conditions-of-participation considerations (with a 'verify' caveat). Should call out non-stigmatizing, OpenNotes-friendly language.",
+      "assertions": [
+        "Produces a structured AVS with the standard sections",
+        "Targets ~6th-grade reading level",
+        "Includes warning signs / when to seek emergency care",
+        "Includes teach-back elements (recap box, self-check)",
+        "Mentions preferred-language delivery",
+        "References EHR template and CMS CoP with verify caveat",
+        "Calls out non-stigmatizing language"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we need to translate our diabetes patient education into spanish and vietnamese. what's the right approach?",
+      "expected_output": "Should trigger on casual phrasing. Should distinguish translation, transcreation, and certified/sworn translation, and recommend transcreation for behavioral / education content. Should recommend back-translation QA for high-stakes pieces. Should warn against machine translation alone for clinical instructions. Should mention CLAS standards and Section 1557 language-access posture (with verify caveat). Should ask about target reading level in each language, cultural adaptation (food, family structure), and whether the source is already at plain-language grade level before translation. Should note that Vietnamese-language vetted icon libraries and idioms differ from Spanish — culture, not just language.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Distinguishes translation vs transcreation vs certified",
+        "Recommends back-translation for high-stakes content",
+        "Warns against machine translation alone for clinical content",
+        "References CLAS standards and Section 1557 with verify caveat",
+        "Asks about per-language reading level and cultural adaptation",
+        "Recommends fixing source plain-language quality before translating"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Audit our informed consent form for a colonoscopy. We need a plain-language version that legal will still approve, and we want to communicate risk numbers clearly.",
+      "expected_output": "Should propose a parallel plain-language consent (6th-8th grade target) alongside the legally-required form, not a replacement. Should apply plain-language techniques: active voice, short sentences, defined unavoidable terms inline. Should translate risk numbers as frequencies with consistent denominators ('about 1 in 1,000' rather than '0.1%'), prefer absolute over relative risk, and suggest icon arrays for tangible probability. Should walk through the standard consent elements (purpose, procedure, risks, benefits, alternatives, right to refuse). Should call out a legal review loop and clinician sign-off, plus translation for LEP patients. Should note that the legal document remains the controlling record.",
+      "assertions": [
+        "Proposes plain-language version alongside legal form, not replacing it",
+        "Targets 6th-8th grade reading level for consent",
+        "Translates risks as frequencies with consistent denominators",
+        "Prefers absolute over relative risk",
+        "Suggests icon arrays",
+        "Covers standard consent elements",
+        "Calls out legal review and clinician sign-off",
+        "Addresses translation for LEP patients"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our OpenNotes are getting patient complaints. Patients say notes feel judgmental. Can you give us guidance on rewriting clinician note language so it lands better with patients, without compromising the legal medical record?",
+      "expected_output": "Should explain that notes remain legal medical records and clinical accuracy is not optional. Should give concrete swaps: 'the patient denies' to 'the patient reports no'; 'non-compliant' to 'has not been able to take the medicine as prescribed'; avoid 'drug-seeking,' 'failed therapy,' and similar stigma-laden phrasing for SUD, behavioral health, obesity, chronic pain. Should recommend explaining abbreviations on first use or rendering a portal glossary. Should mention sandwiching bad news with empathy and next steps. Should reference ONC information-blocking rules with a verify caveat. Should NOT recommend hiding or softening clinically important findings.",
+      "assertions": [
+        "Maintains that notes are legal medical records",
+        "Provides concrete non-stigmatizing language swaps",
+        "Addresses SUD, behavioral health, obesity, chronic pain stigma terms",
+        "Recommends explaining abbreviations / glossary",
+        "Recommends empathy-sandwich for bad news",
+        "References ONC information-blocking with verify caveat",
+        "Does not recommend hiding clinically important findings"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We need to set up an SMS appointment-reminder program for our diabetes clinic. Should you write that for me?",
+      "expected_output": "Should recognize that program-level outreach design (cohort, channels, cadence, TCPA/HIPAA consent, measurement) is the scope of the patient-engagement skill, not health-content-writing. Should defer / hand off to patient-engagement for the program design, while offering to write the actual SMS message copy itself once the engagement program is scoped (since SMS content is in scope here). Should not attempt to architect the full engagement program using content-writing patterns.",
+      "assertions": [
+        "Recognizes program design is patient-engagement scope",
+        "Defers or hands off to patient-engagement skill",
+        "Offers to write the SMS content itself once scoped",
+        "Does not attempt full program architecture"
+      ],
+      "files": []
+    }
+  ]
+}

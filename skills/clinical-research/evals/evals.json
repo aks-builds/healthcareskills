@@ -1,0 +1,92 @@
+{
+  "skill_name": "clinical-research",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're standing up a Phase 2 multi-site interventional trial for an investigational drug. Sponsor is an academic medical center, 8 sites, NIH-funded. What systems and standards do we need from day one?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should identify the regulatory frame: IND under 21 CFR Part 312, ICH GCP (verify E6 R2 vs. R3 sponsor expectation), Common Rule with sIRB required for NIH-funded multi-site, FDA-regulated electronic records under 21 CFR Part 11. Should outline systems needed: EDC validated for Part 11 (candidates: Medidata Rave, Veeva Vault EDC, REDCap with hardening for Part 11), CTMS, eTMF following DIA TMF Reference Model, eConsent platform with identity verification, IRT/IWRS for randomization and drug supply, safety database for SAE/SUSAR with E2B(R3) reporting capability, and ClinicalTrials.gov registration within 21 days of first subject in. Should call out CDISC requirements: CDASH at eCRF design, SDTM mapped pre-lock, ADaM at analysis, Define-XML for submission — versions per current FDA Study Data Technical Conformance Guide. Should require an sIRB reliance agreement (e.g., SMART IRB). Should mark current ICH E6, FDA conformance guide, and ClinicalTrials.gov data element versions as items to verify.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Identifies IND + ICH GCP + Common Rule + Part 11 regulatory stack",
+        "Requires sIRB for NIH multi-site",
+        "Names EDC, CTMS, eTMF, eConsent, IRT, safety database",
+        "Calls out CDISC: CDASH -> SDTM -> ADaM -> Define-XML",
+        "Mentions ClinicalTrials.gov 21-day registration",
+        "Marks current standard versions as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Can REDCap be used for FDA-regulated clinical trials, or do we need to buy Medidata Rave?",
+      "expected_output": "Should explain that REDCap can be used for FDA-regulated work but requires careful 21 CFR Part 11 posture: validated installation, controlled user access with unique IDs, electronic signatures meeting Part 11 manifestation requirements, complete audit trail enabled, and documented validation (IQ/OQ/PQ) plus SOPs. The Part 11 obligation is on the records, not the platform brand — Medidata Rave is purpose-built for sponsor-led industry trials and ships with Part 11 controls turned on, which lowers the lift but does not exempt the sponsor from validation. Should note REDCap is widely used in academic / investigator-initiated work and the academic consortium provides hardening modules. Should match recommendation to study type: academic / IIS / small-to-mid trials -> REDCap with Part 11 hardening is often appropriate; large sponsor-led multi-site industry trials -> Rave / Veeva / similar is usually the better fit. Should mark current REDCap Part 11 module status as an item to verify.",
+      "assertions": [
+        "Confirms REDCap can be used for FDA-regulated work with proper hardening",
+        "Lists Part 11 requirements (validation, audit trail, user IDs, signatures)",
+        "Notes Part 11 applies to records regardless of platform",
+        "Distinguishes academic/IIS use case from sponsor-led industry trials",
+        "Mentions Medidata Rave's purpose-built positioning",
+        "Marks current Part 11 module status as an item to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "explain CDASH vs SDTM vs ADaM in plain english",
+      "expected_output": "Should trigger on casual phrasing. Should explain CDASH (Clinical Data Acquisition Standards Harmonization) governs how data is collected on the eCRF — field names, structures, and content at capture time. SDTM (Study Data Tabulation Model) is the tabulated submission dataset standard — one row per observation, organized into domains (DM demographics, AE adverse events, LB labs, VS vitals, EX exposure, etc.). ADaM (Analysis Data Model) is the analysis-ready layer derived from SDTM, designed to be traceable and reproducible, supporting tables/listings/figures in the CSR. Should mention Define-XML as the metadata wrapper FDA requires, SEND for nonclinical/animal studies, and TAUGs for therapeutic-area-specific guidance. Should call out the design principle: map every CRF field to its target SDTM variable at eCRF design time, not after lock. Should mark current CDISC versions as items to verify against FDA's current Study Data Technical Conformance Guide.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Explains CDASH = collection, SDTM = tabulation, ADaM = analysis",
+        "Mentions Define-XML, SEND, TAUGs",
+        "Calls out forward-mapping CRF fields to SDTM at design time",
+        "References FDA Study Data Technical Conformance Guide",
+        "Marks CDISC versions as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're designing a decentralized trial with eConsent, ePRO, home nursing visits, and direct-to-patient drug shipment. What additional risks do we take on vs. a traditional site-based trial?",
+      "expected_output": "Should enumerate DCT-specific risks while reinforcing the GCP bar is unchanged: identity verification at eConsent (signature is only as good as the identity behind it), comprehension assessment without an in-person coordinator, ePRO/eCOA validation and BYOD vs. provisioned device tradeoffs, chain of custody for DTP shipment with cold chain where applicable, source data verification when 'source' lives on a patient device or a home health vendor's system, AE/SAE detection without a clinic visit cadence, investigator oversight across geographically distributed participants, technology equity and access (broadband, devices, language), and state licensure for telehealth visits across state lines. Should note FDA DCT guidance and 21st Century Cures Act provisions are the place to verify current expectations. Should remind that 21 CFR Part 11 still applies to all the new electronic records (eConsent, ePRO, wearable data into EDC). Should not invent specific FDA-required mitigations beyond what is broadly published.",
+      "assertions": [
+        "Reinforces GCP bar is unchanged for DCT",
+        "Calls out identity verification and eConsent comprehension risks",
+        "Mentions DTP chain of custody and cold chain",
+        "Addresses source data verification challenges in DCT",
+        "Notes telehealth multi-state licensure",
+        "References FDA DCT guidance and 21st Century Cures",
+        "Marks current FDA DCT expectations as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We want to use EHR data to populate eCRF fields automatically (labs, vitals, demographics). How do we do this and what should we watch out for?",
+      "expected_output": "Should describe the eSource pattern: FHIR-to-EDC pipeline pulling labs (Observation), vitals (Observation), demographics (Patient), problem list (Condition), medications (MedicationStatement / MedicationRequest) from the site EHR's FHIR API and populating the corresponding eCRF fields. Should reference TransCelerate eSource principles and FHIR-based eSource IGs (marking specific IG versions as items to verify on HL7). Should call out responsibilities the sponsor still owns: source data verification per monitoring plan, EHR-to-eCRF mapping validation, data integrity if the EHR record is later corrected, edit checks at receipt, 21 CFR Part 11 audit trail on the EDC side, site IT engagement and BAA/DUA. Should warn that eSource reduces transcription error but shifts effort to mapping validation and source attribution rather than eliminating it. Should not invent specific FHIR profiles that may not exist.",
+      "assertions": [
+        "Describes FHIR-to-EDC eSource pattern",
+        "Lists which FHIR resources map to which eCRF data",
+        "References TransCelerate eSource and FHIR eSource IGs",
+        "Calls out sponsor responsibility for SDV and mapping validation",
+        "Mentions Part 11 audit trail and site IT/BAA engagement",
+        "Warns effort shifts rather than disappears",
+        "Marks IG versions as items to verify"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We're using a wearable that measures heart rate and we want to use those readings to make dose decisions in the protocol. What FDA implications does that have?",
+      "expected_output": "Should recognize this crosses clinical-research and medical-device / SaMD territory. Should flag that using a wearable's measurement to drive a clinical decision in a trial likely makes the device a regulated medical device for that intended use — FDA classification depends on intended use claims, and the IDE pathway (21 CFR Part 812) may be needed if the device is investigational or being used outside its cleared indication. Should defer device-specific regulatory strategy to a medical-device / SaMD skill, but should cover the clinical-research-side implications: protocol must define the dose-decision algorithm precisely, data flow from device cloud into EDC must meet Part 11, source data verification rules apply to the device data, IRB needs to review the dose-decision logic, and the device cloud vendor needs a BAA / DUA. Should not invent a specific FDA classification.",
+      "assertions": [
+        "Flags wearable used for dose decisions likely becomes a regulated device",
+        "Mentions FDA IDE pathway under 21 CFR Part 812",
+        "Defers device classification specifics to medical-device skill",
+        "Covers protocol, Part 11, SDV, IRB implications on the research side",
+        "Mentions BAA / DUA with device cloud vendor",
+        "Does not invent a specific FDA classification"
+      ],
+      "files": []
+    }
+  ]
+}

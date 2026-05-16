@@ -1,0 +1,92 @@
+{
+  "skill_name": "hipaa-compliance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're a digital health startup contracting with a hospital system to host their patient intake forms. The hospital sent us a Business Associate Agreement to sign. What should we be doing on our side before we go live with PHI?",
+      "expected_output": "Should first attempt to read healthcare-context.md to determine BA role and current safeguards. Should confirm the BA classification and that the activity puts the startup under direct Security Rule and Breach Notification liability. Should walk through the BAA's required elements (uses/disclosures, safeguards, breach reporting, subcontractor flow-down, return/destruction on termination). Should call out the need for a documented HIPAA Security Rule risk analysis before go-live, plus administrative/physical/technical safeguards (pointing to safeguards-checklist.md). Should mention HHS Cloud Computing Guidance if a CSP sits underneath. Should flag the need to inventory subcontractors and execute downstream BAAs. Should defer interpretation of contract language to counsel and recommend the Privacy Officer / CISO be looped in before signing. Should not invent specific § citations.",
+      "assertions": [
+        "Attempts to read healthcare-context.md first",
+        "Confirms BA role and resulting direct liability",
+        "Walks through the BAA required elements",
+        "Calls out a documented risk analysis as a prerequisite",
+        "References the safeguards checklist or three safeguard categories",
+        "Addresses subcontractor flow-down BAAs",
+        "Defers BAA contract language interpretation to counsel",
+        "Does not invent specific subsection citations"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "A clinician at our hospital emailed a PHI report to the wrong external email address. It bounced back as undeliverable. Is this a reportable breach?",
+      "expected_output": "Should describe this as a potential impermissible disclosure that requires a 4-factor Low-Probability-of-Compromise (LoProCo) analysis under the Breach Notification Rule. Should list the 4 factors (nature of PHI, recipient, whether actually acquired/viewed, mitigation). Should note that an undeliverable bounce is a relevant mitigation factor but does not automatically preclude breach status — the analysis still has to be documented. Should mention the 60-day notification clock to affected individuals, HHS, and possibly media for 500+, and that state breach laws may impose tighter timelines. Should recommend the Privacy Officer lead the analysis and counsel review before any external communication. Should not produce a binding determination.",
+      "assertions": [
+        "Identifies this as an impermissible disclosure requiring LoProCo analysis",
+        "Lists the 4 factors",
+        "Notes the bounce is a mitigation input, not an automatic safe harbor",
+        "References the 60-day notification clock",
+        "Mentions state breach-notification overlay",
+        "Routes the decision to the Privacy Officer / counsel",
+        "Does not issue a binding determination"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "quick q - can we send appointment reminders by text? hipaa ok?",
+      "expected_output": "Should accept the casual phrasing and respond proportionally. Should treat appointment reminders as a treatment communication generally permitted under HIPAA without authorization, but should note: minimum necessary applies for non-treatment elements; the patient's preferred channel (confidential communications right) should be honored; SMS is unencrypted in transit and HHS guidance recognizes patient-initiated/-accepted risk for individual communication channels but documentation of the patient's choice is recommended; the texting platform vendor is likely a BA and needs a BAA. Should flag state-law overlays (TCPA for marketing-style content, state confidentiality laws). Should not say 'yes/no' as legal advice.",
+      "assertions": [
+        "Responds proportionally to casual phrasing",
+        "Identifies appointment reminders as treatment communication",
+        "Addresses minimum necessary and confidential communications",
+        "Notes SMS in transit risk and patient-choice documentation",
+        "Flags the texting vendor BAA requirement",
+        "Mentions TCPA / state-law overlay",
+        "Does not deliver a binary legal opinion"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're building an AI scribe that listens to patient visits, transcribes them, and writes a draft note in the EHR. We're a vendor selling this to clinics. Walk me through the HIPAA implications end to end.",
+      "expected_output": "Should identify the vendor as a Business Associate of the clinics (the CEs). Should walk through: BAA in place before any audio leaves the clinic; audio and transcript are PHI; Privacy Rule minimum necessary; Security Rule safeguards across administrative (risk analysis, workforce training), physical (cloud environment), and technical (encryption, access control, audit, transmission security); explicit handling of patient consent / state two-party recording laws; whether transcripts may be used for model training (this typically requires authorization or contractual permission beyond TPO and may implicate the sale-of-PHI rules); retention and deletion of source audio. Should recommend phi-handling for de-identification and encryption choices, healthcare-cybersecurity for the security program, audit-logging for access logs. Should defer to counsel on the training-data and consent questions.",
+      "assertions": [
+        "Identifies vendor as a Business Associate",
+        "Requires BAA before audio leaves the clinic",
+        "Covers Privacy and Security Rule obligations",
+        "Addresses state two-party recording / consent law overlay",
+        "Specifically calls out training-data use as needing authorization or contractual permission",
+        "Cross-references phi-handling, healthcare-cybersecurity, audit-logging",
+        "Routes the training-data and consent questions to counsel"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "What's the exact dollar amount of the maximum HIPAA penalty per violation right now?",
+      "expected_output": "Should acknowledge that civil monetary penalty amounts are tiered by culpability and adjusted annually for inflation, so any specific dollar figure must be checked against the current OCR/HHS penalty schedule (most recent annual inflation-adjustment notice). Should describe the four tiers by culpability without committing to specific current dollar figures. Should not invent a number. Should recommend checking the current Federal Register / HHS Notice of Enforcement Discretion and engaging counsel for advice on a specific enforcement matter.",
+      "assertions": [
+        "Refuses to invent a current dollar figure",
+        "Explains penalties are tiered and inflation-adjusted",
+        "Describes the four culpability tiers",
+        "Points to the current Federal Register / OCR schedule",
+        "Routes specific enforcement matters to counsel"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our hospital is being acquired and the buyer wants a list of every PHI-touching system and every BAA we have. Where do we start?",
+      "expected_output": "Should recognize this as M&A diligence on PHI inventory and BAA inventory, which sits at the seam of hipaa-compliance and healthcare-cybersecurity (asset inventory). Should describe the inventory approach: data flow mapping for PHI, system-by-system minimum-necessary review, BAA inventory with status (executed, renewal date, subcontractor flow-down state). Should flag that HIPAA Successor in Interest considerations and ongoing patient rights (NPP, access) are typically negotiated in the deal and require counsel. Should defer the transaction-specific legal questions to counsel and the deal team.",
+      "assertions": [
+        "Frames the request as M&A PHI/BAA diligence",
+        "Describes data-flow and system inventory approach",
+        "Describes BAA inventory components and status fields",
+        "Flags Successor in Interest / ongoing rights issues",
+        "Routes deal-specific questions to counsel and the deal team"
+      ],
+      "files": []
+    }
+  ]
+}

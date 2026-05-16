@@ -1,0 +1,60 @@
+{
+  "name": "healthcareskills",
+  "owner": {
+    "name": "aks-builds"
+  },
+  "metadata": {
+    "description": "Healthcare skills for AI agents — health informatics, FHIR/HL7 interoperability, HIPAA compliance, clinical AI/ML, telehealth, revenue cycle, and more",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "healthcare-skills",
+      "description": "41 healthcare skills for engineers, informaticists, and product builders: EHR integration (Epic/Cerner), FHIR R4/R5, HL7 v2, DICOM, SMART on FHIR, clinical decision support, HIPAA, 21 CFR Part 11, GDPR health data, healthcare cybersecurity, telehealth, patient portals, RPM, wearables, clinical AI/ML, FDA SaMD, medical coding, billing/claims (X12), prior authorization, value-based care, public health reporting, clinical research (CDISC/REDCap), medical imaging AI, genomics, and health data lakes (OMOP)",
+      "source": "./",
+      "skills": [
+        "./skills/healthcare-context",
+        "./skills/21-cfr-part-11",
+        "./skills/accessibility-healthcare",
+        "./skills/audit-logging",
+        "./skills/billing-claims",
+        "./skills/cda-ccda",
+        "./skills/clinical-ai-ml",
+        "./skills/clinical-decision-support",
+        "./skills/clinical-documentation",
+        "./skills/clinical-research",
+        "./skills/cpoe-orders",
+        "./skills/dicom-imaging",
+        "./skills/ehr-integration",
+        "./skills/fda-samd",
+        "./skills/fhir-integration",
+        "./skills/gdpr-health-data",
+        "./skills/genomics-precision-medicine",
+        "./skills/health-chatbots",
+        "./skills/health-content-writing",
+        "./skills/health-data-lake",
+        "./skills/healthcare-cybersecurity",
+        "./skills/hipaa-compliance",
+        "./skills/hitrust-csf",
+        "./skills/hl7-v2",
+        "./skills/ihe-profiles",
+        "./skills/medical-coding",
+        "./skills/medical-imaging-ai",
+        "./skills/medication-reconciliation",
+        "./skills/patient-engagement",
+        "./skills/patient-portal",
+        "./skills/phi-handling",
+        "./skills/population-health-analytics",
+        "./skills/prior-authorization",
+        "./skills/public-health-reporting",
+        "./skills/remote-patient-monitoring",
+        "./skills/smart-on-fhir",
+        "./skills/tefca-hie",
+        "./skills/telehealth-platform",
+        "./skills/terminology-services",
+        "./skills/value-based-care",
+        "./skills/wearables-integration"
+      ]
+    }
+  ]
+}

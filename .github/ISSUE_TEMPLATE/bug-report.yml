@@ -1,0 +1,49 @@
+name: Bug or Inaccuracy
+description: Report a wrong code, outdated regulatory citation, broken cross-reference, or other inaccuracy
+title: "Bug: [skill-name] [short description]"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **For security vulnerabilities or PHI-handling concerns, do NOT use this form** — see [SECURITY.md](../../SECURITY.md).
+
+  - type: input
+    id: skill
+    attributes:
+      label: Which skill?
+      description: Path or name of the affected skill (e.g., `fhir-integration`).
+      placeholder: "skills/fhir-integration"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's wrong?
+      description: |
+        Describe the issue. If it's a factual claim, **link to the authoritative source**.
+        Examples:
+          - "Cites §164.312 incorrectly — should be §164.312(a)(1)"
+          - "Recommends LOINC code 12345-6 but that code does not exist"
+          - "References a deprecated FHIR R4 resource"
+      placeholder: "..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: source
+    attributes:
+      label: Authoritative source
+      description: URL or citation that supports your correction.
+      placeholder: "https://www.hhs.gov/hipaa/..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix (optional)
+      description: Proposed wording or PR plan.
+    validations:
+      required: false

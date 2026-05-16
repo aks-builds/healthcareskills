@@ -1,0 +1,87 @@
+{
+  "skill_name": "clinical-ai-ml",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a 30-day all-cause readmission risk model on our Epic data. AUROC on retrospective is 0.82. How do I know if it's real?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should ask Task-Specific Questions or clarify the cohort, index event (discharge), action a clinician takes on the score, data substrate, sites, deployment surface, and regulatory framing. Should call out that high retrospective AUROC is the single most common false-positive signal in clinical ML. Should require: explicit prediction-horizon definition (e.g., score generated at discharge order entry), audit features for leakage (discharge disposition, finalized ICD codes, downstream lab orders), enforce time-causal point-in-time joins, use temporal splits (train early / validate middle / test late) and site / patient-level (not encounter-level) cross-validation, run external validation on a different site or organization if feasible, report AUPRC alongside AUROC, plot a reliability diagram and report ECE / Brier, run decision-curve analysis and PPV at clinical threshold, audit subgroup AUC and calibration. Should require silent / shadow deployment before any prospective use to surface drift / integration issues.",
+      "assertions": [
+        "Checks for .agents/healthcare-context.md or asks Task-Specific Questions",
+        "Calls out label leakage as primary risk",
+        "Requires temporal and site/patient-level splits",
+        "Requires AUPRC alongside AUROC",
+        "Requires calibration analysis (reliability, ECE, Brier)",
+        "Requires subgroup AUC / calibration audit",
+        "Requires silent / shadow mode before prospective"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Sepsis model. Inpatient. We want to alert at 6 hours into admission. What features are off-limits?",
+      "expected_output": "Should answer this is the classic leakage trap. Off-limits: any feature derived from the outcome event (the sepsis ICD-10 code finalized at discharge), lactate or blood-culture orders that the existing alert itself triggers (the alert ordered them, then the lab proves the alert right), any data with effective_time > 6 hours post-admission, discharge-time codes back-dated, billing data finalized at discharge, vital-sign downstream interventions that only happen after a clinician already suspects sepsis (vasopressor orders). Should require enforcing time-causal point-in-time joins so for each cohort row at t=admission+6h, only data with effective_time <= t and that would realistically be in the EHR at that moment is used. Should require silent / shadow deployment to confirm the production feature pipeline matches the retrospective one. Should mention that sepsis is high-stakes and heavy leakage risk — see also fda-samd if patient-facing or time-critical.",
+      "assertions": [
+        "Names sepsis-specific leakage examples (lactate, ICD, blood culture)",
+        "Requires 6h prediction-horizon enforcement",
+        "Requires point-in-time joins with effective_time <= prediction_time",
+        "Blocks features from outcome event / discharge-finalized codes",
+        "Requires silent / shadow validation",
+        "Cross-references fda-samd for time-critical alert path"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "auroc good for clinical model right?",
+      "expected_output": "Should trigger on casual phrasing. Should answer 'not on its own.' AUROC is easy to read but inflates on imbalanced labels and tells you nothing about calibration or clinical utility. Should require: AUPRC alongside AUROC for rare events (sepsis, deterioration, suicide), calibration analysis via reliability diagram and ECE / Brier / Hosmer-Lemeshow with site-specific recalibration (Platt / isotonic), clinical-utility metrics — NNT / NNB at threshold, decision-curve analysis (net benefit across thresholds), PPV at clinical threshold (clinicians work from PPV), subgroup versions of all of the above for fairness. Should note a model can have high AUROC and be miscalibrated — ranks well but says 80% when truth is 30%; clinicians will mistrust it.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Says AUROC alone is insufficient",
+        "Recommends AUPRC for class imbalance",
+        "Recommends calibration (reliability diagram, ECE, Brier)",
+        "Recommends decision-curve analysis and PPV at threshold",
+        "Recommends subgroup metrics for fairness"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Our model is live. What should we monitor and when do we shut it down?",
+      "expected_output": "Should walk monitor categories: data drift (PSI / KS / JS divergence per feature), concept drift (feature-outcome relationship shifts), performance drift (AUROC / AUPRC / PPV over rolling windows), calibration drift (reliability and ECE over rolling windows), volume drift (sudden alert-rate change — often upstream data corruption), subgroup drift (any of the above stratified by audited subgroups). Each monitor needs a documented threshold and an owner. Should list shutdown criteria: performance below documented threshold for N consecutive windows, calibration ECE above threshold, alert-volume spike (e.g., >3x baseline), confirmed harm signal from clinical incident reporting, unresolved subgroup fairness regression, critical upstream dependency outage. Should require documenting on-call, rollback playbook, and decision authority before go-live and sticking to it.",
+      "assertions": [
+        "Lists data / concept / performance / calibration / volume / subgroup drift monitors",
+        "Each monitor has a threshold and an owner",
+        "Lists shutdown criteria including performance, calibration, volume spike, harm signal, fairness regression",
+        "Requires documented on-call and rollback playbook",
+        "Requires shutdown criteria defined before go-live"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "What FHIR resources should we use to write the model output back to the EHR?",
+      "expected_output": "Should describe FHIR output shapes: DiagnosticReport for interpretation outputs (ECG read, imaging interpretation), RiskAssessment for risk scores with prediction[].probabilityDecimal / outcome / whenPeriod / subject / linked Observation or Condition or Encounter, Observation for model-derived continuous scores that act like vital-sign-style outputs. Should require including the model identifier and version (RiskAssessment.method extension or coded Device reference). Should describe integration patterns: CDS Hooks for synchronous in-EHR cards, inline SMART on FHIR component for richer UI, standalone dashboard for non-real-time, batch write for nightly risk panels, workflow trigger for tasks/referrals. Should mention defining how clinicians dismiss the alert and how that feedback flows back to monitoring.",
+      "assertions": [
+        "Names RiskAssessment for risk scores",
+        "Names DiagnosticReport for interpretations",
+        "Names Observation for continuous score outputs",
+        "Requires model identifier and version on output",
+        "Lists CDS Hooks / SMART / batch / workflow integration patterns",
+        "Mentions clinician feedback loop"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our clinical AI is interpreting chest x-rays and flagging pneumonia. Do we need FDA clearance?",
+      "expected_output": "Should recognize this as a regulatory pathway question, not a clinical-ML modeling question. Should defer to or cross-reference fda-samd. Should briefly indicate the answer is likely yes (interpreting medical images fails 21st Century Cures §3060 CDS exemption criterion #1 — the software acquires, processes, or analyzes a medical image — so the device cannot be CDS-exempt regardless of how the output is reviewed). Should note the full pathway analysis (IMDRF risk category, 510(k) predicate vs. De Novo, PCCP scope, GMLP, documentation level) lives in fda-samd. Should not invent specific regulatory commitments.",
+      "assertions": [
+        "Recognizes regulatory pathway is out of scope",
+        "Defers to fda-samd skill",
+        "Notes image-interpretation likely fails §3060 criterion #1 (CDS-exempt)",
+        "Does not invent specific FDA commitments"
+      ],
+      "files": []
+    }
+  ]
+}

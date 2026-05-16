@@ -1,0 +1,97 @@
+{
+  "skill_name": "hl7-v2",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building an ADT feed from Epic into our downstream data warehouse. We need patient registration, updates, admits, discharges, and merges. Which trigger events do we subscribe to and what's the minimum segment set?",
+      "expected_output": "Should check for .agents/healthcare-context.md first (or ask the smallest set of questions). Should map the use case to ADT trigger events: A04 (register), A08 (update), A01 (admit/visit), A03 (discharge), and A40 (patient merge). Should optionally mention A28/A31 if MPI-style person events are in scope, and A11/A13 for cancellations. Should describe the minimum segment set per message — MSH, EVN, PID, PV1 (plus PD1 / NK1 / IN1 as optional) and especially that A40 carries the MRG segment to drive merges. Should warn that PID-3 is a repeating CX identifier list keyed by assigning authority. Should ask about the v2 version (segments and CX components shift across 2.3.1 / 2.5.1 / 2.6 / 2.8) and the integration engine.",
+      "assertions": [
+        "Reads or asks for healthcare-context.md (or smallest clarifying questions)",
+        "Maps use case to A04, A08, A01, A03, A40 trigger events",
+        "Mentions A28/A31 or A11/A13 for cancellations as optional context",
+        "Lists minimum segments MSH, EVN, PID, PV1 and notes MRG for A40",
+        "Asks about HL7 v2 version",
+        "Notes PID-3 is repeating, keyed by assigning authority",
+        "Uses synthetic identifiers in any examples",
+        "Mentions integration engine context"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Write me an ORU^R01 message that carries a CBC panel result with hemoglobin, hematocrit, and WBC for a patient. Use HL7 2.5.1.",
+      "expected_output": "Should produce a well-formed ORU^R01 with MSH, PID, OBR, and one OBX per result. MSH should declare version 2.5.1 and standard delimiters. OBR should include the panel order info (placer/filler order numbers, accession, universal service ID). Each OBX should be numeric (NM) with LOINC code in OBX-3, value in OBX-5, UCUM units in OBX-6, reference range in OBX-7, abnormal flags in OBX-8, and result status in OBX-11 (F = final). All identifiers, MRNs, and patient demographics should be synthetic. Should call out that the LOINC codes shown are illustrative and must be verified.",
+      "assertions": [
+        "MSH declares version 2.5.1",
+        "Includes MSH, PID, OBR, multiple OBX segments",
+        "Each OBX has NM value type, LOINC in OBX-3, UCUM in OBX-6",
+        "Includes reference range and result status F",
+        "All identifiers and demographics are synthetic",
+        "Notes that LOINC codes shown are illustrative and need verification",
+        "Standard delimiters declared in MSH-1 / MSH-2"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "my mirth channel keeps getting NAK responses with msa|ae for inbound oru messages from the lab. how do i debug?",
+      "expected_output": "Should trigger on casual lowercase phrasing. Should walk through a systematic debug approach: (1) check the ERR segment on the NAK for location and error code; (2) inspect raw bytes for MLLP framing (VT/FS/CR) and CR vs CRLF line endings; (3) confirm MSH-1 / MSH-2 delimiters match what the parser expects; (4) verify version compatibility (MSH-12) between sender and receiver; (5) check Mirth's source connector logs and the channel's transformer for parsing errors; (6) confirm field cardinality and required-field expectations against the agreed conformance profile; (7) consider character-set issues (MSH-18 UNICODE UTF-8 vs. ASCII). Should mention enhanced ACK mode behavior (MSH-15/16) as a possible factor.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Recommends reading the ERR segment for location and code",
+        "Mentions MLLP framing bytes (VT/FS/CR) as a debug step",
+        "Calls out CR vs. CRLF line ending issues",
+        "References Mirth source connector logs and transformer",
+        "Mentions conformance profile / required-field mismatch",
+        "Considers MSH-18 character-set issues",
+        "Mentions enhanced ACK mode as a possible factor"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We have a hospital running Epic feeding lab orders into a Rhapsody integration engine, which routes to two LIS systems (Sunquest for hematology, Beaker for chemistry). The vendors want OML^O21 in 2.5.1. We also need to handle order cancellations and ACKs back. How should we architect this?",
+      "expected_output": "Should propose an architecture: Epic Bridges as source over MLLP/TLS to Rhapsody; Rhapsody routes based on OBR-4 universal service ID or universal-service-ID code system to the appropriate LIS; OML^O21 is the right message for lab orders in 2.5.1+ (note ORM^O01 is the older alternative but OML is the spec direction). Should address cancellations: OML with OBR-11 (order control) set to the cancel control code, or the cancellation-specific trigger. Should require enhanced ACK mode (MSH-15/16 = AL,AL) so both commit and application ACKs flow back; route the ACK back through Rhapsody to Epic. Should call out conformance profiles between each pair of systems. Should note z-segment risks and recommend Rhapsody-side validation/error queues. Should ask about MLLP TLS, queue retention, and recovery for in-flight messages on Rhapsody restart.",
+      "assertions": [
+        "Proposes Epic → Rhapsody → LIS architecture with MLLP",
+        "Identifies OML^O21 as the right message for 2.5.1+ labs",
+        "Mentions ORM^O01 as the older deprecated alternative",
+        "Addresses cancellation via order control code or trigger event",
+        "Requires enhanced ACK mode (MSH-15/16)",
+        "Calls out conformance profiles between system pairs",
+        "Discusses z-segments and validation queues",
+        "Mentions TLS for MLLP and recovery on engine restart",
+        "Uses synthetic data in any examples"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We've decided to modernize and move everything to FHIR R4. How do we map our ADT and ORU feeds to FHIR resources?",
+      "expected_output": "Should recognize this is primarily a FHIR-integration question, not a v2 question. Should give a brief mapping pointer (ADT → Patient + Encounter; ORU → DiagnosticReport + Observation; MDM → DocumentReference) but defer to the fhir-integration skill for the heavy lifting on FHIR resource modeling, US Core profiles, and search. Should note that many programs run v2 and FHIR in parallel for years and that this skill can stay involved on the v2 side of the bridge.",
+      "assertions": [
+        "Recognizes this as a FHIR-integration question",
+        "Provides brief ADT/ORU/MDM → FHIR resource mapping",
+        "Defers to the fhir-integration skill for FHIR resource work",
+        "Notes v2/FHIR coexistence is common",
+        "Does not attempt to fully reproduce FHIR resource design here"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our parser is treating PID-3 as a single MRN string and losing the patient's other identifiers. Why is this wrong and how do we fix it?",
+      "expected_output": "Should explain that PID-3 is a repeating field of CX (Extended Composite ID) data types — separated by `~` (the repetition separator declared in MSH-2). Each repetition has components: ID Number ^ Check Digit ^ Check Digit Scheme ^ Assigning Authority ^ Identifier Type Code ^ Assigning Facility, etc. (exact layout depends on version). The right MRN is the one whose assigning-authority and identifier-type-code match the expected source. Should recommend parsing PID-3 as a list of CX objects, then selecting on (assigning authority, identifier type code), not on position. Should warn that A40 merges and cross-domain feeds make 'first repetition' parsing especially dangerous. Should reference proper HL7 parser libraries (HAPI HL7 v2, NHapi, python-hl7) over hand-rolled splitters.",
+      "assertions": [
+        "Explains PID-3 is a repeating field of CX identifiers",
+        "Names the repetition separator (~) and its declaration in MSH-2",
+        "Lists CX components (ID, assigning authority, identifier type code, assigning facility)",
+        "Recommends selecting on assigning-authority and identifier-type-code",
+        "Warns about A40 merge and cross-domain pitfalls",
+        "Recommends a proper HL7 parser library over hand-rolled splitters",
+        "Uses synthetic identifiers in any examples"
+      ],
+      "files": []
+    }
+  ]
+}

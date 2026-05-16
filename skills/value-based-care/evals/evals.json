@@ -1,0 +1,92 @@
+{
+  "skill_name": "value-based-care",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our ACO is participating in MSSP and we're building an internal VBC analytics platform. We need attribution, risk adjustment, quality measures, and TCOC tracking. Where do we start architecturally?",
+      "expected_output": "Should check for healthcare-context.md or ask role, programs in scope, risk position. Should describe the typical VBC platform stack: source ingestion (claims 837/835, encounter data EDPS, eligibility 834, clinical FHIR/HL7/CDA, supplemental HEDIS, ADT, SDoH); member master (payer member ID + EMPI + dual-eligibility + segment); provider master (TIN/NPI/CCN slowly-changing dimension); attribution engine (MSSP retrospective claims-based plurality, with prospective and retrospective views); risk-adjustment engine (current CMS-HCC version, with phase-in handling); quality measure engine (eCQM/CQL); TCOC and benchmark engine; reporting/writeback; full audit trail with reproducibility from raw source. Should stress sourcing CMS-HCC model files, HCC IDs, and coefficients from CMS each model year, not hard-coding. Should mention replicating MSSP benchmark methodology exactly rather than approximately. Should not invent MSSP track parameters.",
+      "assertions": [
+        "Checks for or asks about healthcare-context",
+        "Lists VBC platform components including attribution, risk adjustment, quality, TCOC",
+        "Mentions TIN/NPI slowly-changing dimension for provider roster",
+        "Identifies MSSP attribution as retrospective claims-based plurality",
+        "Stresses sourcing CMS-HCC files from CMS each year, not hard-coding",
+        "Stresses exact benchmark methodology replication",
+        "Mentions audit trail / reproducibility",
+        "Does not invent specific MSSP track parameters or HCC coefficients"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How do we calculate RAF for our Medicare Advantage members under CMS-HCC v28, and what's the gotcha with v24 phase-in?",
+      "expected_output": "Should describe RAF as the sum of demographic and disease coefficients plus interactions, multiplied by normalization, blended across model versions during phase-ins. Should explain CMS-HCC v28 changed the HCC list, ICD-10-CM mapping, and coefficients vs. v24, and is being phased in (verify current blend percentage from the CMS Rate Announcement for the applicable payment year). Should warn against hard-coding HCC coefficients, HCC IDs, or ICD-to-HCC mappings from memory; instead source from the CMS Risk Adjustment page each model year (model software + mapping file + denominator file). Should mention HCCs are hierarchical within a family (more severe trumps less severe) and HCCs do not carry over year-to-year — annual recapture is required. Should mention RxHCC for Part D as a separate model.",
+      "assertions": [
+        "Describes RAF as sum of demographic + disease coefficients + interactions",
+        "Mentions v28 vs v24 differences (HCC list, ICD map, coefficients)",
+        "Notes v28 is phased in; refers to CMS Rate Announcement",
+        "Warns against hard-coding coefficients/IDs/mappings; sources CMS each year",
+        "Mentions HCC hierarchy within family",
+        "Notes HCCs do not carry over; annual recapture required",
+        "Mentions RxHCC for Part D"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we're losing money on leakage, how do we figure out where",
+      "expected_output": "Should respond to casual phrasing. Should define leakage as care delivered to an attributed member outside the preferred network, driving TCOC up and weakening care coordination. Should describe analytics needs: identify high-leakage specialties, geographic patterns, post-discharge SNF/HHA referrals, ED utilization for ambulatory-care-sensitive conditions. Should warn about provider-roster freshness — a provider who switched TINs looks like leakage when they haven't moved (this is a common defect). Should mention steerage (incentives, workflow nudges, referral tooling) but explicitly note Stark/Anti-Kickback considerations and that compliance must be engaged before building incentive logic. Should not invent specific leakage percentages or specialty thresholds.",
+      "assertions": [
+        "Handles casual phrasing",
+        "Defines leakage and its TCOC impact",
+        "Lists analytics dimensions (specialty, geography, post-discharge, ED ACSC)",
+        "Warns about provider-roster freshness as a defect source",
+        "Mentions steerage with Stark/Anti-Kickback caveat",
+        "Recommends engaging compliance before incentive logic",
+        "Does not invent specific percentages or thresholds"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We need to build quality measure reporting for MIPS and HEDIS at the same time, since we have a mix of Medicare FFS attributed and MA members. How do we structure the measure engine?",
+      "expected_output": "Should describe MIPS / QPP quality category supports eCQMs, MIPS CQMs, claims-based, QCDR measures, with submission via QRDA I/III, registry, or claims. Should describe HEDIS as NCQA's measure set with annual technical specifications, including ECDS measures. Should recommend a measure engine that supports both eCQM CQL-based logic (running against FHIR or QDM data) and specification-based MIPS CQM / HEDIS logic, with value set management via VSAC and measure version pinning (measures change annually). Should mention CEHRT certification requirements for EHR data sources feeding eCQMs. Should warn that MIPS category weights change yearly and not to hard-code. Should mention that overlap in numerator logic between MIPS and HEDIS can be exploited (shared denominator value sets) but value-set versions must be measure-year-specific.",
+      "assertions": [
+        "Describes MIPS quality category measure types and submission paths",
+        "Describes HEDIS annual technical specs and ECDS",
+        "Recommends measure engine supporting CQL and spec-based measures",
+        "Mentions VSAC for value sets and measure version pinning",
+        "Mentions CEHRT requirements for eCQMs",
+        "Warns MIPS category weights change yearly",
+        "Notes shared denominator logic with measure-year-specific value sets"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our suspect-condition model is flagging conditions for HCC capture but our coders are pushing back on auto-submitting them. How should the workflow work?",
+      "expected_output": "Should affirm coders are right — suspect outputs are hypotheses, not codes. Should explain MEAT criteria (Monitored, Evaluated, Assessed/Addressed, Treated) and that defensible HCC codes require encounter-level documentation, not problem-list pulls or model output alone. Should describe the right workflow: suspect model surfaces candidates → pre-visit prep / AWV scheduling → clinician assesses and documents at the encounter with MEAT evidence → encounter-level coding (refer to medical-coding) → submission. Should reference medical-coding for problem-list vs. encounter-level coding mechanics. Should mention RADV exposure: every submitted diagnosis must trace to a specific encounter record retrievable on demand, and unsupported codes need deletion/reversal capability via current CMS submission system. Should mention bias monitoring for suspect-flag rates by demographics.",
+      "assertions": [
+        "Affirms suspect outputs are hypotheses, not codes",
+        "Explains MEAT and encounter-level documentation requirement",
+        "Describes suspect → pre-visit → clinician assessment → encounter coding workflow",
+        "Refers to medical-coding for coding mechanics",
+        "Mentions RADV and document provenance / deletion-reversal capability",
+        "Mentions bias monitoring on suspect flag rates"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our 837P claims keep getting rejected at the clearinghouse. Can you help us debug the X12 envelope and segment structure?",
+      "expected_output": "Should recognize this is a billing-claims / EDI X12 question, not a VBC analytics question. Should defer to or cross-reference billing-claims for 5010 TR3 conformance, envelope (ISA/GS/ST) control numbers, 999 vs 277CA acknowledgments, and companion guides. Can note briefly that 837/835 data feeds VBC TCOC and attribution but the envelope debugging itself belongs in billing-claims.",
+      "assertions": [
+        "Identifies this as a billing-claims / EDI question",
+        "Defers to or references billing-claims",
+        "Does not attempt full X12 envelope debugging",
+        "May note 837/835 feeds VBC analytics"
+      ],
+      "files": []
+    }
+  ]
+}

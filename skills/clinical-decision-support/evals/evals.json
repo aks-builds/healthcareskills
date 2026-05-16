@@ -1,0 +1,91 @@
+{
+  "skill_name": "clinical-decision-support",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We want to build a CDS alert that fires when an outpatient diabetic is overdue for HbA1c. The clinician should see it when they open the chart. How do we design this?",
+      "expected_output": "Should read healthcare-context.md or ask about EHR, setting, and regulatory posture. Should map the request to the patient-view CDS Hook. Should walk through the 5 Rights (information, person, format, channel, time) and recommend a non-interruptive card (info or warning, not critical). Should provide a CDS Hooks service discovery example with prefetch for Patient, Condition (active diabetes), and recent HbA1c Observations. Should provide a card example with summary, indicator, detail, source, and a suggestion that creates a ServiceRequest for HbA1c. Should warn about alert fatigue and recommend measurement of fire rate vs. acceptance. Should note that this likely qualifies as HHS-exempt CDS under the Cures Act four-prong test, with the caveat to verify against current FDA guidance.",
+      "assertions": [
+        "Maps to patient-view CDS Hook",
+        "Walks through the 5 Rights framework",
+        "Recommends non-interruptive (not modal) format",
+        "Provides CDS Hooks discovery example with prefetch",
+        "Provides card example with summary, indicator, source",
+        "Includes a suggestion creating a ServiceRequest",
+        "Warns about alert fatigue and recommends acceptance measurement",
+        "Discusses Cures Act exemption criteria"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Show me what a CDS Hooks card response should look like for a critical drug-drug interaction at order-sign.",
+      "expected_output": "Should provide a complete, valid CDS Hooks card JSON for an order-sign response. Should set indicator to critical, with a clear summary and detail describing the interaction (synthetic medication names only). Should include a source with label and url. Should include a suggestion to cancel or modify the offending order (an action that updates or deletes the MedicationRequest), and may include a link to additional reference. Should mention that critical / modal alerts should be reserved for true safety events to avoid alert fatigue. Should reference cures-act criteria only if relevant (a hard-stop DDI may not meet the independent-review prong).",
+      "assertions": [
+        "Provides complete CDS Hooks card JSON",
+        "Uses indicator critical with justification",
+        "Includes summary, detail, source",
+        "Includes a suggestion action that modifies or cancels the order",
+        "Mentions alert fatigue tradeoff for critical alerts",
+        "Uses only synthetic medication names"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "our alerts are getting overridden like 95% of the time. what do we do",
+      "expected_output": "Should trigger on casual lowercase phrasing. Should recognize this as classic alert fatigue. Should present concrete tactics: raise the firing threshold, move from modal to passive surface, suppress per-session and per-patient, tier by role (some alerts go to pharmacists), localize per service line, retire alerts below 5-10% acceptance. Should recommend instituting governance (each alert has an owner, review cadence, retirement criterion). Should suggest measuring fire rate, accept rate, and override-with-reason rather than just looking at override percentages. Should note that order sets are a higher-leverage CDS surface than alerts.",
+      "assertions": [
+        "Triggers on casual lowercase phrasing",
+        "Recognizes alert fatigue pattern",
+        "Suggests raising threshold and moving to passive surface",
+        "Recommends per-session and per-patient suppression",
+        "Recommends measuring acceptance rate and retiring low-acceptance alerts",
+        "Mentions CDS governance and ownership",
+        "Suggests order sets as alternative to alerts"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're using a machine-learning model to score readmission risk and want the score plus suggested actions to appear at discharge. The model uses EHR data only. Walk through the full design including regulatory implications.",
+      "expected_output": "Should map to encounter-discharge CDS Hook. Should describe the architecture: model produces a risk score plus contributing factors, CDS Hooks service exposes a card with the score, plain-language drivers, and suggestions linked to ServiceRequests or referrals. Should emphasize that the card must surface the reasoning (independent review prong) and include a source. Should walk through the Cures Act four-prong test, paying special attention to prong four (independent review) — explaining the score's drivers, training data, and validation must be visible. Should reference the ONC HTI-1 Predictive DSI transparency requirement for certified EHRs. Should note that if independent review is not feasible (e.g., the score is opaque to clinicians or used in time-critical settings), the tool becomes a SaMD and should go to fda-samd. Should reference clinical-ai-ml for model lifecycle.",
+      "assertions": [
+        "Maps to encounter-discharge CDS Hook",
+        "Describes card with score plus contributing factors",
+        "Discusses Cures Act four-prong test in depth",
+        "Highlights independent review (prong 4) for ML-driven CDS",
+        "References ONC HTI-1 Predictive DSI transparency",
+        "Notes when CDS becomes SaMD",
+        "References fda-samd and clinical-ai-ml skills"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We need FDA 510(k) clearance for our radiology AI tool that flags possible strokes on CT angiograms. How do we file?",
+      "expected_output": "Should recognize this is an FDA SaMD clearance question, not a CDS Hooks design question. The tool analyzes a medical image, which fails the first prong of the Cures Act CDS exemption, so it is definitely a regulated device. Should defer to the fda-samd skill for the 510(k) submission pathway, predicates, and clinical validation strategy. Should not attempt to design the FDA submission inside this skill. May briefly note that any CDS surface delivering the alert should still follow CDS Hooks / clinical-decision-support best practices, but the regulatory primary skill is fda-samd.",
+      "assertions": [
+        "Recognizes this is an FDA SaMD question",
+        "Notes the medical-image analysis fails Cures Act prong 1",
+        "Defers to fda-samd skill",
+        "Does not attempt full 510(k) design in this skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We want to migrate our hard-coded rule engine to CQL so we can share logic across two EHRs. What's the path?",
+      "expected_output": "Should describe CQL as the HL7 standard for clinical logic, separating logic from engine and data model (typically FHIR via QI-Core / US Core). Should outline migration steps: catalog existing rules, identify required value sets (verify against VSAC), author CQL libraries, pick a CQL engine (open-source CQL-to-ELM compiler / cqf-ruler, vendor CDS Hooks platform), validate parity against prior rule outputs, then deploy. Should mention CQL is used by eCQMs and CDS Connect artifacts so the same library may unlock quality measurement. Should reference terminology-services for value-set management.",
+      "assertions": [
+        "Describes CQL as HL7 standard for clinical logic",
+        "Mentions FHIR via QI-Core / US Core as data model",
+        "References VSAC for value sets",
+        "Outlines a migration path with parity validation",
+        "Mentions eCQMs and CDS Connect re-use",
+        "References terminology-services skill"
+      ],
+      "files": []
+    }
+  ]
+}

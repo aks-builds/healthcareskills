@@ -1,0 +1,89 @@
+{
+  "skill_name": "clinical-documentation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building an ambient AI scribe for ambulatory primary care. It records the visit, generates a SOAP note draft, and the physician edits and signs. Walk us through what we need to design.",
+      "expected_output": "Should read healthcare-context.md or ask about EHR target. Should structure the response around microphone-to-signed-note workflow: launch (often via SMART), consent capture (HIPAA NPP plus explicit patient consent, with attention to state two-party consent laws), audio streaming under a BAA, draft generation (call out APSO vs SOAP and that the A&P is the most error-prone section), clinician review in scribe UI or EHR, FHIR DocumentReference write-back (or vendor-specific note API), and audio retention per the BAA. Should warn about negation handling in NLP, copy-forward, and measuring clinician edit rate rather than only WER. Should reference hipaa-compliance, fhir-integration, ehr-integration, clinical-ai-ml.",
+      "assertions": [
+        "Walks through microphone-to-signed-note workflow",
+        "Addresses consent including state two-party laws",
+        "Mentions BAA-covered audio infrastructure",
+        "Notes APSO vs SOAP and A&P risk",
+        "Recommends FHIR DocumentReference write-back",
+        "Warns about copy-forward / note bloat",
+        "Mentions measuring clinician edit rate not just WER",
+        "References hipaa-compliance and clinical-ai-ml"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Give me a SOAP and an APSO template for an inpatient progress note that we can use as a starting point.",
+      "expected_output": "Should provide both SOAP and APSO progress note templates with the canonical section ordering and brief guidance per section. SOAP: Subjective, Objective, Assessment, Plan. APSO: Assessment, Plan, Subjective, Objective. Should explain APSO is increasingly preferred so the next reader sees the conclusion first. Should reference references/note-templates.md if available. Should remind that LOINC document type codes must be verified against the current LOINC release and the customer's site mapping.",
+      "assertions": [
+        "Provides full SOAP template with all four sections",
+        "Provides full APSO template with all four sections",
+        "Explains APSO rationale (reader sees A&P first)",
+        "References note-templates.md or equivalent reference",
+        "Notes LOINC document type codes must be verified"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we want to run nlp on free-text notes to extract problems and meds. what do we use",
+      "expected_output": "Should trigger on casual phrasing. Should compare open-source options (cTAKES, MedSpaCy, MetaMap) and managed services (Amazon Comprehend Medical, AWS HealthLake, Google Healthcare NLP API, Azure AI Language for Health), noting their typical strengths. Should describe a canonical pipeline: de-identification, sentence/section detection, NER, assertion (negation, hypothetical, family member, historical), concept normalization to UMLS / SNOMED CT / RxNorm / LOINC, relationship extraction, FHIR output. Should stress that negation is non-negotiable. Should recommend evaluation against a clinician-adjudicated reference set with F1 stratified by section. Should reference phi-handling for de-identification.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Compares open-source and managed NLP options",
+        "Describes a canonical pipeline including de-identification",
+        "Stresses negation / assertion handling",
+        "Recommends F1 evaluation against clinician-adjudicated set",
+        "References phi-handling skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Design end-to-end documentation for a multi-day inpatient stay: admission H&P, daily progress notes, consult notes, discharge summary. What templates, what structured data, how does it all flow?",
+      "expected_output": "Should describe each note type (H&P at admission, progress note daily in APSO, consult note when consulted, discharge summary with course / final diagnoses / discharge meds / follow-up). Should identify which structured FHIR data is captured at each step (Condition for problems, Observation for vitals and labs, AllergyIntolerance, Procedure, Immunization, MedicationRequest, FamilyMemberHistory, social-history Observations). Should warn about copy-forward across daily notes and the documentation-integrity risks. Should describe write-back via DocumentReference, with docStatus progressing from preliminary to final on sign-off. Should mention attribution and co-signature for residents and students. Should reference fhir-integration, ehr-integration, terminology-services, medication-reconciliation for discharge med list.",
+      "assertions": [
+        "Walks through H&P, progress, consult, and discharge notes",
+        "Names structured FHIR resources captured at each step",
+        "Warns about copy-forward across daily notes",
+        "Describes docStatus preliminary -> final on sign-off",
+        "Addresses attribution and resident co-signature",
+        "References medication-reconciliation for discharge meds",
+        "References fhir-integration and terminology-services"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "What are the HIPAA breach-notification rules if a clinical note containing PHI is accidentally emailed to the wrong patient?",
+      "expected_output": "Should recognize this is a HIPAA breach-notification question, not a clinical documentation workflow design question. Should defer to or cross-reference the hipaa-compliance skill, which covers the HIPAA Breach Notification Rule, the four-factor risk assessment, and notification timelines. Should not attempt the full breach analysis inside clinical-documentation. May briefly note that documentation tools should support audit and access logs (audit-logging) to support breach investigations.",
+      "assertions": [
+        "Recognizes this is a HIPAA breach-notification question",
+        "Defers to or references hipaa-compliance skill",
+        "References audit-logging skill",
+        "Does not attempt full breach analysis inside this skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We need to define SmartPhrases / dot phrases for our ED residency that auto-populate the HPI and ROS. Should we standardize them across all residents?",
+      "expected_output": "Should explain SmartPhrase / dot phrase mechanics (Epic SmartPhrase, Cerner AutoText, Athenahealth macros) and the difference between personal and shared/institutional libraries. Should warn that copy-forward and over-templated normal exams are a top documentation-integrity problem and a payer-dispute source. Should recommend a curated institutional library for high-volume use cases combined with the ability for clinicians to override. Should suggest tracking usage and the percentage of note content that is truly new. Should not invent specific vendor SmartPhrases. Should reference ehr-integration for site-specific templating tools.",
+      "assertions": [
+        "Explains SmartPhrase / dot phrase mechanics",
+        "Distinguishes personal vs institutional libraries",
+        "Warns about copy-forward and templated-exam pitfalls",
+        "Recommends measuring new-content percentage",
+        "Does not invent specific vendor SmartPhrases",
+        "References ehr-integration skill"
+      ],
+      "files": []
+    }
+  ]
+}

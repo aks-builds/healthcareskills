@@ -1,0 +1,97 @@
+{
+  "skill_name": "health-data-lake",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're an IDN on Epic with two community hospitals on Cerner and a growing Medicare ACO. We have Snowflake with a BAA but no clinical CDM yet. Design the lakehouse so we can serve operational dashboards, value-based care attribution, and an OMOP research mart, without rebuilding when the next data source arrives.",
+      "expected_output": "Should check for healthcare-context.md first and ask only the gaps. Should propose a medallion architecture (bronze raw, silver cleaned + EMPI-linked, gold consumption marts) on Snowflake (or Delta / Iceberg storage if cross-engine matters). Should ingest from Epic via Clarity / Caboodle and FHIR Bulk $export, Cerner via Millennium ETL and HL7 v2 streams, and Medicare claims via CMS BCDA (FHIR Bulk Export of claims). Should preserve raw at bronze (NDJSON for FHIR, raw HL7 v2 pipe-delimited messages, X12 EDI) with provenance (source, message control ID, ingest timestamp, checksum). Should put EMPI early so silver carries an enterprise patient ID, not source MRN; mention deterministic + probabilistic approaches and vendors (Verato, Lyniate/NextGate - verify). Should normalize terminology to OMOP standard concepts via OHDSI Athena (ICD-10-CM -> SNOMED Condition, CPT/HCPCS -> SNOMED/OMOP Procedure, local lab codes -> LOINC, RxNorm/NDC -> RxNorm). Should build OMOP v5.4 as one gold mart, plus separate operational mart for IDN ops and a VBC mart for the ACO sharing the same silver. Should specify governance (Snowflake row/column security, masking, tokenization vault for direct identifiers separated from analytic data), data quality (OHDSI DQD + Achilles for OMOP; row-count reconciliation and dbt/Great Expectations tests for the rest), and BAA scope across every sub-service. Should mention common failure modes (joining on source MRN, BAA gaps on ML notebooks, late-arriving HL7 v2). Should not invent specific Epic or Cerner extract column names or vendor capabilities.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Proposes a bronze/silver/gold medallion architecture",
+        "Ingests Epic (Clarity/Caboodle + FHIR Bulk $export), Cerner (Millennium ETL + HL7 v2), and BCDA for ACO claims",
+        "Captures provenance at bronze (source, control ID, timestamp, checksum)",
+        "Places EMPI early; mentions deterministic + probabilistic + vendor options with 'verify'",
+        "Normalizes to OMOP standard concepts via OHDSI Athena",
+        "Builds OMOP gold mart alongside operational and VBC marts sharing silver",
+        "Addresses governance (row/column security, tokenization vault, BAA scope)",
+        "Includes DQD / Achilles + generic data-quality framework",
+        "Lists realistic failure modes",
+        "Does not invent specific vendor schema columns or capabilities"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We need to start ingesting claims from a new payer. They'll send 837 and 835 files. How should we land them and what do we do with denial information?",
+      "expected_output": "Should describe landing raw X12 EDI at bronze with provenance (source, file name, ingest timestamp, checksum), preserving the original file. Should parse 837P/I/D and 835 with a deterministic X12 parser (BizTalk, Sovos, Edifecs, or open-source pyx12 - verify current product names), producing claim_header, claim_line, and remit / adjustment tables at silver. Should join to the EMPI-resolved enterprise patient ID and to provider master, and map procedure / diagnosis codes through OHDSI Athena (or the lake's terminology layer) if downstream OMOP is in scope. Should call out denial information specifically: CARC / RARC codes on the 835 remit are the source of truth for denial reasons; pivot to a denials mart with reason categorization, payer, service line, dollars at risk, and aging buckets. Should mention 999 / TA1 acks for transmission-level reconciliation, and 277CA for payer-side acceptance. Should recommend row-count reconciliation per file and per claim count vs. expected. Should not invent payer-specific extract details.",
+      "assertions": [
+        "Lands raw X12 at bronze with provenance",
+        "Names a deterministic X12 parser",
+        "Builds claim_header / claim_line / remit at silver and joins to EMPI",
+        "Calls out CARC/RARC on 835 as the source of denial reasons",
+        "Proposes a denials mart with payer, service line, dollars, aging",
+        "Mentions 999 / TA1 and 277CA acks for reconciliation",
+        "Does not invent payer-specific extract details"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "i need to pull all the conditions and meds for our acos attributed patients from epic. what's the cleanest path",
+      "expected_output": "Should trigger on casual phrasing. Should recommend FHIR Bulk Data Access via the EHR's $export endpoint, scoped at the Group level (the ACO-attributed patient panel as a FHIR Group), filtering with _type to Condition and MedicationRequest / MedicationStatement / MedicationDispense as appropriate, and using _since for incremental refreshes. Should describe the asynchronous flow (kickoff -> poll status -> download NDJSON manifest -> consume NDJSON one resource per line) and land in bronze partitioned by date and resource. Should remind to honor meta.lastUpdated for incremental and pair with provenance metadata. Should mention the alternative (Clarity / Caboodle pull) and when it might be preferred (latency, historical depth, columns not in FHIR). Should reference fhir-integration for SMART/scopes and BCDA if the ACO is an MSSP one. Should not invent specific endpoint URLs for the user's tenant.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Recommends FHIR Bulk $export at the Group level for the ACO panel",
+        "Filters with _type and uses _since for incremental",
+        "Describes asynchronous kickoff / poll / download / NDJSON flow",
+        "Lands in bronze partitioned by date and resource",
+        "Mentions Clarity / Caboodle as an alternative and when each fits",
+        "Mentions BCDA for MSSP ACO Medicare claims",
+        "Does not invent tenant-specific endpoint URLs"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We need to share a de-identified subset of our OMOP instance with an academic partner for an observational study. Safe Harbor lossy enough to hurt the science. What are our options and how do we operationalize it?",
+      "expected_output": "Should lay out three options: HIPAA Safe Harbor (automated removal of 18 identifier categories, dates generalized to year, ZIP to ZIP3 with the >20,000 rule, ages capped at 90), Expert Determination (qualified statistician documents residual re-identification risk is very small; permits more granular dates and geography), and Limited Data Set (retains dates and geographic info other than direct identifiers; requires a Data Use Agreement signed with the partner). Should explain when each fits: Safe Harbor for low-friction internal / public release, Expert Determination when temporal granularity is scientifically required and you can engage a statistician, LDS when a DUA is acceptable and the study has IRB sign-off. Should describe operationalization on the lake: build a separate de-identified gold OMOP schema (or a view layer) with tokenization vault separated from the analytic environment, apply structured-data redaction (AWS Comprehend Medical, Azure Health De-id, Google DLP, Philter for free text), document methodology and residual risk, capture the DUA in governance, and audit access. Should mention small-cell suppression for rare conditions. Should not invent specific vendor de-id accuracy numbers.",
+      "assertions": [
+        "Compares Safe Harbor, Expert Determination, and LDS with when each fits",
+        "Calls out Safe Harbor's date / ZIP / age >89 constraints",
+        "Notes Expert Determination requires a qualified statistician documenting residual risk",
+        "Notes LDS requires a Data Use Agreement",
+        "Operationalizes via a separate de-id OMOP schema with tokenization-vault separation",
+        "References de-id tools for free text (AWS Comprehend Medical, Azure Health De-id, Google DLP, Philter)",
+        "Mentions small-cell suppression",
+        "Does not invent vendor de-id accuracy numbers"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Can you write the SMART-on-FHIR client to launch our patient-facing app from MyChart and pull a Patient Summary?",
+      "expected_output": "Should recognize this is a SMART-on-FHIR / FHIR client integration task, not a data-lake design task. Should defer to or cross-reference smart-on-fhir (and fhir-integration / patient-portal). Should offer to help on the lake side if the user wants to land the resulting data, but should not attempt to write the SMART launch / OAuth client using lake patterns.",
+      "assertions": [
+        "Recognizes this as a SMART-on-FHIR integration task",
+        "References or defers to smart-on-fhir (and fhir-integration / patient-portal)",
+        "Does not attempt to write the SMART OAuth flow using data-lake patterns"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our nightly run reports the right number of files arrived from the lab interface, but the OMOP Measurement table is missing lab values for one site for the past three days. Where do I look first?",
+      "expected_output": "Should walk through a structured silent-feed-dropout investigation. Should distinguish file-count reconciliation (passed in this case) from row-count reconciliation per site (what failed). Should suggest checking: counts at bronze by site and message type per day (was it ingested at all?); HL7 v2 ORU^R01 messages from that site at bronze (parse errors, MSH-3 sending facility identifier, unhandled segment versions); silver-layer joins (did EMPI resolution fail and drop rows?); terminology mapping (did a new local lab code arrive without a crosswalk entry, so it lost the standard concept on the way to OMOP?); and reconciliation of expected vs. actual row counts at silver and gold per site. Should mention late-arriving messages as a common pattern. Should suggest tightening reconciliation alerts to per-site per-domain row counts, not just file counts. Should reference common failure modes from the skill: free-text drops, MRN-vs-EUPI joins, Athena 'standard' flag filtering.",
+      "assertions": [
+        "Distinguishes file-count reconciliation from row-count reconciliation per site",
+        "Walks bronze -> silver -> gold to localize the drop",
+        "Considers ORU^R01 parse errors and unhandled segment versions",
+        "Considers EMPI resolution failure as a row-drop cause",
+        "Considers missing local-lab-code crosswalk into LOINC",
+        "Recommends per-site per-domain row-count alerts",
+        "References common failure modes from the skill"
+      ],
+      "files": []
+    }
+  ]
+}

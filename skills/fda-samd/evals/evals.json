@@ -1,0 +1,88 @@
+{
+  "skill_name": "fda-samd",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building software that takes an ECG waveform and tells clinicians 'AFib likely / unlikely.' Is this a device?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should walk the four 21st Century Cures Act §3060 CDS criteria: 1) not intended to acquire / process / analyze a medical image, signal from an IVD, or pattern/signal from a signal-acquisition system — ECG waveform fails this criterion because it analyzes a signal from a signal-acquisition system; 2) display / analyze medical information — yes; 3) support recommendations to HCP — yes; 4) HCP can independently review the basis — likely fails for a black-box ML output unless the device exposes feature contributions, training population, performance characteristics. Should conclude this is likely a device (CDS exemption fails at criterion 1). Should position on IMDRF matrix (depends on healthcare situation / significance; AFib detection on ambulatory ECG often Class II-ish in US). Should describe likely pathway 510(k) with a predicate (existing AFib-detection devices) or De Novo if novel. Should recommend Q-Sub with FDA, ISO 14971 risk file, IEC 62304, PCCP for retraining. Should end with 'This is not legal advice. Confirm with your regulatory affairs team.'",
+      "assertions": [
+        "Checks for .agents/healthcare-context.md or asks Task-Specific Questions",
+        "Walks all four §3060 CDS criteria",
+        "Identifies ECG signal-acquisition failure of criterion #1",
+        "Identifies black-box criterion #4 failure risk",
+        "Concludes likely a device",
+        "Recommends pathway (510(k) predicate / De Novo)",
+        "Recommends Q-Sub and quality system",
+        "Ends with not-legal-advice disclaimer"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Walk me through the four CDS criteria from Cures with examples on each side of the line.",
+      "expected_output": "Should reproduce the four §3060 criteria accurately: 1) not intended to acquire / process / analyze a medical image, signal from an IVD device, or pattern/signal from a signal-acquisition system; 2) intended to display / analyze / print medical information about a patient or other medical information (peer-reviewed studies, clinical guidelines); 3) intended to support or provide recommendations to a HCP about prevention, diagnosis, or treatment; 4) intended to enable the HCP to independently review the basis for the recommendation. Should give an example on each side of each criterion (e.g., interpreting an X-ray vs. surfacing the radiologist's report; clinician-facing risk dashboard with feature attributions vs. black-box deterioration score the clinician must trust; patient-facing chatbot fails #3). Should note time-critical / real-time use often fails #4 in practice. Should mark guidance as the 2022 FDA final guidance and recommend verifying against the current document.",
+      "assertions": [
+        "Lists all four §3060 criteria correctly",
+        "Provides examples on each side of the line",
+        "Notes patient-facing tools fail criterion #3",
+        "Notes black-box / time-critical use fails criterion #4 in practice",
+        "References the 2022 FDA CDS final guidance with verify-current caveat"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what's a pccp",
+      "expected_output": "Should trigger on casual phrasing. Should explain PCCP (Predetermined Change Control Plan) as FDA's mechanism — finalized in 2024 guidance — that lets a manufacturer pre-specify in the marketing submission the changes intended after clearance, without requiring a new submission per change. Should list the three required PCCP elements: 1) Description of Modifications (specific planned changes — retraining cadence, new data sources, new patient populations); 2) Modification Protocol (the V&V and documentation procedures used for each change); 3) Impact Assessment (benefits / risks of planned modifications, controls). Should note PCCPs are most relevant for ML-enabled devices and that anything outside the PCCP still requires a new submission. Should mark with verify-current-FDA-guidance caveat.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Explains PCCP as pre-specified change plan to avoid per-change submissions",
+        "Lists Description / Modification Protocol / Impact Assessment",
+        "Notes ML-enabled device focus",
+        "Notes anything outside PCCP requires new submission",
+        "Marks with verify-current FDA-guidance caveat"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're a startup. What quality system do we need before we start formal device development?",
+      "expected_output": "Should describe FDA's Quality System Regulation (QSR) at 21 CFR Part 820 transitioning to the Quality Management System Regulation (QMSR) harmonized with ISO 13485, with the transition period extending to early 2026 (verify current dates). Should describe the core ecosystem: ISO 13485 for the QMS spine, ISO 14971 for risk management (the safety analysis backbone), IEC 62304 for software lifecycle, IEC 62366-1 for usability engineering / human factors. Should require design controls (design inputs, outputs, V&V, design history file), document controls, CAPA, complaint handling, validation. Should note the QMS should be stood up before serious development — retrofitting is painful. Should end with not-legal-advice disclaimer.",
+      "assertions": [
+        "Describes QSR → QMSR transition with verify-current dates",
+        "Names ISO 13485, ISO 14971, IEC 62304, IEC 62366-1",
+        "Lists design controls and design history file",
+        "Recommends QMS before development",
+        "Ends with not-legal-advice disclaimer"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "What does GMLP say and how do I use it in my submission?",
+      "expected_output": "Should describe the 10 GMLP guiding principles jointly published by FDA / Health Canada / UK MHRA (verify current publication). Should list them: 1) multi-disciplinary expertise; 2) good software engineering and security; 3) representative clinical study participants and datasets; 4) training datasets independent of test sets; 5) reference datasets based on best methods; 6) model design tailored to available data and intended use; 7) focus on human-AI team performance; 8) testing demonstrates performance under clinically relevant conditions; 9) clear, essential information to users; 10) deployed models monitored for performance and re-training risks managed. Should note GMLP is guidance, not regulation, but is increasingly referenced in submissions and audits — use it as a design checklist and a way to structure the submission's evidence package. Should mark with verify-current caveat.",
+      "assertions": [
+        "Describes GMLP as FDA / Health Canada / MHRA joint guidance",
+        "Lists the 10 GMLP principles",
+        "Notes guidance vs. regulation distinction",
+        "Recommends use as design checklist and submission structure",
+        "Marks with verify-current caveat"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our device passed 510(k). A patient was injured. What do we do?",
+      "expected_output": "Should describe Medical Device Reporting (MDR) obligations under 21 CFR Part 803 — manufacturers must report deaths, serious injuries, and malfunctions likely to cause death or serious injury to FDA, with short timeframes (typically 30 days, 5 days for remedial-action events — verify current). Should require: capture the event in the complaint-handling system, triage into the MDR workflow, assess whether a field correction or recall is needed, document the safety analysis. Should cross-reference healthcare-cybersecurity if the cause may be a cybersecurity vulnerability and audit-logging for the event-capture trail. Should note this is not legal advice and to engage regulatory affairs immediately. Should also note the surveillance plan and ML-specific monitoring (drift, calibration, fairness) per ongoing post-market obligations.",
+      "assertions": [
+        "References 21 CFR Part 803 MDR obligations",
+        "Mentions deaths / serious injuries / malfunctions reportability",
+        "Mentions short timeframes with verify-current caveat",
+        "Requires complaint-handling system triage and CAPA-style assessment",
+        "Cross-references healthcare-cybersecurity and audit-logging if relevant",
+        "Ends with not-legal-advice disclaimer"
+      ],
+      "files": []
+    }
+  ]
+}

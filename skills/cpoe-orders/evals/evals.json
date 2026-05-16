@@ -1,0 +1,89 @@
+{
+  "skill_name": "cpoe-orders",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building an inpatient CPOE workflow for medication ordering. Walk us through what we need to design including safety checks and propagation to pharmacy.",
+      "expected_output": "Should read healthcare-context.md or ask about EHR, setting, and downstream systems. Should describe order lifecycle (draft -> signed -> verified -> active -> completed/cancelled/modified/discontinued) and electronic signature as the legal authorization event. Should enumerate safety checks (allergy, DDI, drug-disease, dose, duplicate, pregnancy, renal/hepatic adjust, formulary, cost) and recommend tuning aggressively to avoid alert fatigue. Should describe propagation: FHIR MedicationRequest plus downstream MedicationDispense / MedicationAdministration; HL7 v2 OMP^O09 to pharmacy for sites without FHIR. Should mention EPCS requirements for controlled substances (two-factor auth at signing, verify current DEA rule). Should reference clinical-decision-support for order-select and order-sign hooks, medication-reconciliation for transitions, fhir-integration for resources.",
+      "assertions": [
+        "Describes order lifecycle and electronic signature",
+        "Enumerates safety checks at order entry",
+        "Warns about alert fatigue and recommends tuning",
+        "Describes FHIR MedicationRequest plus downstream resources",
+        "Mentions HL7 v2 OMP^O09 for pharmacy propagation",
+        "Notes EPCS two-factor auth for controlled substances",
+        "References clinical-decision-support and medication-reconciliation"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How should we design a heparin nomogram order in our CPOE? Nurses titrate based on aPTT.",
+      "expected_output": "Should describe the nomogram as a conditional/standing order or nursing-driven titration with explicit bounds. Should outline the elements: indication, initial bolus and infusion rate, aPTT goal range, titration table mapping aPTT result to rate change, when to re-check, escalation criteria. Should note that heparin is on the ISMP High-Alert list and warrants extra checks (independent double-check, smart-pump integration with the drug library). Should recommend not inventing specific concentrations or rates and verifying against the institution's formulary and the current ISMP list. Should mention smart-pump integration via the drug library ties the order to hard/soft dose limits. Should reference clinical-decision-support for order-sign safety checks.",
+      "assertions": [
+        "Describes nomogram as conditional / nursing-driven titration with bounds",
+        "Identifies heparin as ISMP High-Alert",
+        "Mentions independent double-check requirement",
+        "Mentions smart-pump drug-library integration",
+        "Does not invent specific concentrations or rates",
+        "References ISMP list with note to verify current version",
+        "References clinical-decision-support for order-sign checks"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what's the deal with prn and range orders. do we need anything special for joint commission",
+      "expected_output": "Should trigger on casual lowercase phrasing. Should explain PRN (as-needed) orders need a clear indication and threshold (e.g., pain >=4/10). Should explain range orders (e.g., morphine 2-4 mg IV q4h PRN pain) and note Joint Commission has specific standards for how range orders must be expressed and how nursing chooses within the range. Should recommend verifying the current Joint Commission medication management chapter rather than relying on outdated examples. Should note conditional orders (e.g., hold metoprolol if SBP < 100 or HR < 55) require the EHR to model the condition explicitly so nursing can document the trigger when the dose is given. Should mention that documentation of which dose within the range was given and why is the typical compliance gap.",
+      "assertions": [
+        "Triggers on casual lowercase phrasing",
+        "Distinguishes PRN, range, and conditional orders",
+        "References Joint Commission range-order standards",
+        "Notes recommendation to verify current TJC standards",
+        "Highlights documentation gap (dose chosen and why)",
+        "Does not invent specific TJC standard numbers"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Design our entire downtime ordering plan: planned maintenance, unplanned outage, and recovery. We're a 400-bed inpatient hospital using Epic.",
+      "expected_output": "Should distinguish planned vs unplanned downtime. Planned: pre-print paper order forms, designate a downtime workstation with read-only access, schedule low-acuity periods, communicate timeline. Unplanned: paper orders, paper MAR, runner-based delivery to pharmacy and lab, downtime kit per unit, backup means of communication. Recovery: re-enter all paper orders into the EHR after recovery with explicit timestamps for when each order was actually written, reconcile against any orders entered during downtime, audit gaps. Should mention regulatory expectation of downtime drills (Joint Commission and CMS). Should recommend role assignments (who acts as the downtime lead, who runs to pharmacy). Should reference ehr-integration for Epic-specific downtime tooling.",
+      "assertions": [
+        "Distinguishes planned vs unplanned downtime",
+        "Describes paper order and paper MAR workflow",
+        "Describes recovery / re-entry with timestamping",
+        "Mentions downtime drill regulatory expectation",
+        "Recommends role assignments and downtime kits",
+        "References ehr-integration for vendor-specific tooling"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We need to bring an accurate medication history into the chart at admission so the inpatient orders are right. How do we build this?",
+      "expected_output": "Should recognize this is medication reconciliation at admission, not pure CPOE design. Should defer to or cross-reference the medication-reconciliation skill, which covers the Best Possible Medication History (BPMH), Surescripts medication history, normalization to RxNorm, comparison logic, and reconciliation persistence. Should briefly note that the output of med rec feeds into MedicationRequest creation at admission, which is where cpoe-orders takes over. Should not attempt to design the full med rec workflow inside this skill.",
+      "assertions": [
+        "Recognizes this as a medication reconciliation request",
+        "Defers to medication-reconciliation skill",
+        "Notes the handoff from med rec output to MedicationRequest creation",
+        "Does not attempt full BPMH design inside cpoe-orders"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We want to build an order set for adult sepsis bundle that fires the right labs, fluids, and broad-spectrum antibiotic options. How do we structure it and avoid alert fatigue?",
+      "expected_output": "Should describe order set as a curated group of orders for a clinical scenario. Should outline structure: required labs (lactate, blood cultures x2, CBC, CMP), fluid resuscitation, broad-spectrum antibiotic options (without inventing specific drug choices), source-control prompts, ICU consult / disposition orders. Should recommend conditional logic (e.g., only show vasopressor section if MAP < 65) and propagation rules so dependent orders default in. Should call out that order sets are higher-leverage than interruptive alerts because they change behavior without firing. Should recommend pilot, measure uptake and outcomes, and iterate. Should not invent specific antibiotic regimens or doses and should advise verifying against the institution's antimicrobial stewardship guidance.",
+      "assertions": [
+        "Describes order set structure for sepsis bundle",
+        "Includes conditional logic / propagation",
+        "Frames order sets as higher-leverage than alerts",
+        "Does not invent specific antibiotic regimens or doses",
+        "Recommends antimicrobial stewardship guidance",
+        "Recommends pilot and measurement of uptake / outcomes"
+      ],
+      "files": []
+    }
+  ]
+}

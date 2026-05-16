@@ -1,0 +1,91 @@
+{
+  "skill_name": "healthcare-cybersecurity",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're a 15-clinic outpatient group. The board wants to know what cybersecurity practices we should be implementing. Where do we start?",
+      "expected_output": "Should attempt to read healthcare-context.md first. Should identify the org size as likely 'medium practice' under HHS 405(d) HICP and recommend that as the primary checklist (cross-reference hicp-controls.md). Should walk through the top threat scenarios HICP addresses (phishing, ransomware, lost/stolen equipment, insider, medical-device attacks). Should recommend a sequence: documented HIPAA Security Rule risk analysis first (so the practices map to actual risk), then implement HICP practices for the medium-practice volume, then evidence as 'recognized security practices' to OCR. Should cross-reference hipaa-compliance for the regulatory basis and audit-logging for the detection/SIEM pieces. Should NOT prescribe specific dollar budgets or vendor names without context.",
+      "assertions": [
+        "Attempts to read healthcare-context.md",
+        "Identifies the appropriate HICP practice volume",
+        "Lists the HICP top threats",
+        "Sequences risk analysis before controls",
+        "Mentions 'recognized security practices' / OCR penalty consideration",
+        "Cross-references hipaa-compliance and audit-logging",
+        "References hicp-controls.md"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our hospital just got hit with ransomware. We have backups but the attacker says they exfiltrated data and will publish it. What's our IR playbook?",
+      "expected_output": "Should treat this as an active incident response, not advice for design. Should walk through the immediate priorities: invoke the IR plan and downtime procedures for clinical operations (patient safety FIRST), engage IR retainer / outside counsel / cyber insurance carrier per policy, preserve evidence, contain (isolate affected segments, kill credentials, rotate keys), eradicate, recover from clean backups (verified), and post-incident review. Should flag the data-exfiltration component as a likely Breach Notification Rule trigger (cross-reference hipaa-compliance for the LoProCo analysis and 60-day clocks; state laws may impose shorter clocks). Should NOT make the ransom payment recommendation — that is a counsel + executive + insurance decision with OFAC implications. Should mention HHS / OCR notification timeline, FBI / CISA reporting, sector ISAC (H-ISAC). Should route the legal and ransom-payment decisions to counsel.",
+      "assertions": [
+        "Prioritizes patient safety and clinical downtime procedures",
+        "Walks through IR phases (contain, eradicate, recover, lessons learned)",
+        "Flags Breach Notification Rule trigger and routes to hipaa-compliance",
+        "Mentions HHS/OCR, FBI/CISA, H-ISAC notification considerations",
+        "Refuses to recommend ransom payment unilaterally",
+        "Flags OFAC implications of ransom payments",
+        "Routes legal decisions to counsel"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we have an old infusion pump on win xp, vendor end of life. risky?",
+      "expected_output": "Should respond proportionally to the casual phrasing. Should confirm yes, this is a documented medical-device cybersecurity risk pattern (legacy/EOL OS on a connected medical device). Should walk through the practical mitigations available short of replacing the device: network segmentation (VLAN, micro-segmentation, no internet egress), allow-listing / application whitelisting on the device, passive monitoring (medical-device security platforms) instead of active scans, vendor engagement on patches even if OS is unsupported, compensating controls documented in the risk register, and a planned replacement on the capital cycle. Should reference medical-device-cybersecurity.md for FDA-context expectations and MDS² / SBOM. Should flag patient-safety implications (segmentation cannot break the clinical workflow).",
+      "assertions": [
+        "Responds proportionally to casual phrasing",
+        "Identifies this as a documented medical-device risk pattern",
+        "Recommends network segmentation + allow-listing + passive monitoring",
+        "References medical-device-cybersecurity.md / MDS² / SBOM",
+        "Discusses patient-safety implications of segmentation",
+        "Recommends documenting compensating controls in the risk register"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Design a multi-year cybersecurity roadmap for a regional health system with 4 hospitals, 60 clinics, ~6,000 endpoints, on Epic, and currently at low SOC 2 maturity. We're aiming for HITRUST r2 in 18 months.",
+      "expected_output": "Should provide a phased plan: Phase 0 (now-90 days) — formal HIPAA Security Rule risk analysis, asset/PHI inventory, BAA inventory, named Security Officer + governance, baseline gap assessment against HICP large-practice and HITRUST r2 controls. Phase 1 (3-9 mo) — identity (phishing-resistant MFA across all clinical users including remote and shared workstations, PAM, JIT admin), endpoint detection, SIEM/SOC, backups and tested restore, network segmentation for medical devices, vulnerability mgmt program. Phase 2 (9-15 mo) — IR maturity (tabletop, ransomware playbook, downtime procedures, IR retainer), supply chain (SBOM ingestion, BAA refresh, MDS² request), training program with simulated phishing. Phase 3 (15-18 mo) — HITRUST r2 readiness, External Assessor engagement, evidence collection cadence. Should cross-reference hitrust-csf, hipaa-compliance, phi-handling, audit-logging, and the local reference docs. Should defer specific vendor/budget recommendations.",
+      "assertions": [
+        "Phased plan tied to the 18-month HITRUST r2 deadline",
+        "Phase 0 includes risk analysis and gap assessment",
+        "Identity, EDR/SOC, segmentation, backups in early phases",
+        "IR maturity and tabletops included",
+        "SBOM / MDS² / supply chain explicit",
+        "Cross-references hitrust-csf and other related skills",
+        "Avoids specific vendor/budget recommendations without context"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Can you write our HIPAA risk analysis report for us?",
+      "expected_output": "Should explain the skill can help frame a risk analysis approach (scope, asset inventory, threat catalog, likelihood/impact rubric, treatment plan, evidence) but cannot produce a defensible final risk analysis without the organization's actual data, environment, and stakeholder participation. Should describe the inputs needed: PHI inventory, system inventory, control evidence, prior risk register, incident history. Should mention the HHS Security Risk Assessment (SRA) Tool for small/medium orgs. Should recommend engagement of internal security team and qualified external assessor for r2 / OCR-defensible work. Should not produce a fabricated risk analysis.",
+      "assertions": [
+        "Refuses to produce a fabricated risk analysis",
+        "Describes the inputs and process for a defensible risk analysis",
+        "Mentions HHS SRA Tool for small/medium orgs",
+        "Recommends internal team + qualified external assessor where needed",
+        "Frames this as collaborative, not a one-shot deliverable"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our CMO wants to add ambient AI scribes to all exam rooms next month. From a security standpoint, what do we need to do?",
+      "expected_output": "Should treat this as a vendor risk + control design exercise. Should cover: BAA executed before any PHI flows (cross-reference hipaa-compliance and baa-checklist.md), vendor risk assessment (SOC 2 Type II, HITRUST, pen-test results, data residency, training-data use, retention), Security Rule technical controls (encryption in transit and at rest, identity integration with the EHR / SSO, audit logging integration into the SIEM), network controls (egress allow-list to vendor endpoints), incident-response integration (vendor breach reporting timelines, evidence handoff), and patient-consent / state-recording-law overlay (route to counsel). Should cross-reference phi-handling for the data-layer controls and audit-logging for capture of recording events. Should not commit to a one-month timeline without diligence.",
+      "assertions": [
+        "BAA prerequisite clearly stated",
+        "Vendor risk assessment scope described (SOC 2, HITRUST, pen-test, residency, training-data, retention)",
+        "Technical controls (encryption, SSO, SIEM integration, egress)",
+        "Patient consent / state recording law overlay routed to counsel",
+        "Cross-references hipaa-compliance, phi-handling, audit-logging",
+        "Pushes back on a one-month deployment without diligence"
+      ],
+      "files": []
+    }
+  ]
+}

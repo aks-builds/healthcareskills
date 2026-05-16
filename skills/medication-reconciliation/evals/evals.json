@@ -1,0 +1,93 @@
+{
+  "skill_name": "medication-reconciliation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building an admission medication reconciliation tool for a 400-bed hospital on Epic. Walk us through how the workflow should work and what data sources to pull from.",
+      "expected_output": "Should read healthcare-context.md or ask about transitions, EHR, available data sources, DDI vendor licensing, and reconciler role. Should describe BPMH workflow: identify patient, structured patient/family interview (Rx, OTC, herbals, PRN actuals, recently stopped, adherence), cross-reference against Surescripts medication history + prior EHR/HIE + outpatient provider notes, resolve discrepancies, document BPMH distinct from inpatient orders. Should recommend pharmacist-led BPMH as it consistently outperforms in literature. Should describe normalization to RxCUI at SCD/SBD level, comparison to MedicationRequest, persistence as MedicationStatement (BPMH) plus MedicationRequest (orders) plus a reconciliation event. Should note that DDI / dose checks should run on the post-rec list. Should reference cpoe-orders for order creation, terminology-services for RxNorm, ehr-integration for Epic specifics.",
+      "assertions": [
+        "Describes BPMH workflow with structured interview",
+        "Names Surescripts medication history as data source",
+        "Recommends pharmacist-led BPMH",
+        "Mentions RxNorm normalization at SCD/SBD level",
+        "Distinguishes MedicationStatement (BPMH) from MedicationRequest (orders)",
+        "Recommends running DDI / dose checks on post-rec list",
+        "References cpoe-orders, terminology-services, ehr-integration"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our patient's pharmacy fill history shows brand-name Lipitor but the inpatient med list has generic atorvastatin. How should our tool handle this when comparing?",
+      "expected_output": "Should explain that comparing strings directly will incorrectly flag this as a discrepancy. Should describe normalizing both to RxCUI: Lipitor is a brand (SBD-level concept) and atorvastatin is the generic ingredient/SCD. RxNav and the RxNorm relationships can walk SBD <-> SCD via the brand-of relationship. Should recommend collapsing equivalent concepts at the SCD level (ingredient + strength + dose form) when reconciling so brand vs generic with the same strength/form is matched. Should preserve provenance (which source said brand, which said generic) so the prescriber sees the underlying data. Should warn that strength and dose form differences should not be collapsed (10 mg vs 20 mg is a real discrepancy). Should reference terminology-services for RxNorm depth.",
+      "assertions": [
+        "Identifies string comparison as wrong approach",
+        "Explains brand (SBD) vs generic (SCD) RxNorm levels",
+        "Mentions RxNav for walking SBD <-> SCD relationships",
+        "Recommends normalizing to SCD for comparison",
+        "Preserves provenance in the data model",
+        "Warns against collapsing real strength/form differences",
+        "References terminology-services skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we keep using medicationrequest for the patient's outside med list and our med rec is a mess. what should we use",
+      "expected_output": "Should trigger on casual lowercase phrasing. Should immediately diagnose the problem: MedicationRequest is an order, not a statement of what the patient is taking. Should explain the four FHIR resources: MedicationStatement (patient is/was taking — the BPMH), MedicationRequest (active or planned order), MedicationDispense (pharmacy fill event), MedicationAdministration (dose given). Should recommend the BPMH be persisted as a list of MedicationStatement resources, then the reconciliation produces the appropriate MedicationRequest resources for inpatient orders, with explicit continue/modify/discontinue/new/hold actions and a reason on each. Should reference fhir-integration for resource details.",
+      "assertions": [
+        "Triggers on casual lowercase phrasing",
+        "Diagnoses MedicationRequest misuse as the root cause",
+        "Explains all four medication resources clearly",
+        "Recommends MedicationStatement for BPMH",
+        "Names continue/modify/discontinue/new/hold action codes",
+        "Requires reason on every change",
+        "References fhir-integration skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Build a discharge medication reconciliation workflow that includes patient-friendly instructions, communication to the receiving provider, and submission to the outpatient pharmacy. Patient is being discharged from inpatient to home with a primary care follow-up.",
+      "expected_output": "Should describe discharge med rec as comparing inpatient orders to the discharge plan, producing a final discharge medication list. Should outline patient-facing instructions in plain language with indication, dose, frequency, duration, side effects, what to stop. Should describe communication to the receiving provider (the patient's PCP) via direct messaging, HIE, or referral with the discharge med list attached. Should describe outpatient pharmacy submission via NCPDP SCRIPT through Surescripts. Should reference HEDIS Medication Reconciliation Post-Discharge (MRP) and note current specifications must be verified. Should call out ISMP high-alert classes for extra scrutiny. Should reference patient-engagement for patient-facing communication, cpoe-orders for prescription creation, ehr-integration for Surescripts wiring.",
+      "assertions": [
+        "Describes discharge med rec as inpatient-to-discharge comparison",
+        "Specifies plain-language patient instructions with indication and duration",
+        "Describes communication to receiving provider",
+        "Mentions NCPDP SCRIPT via Surescripts for outpatient pharmacy",
+        "References HEDIS MRP measure with note to verify current spec",
+        "Mentions ISMP high-alert classes",
+        "References patient-engagement and cpoe-orders skills"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "We want to license a DDI database and run it from our med rec tool. Which one should we pick?",
+      "expected_output": "Should describe the major options: First Databank (FDB MedKnowledge), Wolters Kluwer Medi-Span, Cerner Multum, Lexicomp, RxNav DDI API (public, more limited), DrugBank (commercial/academic tiers). Should explain differentiators: severity grading, mechanism narrative, management recommendation, currency, US-vs-international coverage. Should strongly recommend picking ONE authoritative source per installation to avoid conflicting alerts. Should note that licensing terms and pricing vary and must be confirmed with the vendor. Should not invent specific pricing or claim feature parity. Should mention that whatever source is chosen, it should feed the post-reconciliation alert engine, not the pre-rec list. Should reference terminology-services for the broader drug terminology layer.",
+      "assertions": [
+        "Names FDB, Medi-Span, Multum, Lexicomp, RxNav, DrugBank",
+        "Describes differentiators (severity, mechanism, currency)",
+        "Recommends one authoritative source per installation",
+        "Notes licensing must be confirmed with vendor",
+        "Does not invent specific pricing or feature claims",
+        "Notes DDI runs on post-rec list",
+        "References terminology-services skill"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Does HIPAA require us to obtain patient consent before pulling Surescripts medication history during admission?",
+      "expected_output": "Should recognize this is a HIPAA / consent question and defer to or cross-reference the hipaa-compliance skill. May briefly note that under HIPAA, treatment activities generally do not require separate authorization beyond the Notice of Privacy Practices, but state laws (e.g., for behavioral health or substance-use disorder records under 42 CFR Part 2) and the specific Surescripts service terms may impose additional consent requirements that must be verified. Should not attempt the full HIPAA consent analysis inside medication-reconciliation. May note that BAA and audit (audit-logging) requirements apply to any system pulling this data.",
+      "assertions": [
+        "Recognizes this is a HIPAA / consent question",
+        "Defers to or references hipaa-compliance skill",
+        "Notes 42 CFR Part 2 / state-law overlays may apply",
+        "Mentions Surescripts service terms must be verified",
+        "Does not attempt full HIPAA consent analysis"
+      ],
+      "files": []
+    }
+  ]
+}

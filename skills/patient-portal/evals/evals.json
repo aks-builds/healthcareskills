@@ -1,0 +1,88 @@
+{
+  "skill_name": "patient-portal",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're building a new patient portal in front of Epic for a multi-specialty group. Adult and pediatric, 4 states. What should we be thinking about before we write any code?",
+      "expected_output": "Should check for .agents/healthcare-context.md first. Should ask or clarify population (mixed adult/peds), IAL2 path, proxy needs, EHR being fronted (Epic — so MyChart is the incumbent; clarify extend-vs-replace), USCDI/US Core target, mobile platforms, and accessibility target. Should call out three regulatory floors: CMS Patient Access Rule (CMS-9115-F) where applicable, ONC Information Blocking with the 8 enumerated exceptions and a default-to-share posture, and USCDI alignment via US Core. Should call out pediatric / adolescent confidentiality as the #1 under-handled area: per-state direct-consent rules for reproductive health / mental health / SUD / HIV / contraception, adolescent lockout pattern for the parental-proxy view, age-of-majority handoff. Should require capturing assurance level on the account and step-up auth for sensitive operations.",
+      "assertions": [
+        "Checks for .agents/healthcare-context.md or asks Task-Specific Questions",
+        "References CMS Patient Access Rule and ONC Information Blocking",
+        "References USCDI / US Core alignment",
+        "Calls out adolescent confidentiality and lockout pattern",
+        "Mentions age-of-majority proxy handoff",
+        "Notes default-to-share and Information Blocking exceptions",
+        "Mentions IAL2 identity proofing"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Parents are complaining they lose access to their kid's record on the 13th birthday. How do we handle the adolescent transition cleanly?",
+      "expected_output": "Should explain that adolescent confidentiality is state-specific and per-category (reproductive, mental health, SUD, HIV, contraception, etc.) and tell the user to verify current state rules. Should propose: per-encounter / per-resource sensitivity flag at point of care, parental-proxy view that filters sensitive-tagged items, adolescent direct login at the age the state allows, automated proxy lifecycle (downgrade at adolescent threshold, terminate at age of majority), notify all parties of the upcoming transition, offer the now-adult patient the option to re-grant access under adult delegation, preserve audit history across the transition. Should mention 42 CFR Part 2 overlay for SUD records. Should note that default behavior is suppress to proxy / surface to patient and document under Information Blocking Privacy exception where applicable.",
+      "assertions": [
+        "Notes state-specific and per-category direct-consent rules with verify-current caveat",
+        "Proposes per-encounter sensitivity flag",
+        "Describes parental-proxy filter / adolescent lockout",
+        "Describes proxy lifecycle including age-of-majority termination and re-grant",
+        "Mentions 42 CFR Part 2 SUD overlay",
+        "References Information Blocking Privacy exception"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what id proofing vendor should we use",
+      "expected_output": "Should trigger on casual phrasing. Should explain patient identity proofing typically targets NIST 800-63A IAL2 (resolve to a single identity, validate evidence, verify linkage). Should list common vendors (ID.me, CLEAR, Persona, Stripe Identity, Socure, LexisNexis) with brief notes. Should recommend the choice depends on use case: payer vs. provider, government-population presence, KBA tolerance, accessibility, proofing failure rate. Should outline the engineering pattern: account creation, inline or step-up proofing flow, link to EMPI/MRN via demographic match, persist assurance level, require step-up for high-risk operations, log every proofing event as AuditEvent.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "References NIST 800-63A IAL2",
+        "Lists multiple proofing vendors",
+        "Outlines step-by-step engineering pattern",
+        "Mentions step-up auth for sensitive operations",
+        "Mentions AuditEvent logging of proofing events"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We want our portal to expose data via FHIR for the patient — what scope and which endpoints?",
+      "expected_output": "Should explain CMS Patient Access Rule (CMS-9115-F) — primarily a payer rule but driving provider behavior; payers must expose claims, encounters, and USCDI data via FHIR API. Should explain USCDI as the data classes that must be available and align to US Core profiles for the matching USCDI version. Should defer or cross-reference smart-on-fhir for OAuth scopes, app launch, and patient-launch flow details, and fhir-integration for resource shapes. Should require capturing AuditEvent on every data-access event. Should describe the eight Information Blocking exceptions only as exception categories — Preventing Harm, Privacy, Security, Infeasibility, Health IT Performance, Content & Manner, Fees, Licensing — and default-to-release behavior.",
+      "assertions": [
+        "References CMS Patient Access Rule",
+        "Explains USCDI / US Core alignment",
+        "Defers FHIR-resource detail to smart-on-fhir / fhir-integration",
+        "Lists Information Blocking exceptions",
+        "Mentions AuditEvent emission",
+        "Default-to-release posture"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Patients can secure-message clinicians from the portal. A patient just messaged 'I'm going to kill myself tonight.' What should the system do?",
+      "expected_output": "Should treat this as a safety / escalation question. Should require: detect self-harm / suicide language on every patient-authored message, immediate response surfacing 988 (Suicide & Crisis Lifeline) and 911 for imminent danger plus a one-tap call affordance, route to an immediate clinician / nurse line, do not require the user to repeat what they said, do not engage with method specifics. Should require capturing the event in the chart and as AuditEvent. Should reference health-chatbots for the safety-classifier pattern as the canonical place for that detail and the multilingual / per-language gold set for safety classifiers. Should note that secure messaging copy should already say 'this is not for emergencies' with a one-tap 911 affordance.",
+      "assertions": [
+        "Treats as safety escalation",
+        "Names 988 and 911",
+        "Requires one-tap call affordance",
+        "References health-chatbots for safety classifier detail",
+        "Requires capture in chart and AuditEvent",
+        "Includes do-not-engage-with-method-specifics"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our patient portal stores PHI in the cloud. What does HIPAA require for that — BAA, encryption, breach reporting, etc.?",
+      "expected_output": "Should recognize this as a HIPAA-compliance question rather than a patient-portal feature question. Should defer to or cross-reference the hipaa-compliance skill for BAA, encryption, audit, breach posture, and phi-handling for redaction / storage patterns. Should briefly confirm that patient-portal touches HIPAA (MFA, audit, BAA with cloud + vendor partners) but the comprehensive HIPAA posture lives elsewhere.",
+      "assertions": [
+        "Recognizes HIPAA compliance is out of scope for this skill",
+        "Defers to hipaa-compliance skill",
+        "Cross-references phi-handling",
+        "Does not attempt full HIPAA program inside patient-portal"
+      ],
+      "files": []
+    }
+  ]
+}

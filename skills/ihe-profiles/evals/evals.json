@@ -1,0 +1,97 @@
+{
+  "skill_name": "ihe-profiles",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're a regional HIE building cross-organization document exchange. Hospitals submit CCDs, ambulatory clinics consume them. Which IHE profiles do we need and what actors are involved?",
+      "expected_output": "Should check for .agents/healthcare-context.md (or ask minimum questions). Should recommend XDS.b as the core profile, with hospitals as Document Source (and possibly Integrated Source/Repository), clinics as Document Consumer, and HIE-operated Document Registry + Document Repository. Should require ATNA grouped on every actor (audit + node authentication via mTLS), CT for time sync, and PIX (or PIXm) for cross-organization patient identifier reconciliation. Should mention BPPC for capturing consent. Should describe the core transactions: ITI-41 (Provide and Register Document Set-b) from Source to Repository, ITI-42 (Register Document Set-b) from Repository to Registry, ITI-18 (Registry Stored Query) from Consumer to Registry, ITI-43 (Retrieve Document Set) from Consumer to Repository. Should ask about whether MHD (FHIR-based) is a strategic direction. Should mention the importance of a defined affinity domain (assigning-authority OIDs, allowed metadata codes, allowed document formats).",
+      "assertions": [
+        "Reads or asks for healthcare-context.md (or smallest questions)",
+        "Recommends XDS.b for cross-org document exchange",
+        "Maps actors: Document Source (hospitals), Document Consumer (clinics), Document Repository + Registry (HIE)",
+        "Requires ATNA grouped on every actor with mTLS",
+        "Requires CT (Consistent Time)",
+        "Recommends PIX or PIXm for cross-org patient identifier reconciliation",
+        "Mentions BPPC for consent",
+        "Names core transactions: ITI-41, ITI-42, ITI-18, ITI-43",
+        "Mentions MHD as the FHIR-based strategic direction",
+        "Calls out affinity domain (OIDs, allowed codes) as foundation"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Walk me through the actor + transaction model for an XDS.b Document Source pushing a discharge summary to a Repository, including the metadata that travels with the submission.",
+      "expected_output": "Should describe ITI-41 Provide and Register Document Set-b: the Source sends a SOAP message with MTOM attachment containing (1) the document binary (the C-CDA payload), (2) SubmissionSet metadata describing the submission as a whole (sourceId, submissionTime, contentTypeCode, intendedRecipient, authorPerson), (3) DocumentEntry metadata per document (uniqueId, classCode, typeCode, healthcareFacilityTypeCode, practiceSettingCode, eventCodeList, confidentialityCode, formatCode, mimeType, languageCode, creationTime, serviceStartTime, serviceStopTime, authorRole, authorSpeciality, sourcePatientId, sourcePatientInfo, patientId), and (4) Folder metadata if folders are in use. Should note that classCode comes from the affinity domain's allowed value set (e.g., LOINC document class), typeCode is the specific document type (LOINC document code), formatCode identifies the C-CDA template flavor, and patientId is the affinity-domain patient ID in CX format. Should mention that the Repository forwards metadata to the Registry via ITI-42. Should warn that wrong/missing codes make the document invisible to consumers.",
+      "assertions": [
+        "Names ITI-41 Provide and Register Document Set-b",
+        "Describes SOAP + MTOM payload structure",
+        "Lists SubmissionSet metadata elements",
+        "Lists DocumentEntry metadata elements (classCode, typeCode, formatCode, etc.)",
+        "Notes affinity-domain-controlled value sets",
+        "Explains patientId is in CX format with assigning authority",
+        "Notes Repository forwards to Registry via ITI-42",
+        "Warns wrong codes cause invisible documents"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what's the difference between xds, xdr, xdm, and xca? when do i use each?",
+      "expected_output": "Should trigger on casual phrasing. Should explain each: XDS.b is registry-based document sharing within an affinity domain (Source → Repository → Registry; Consumers query Registry, retrieve from Repository). XDR is XDS-shaped point-to-point reliable push without a registry (use when there's no shared registry — e.g., direct hospital-to-clinic). XDM is XDS-shaped media interchange — same metadata model packaged on USB, CD, or email attachment. XCA is cross-community federation — query/retrieve across multiple XDS affinity domains via Initiating and Responding Gateways. Should note that XCPD pairs with XCA for federated patient discovery. Should give a quick decision guide: known recipient and registry exists → XDS.b; known recipient and no registry → XDR; physical/media transport → XDM; cross-community federation → XCA + XCPD. Should mention MHD as the FHIR-based equivalent for new builds.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Distinguishes XDS.b (registry-based)",
+        "Distinguishes XDR (point-to-point reliable push)",
+        "Distinguishes XDM (media interchange)",
+        "Distinguishes XCA (cross-community federation)",
+        "Mentions XCPD as patient-discovery companion to XCA",
+        "Provides a decision guide for choosing among them",
+        "References MHD as FHIR-based replacement"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're building a mobile patient app that wants to retrieve a patient's CCDs from a regional HIE and from the patient's hospital. The HIE supports XDS.b; the hospital supports MHD. How do we design this?",
+      "expected_output": "Should propose a hybrid architecture: an aggregation layer on the mobile backend that speaks both XDS.b (SOAP/MTOM) to the HIE and MHD (FHIR REST) to the hospital, presenting a unified DocumentReference-shaped response to the app. Should mention that IHE MHD maps closely onto FHIR DocumentReference, DocumentManifest (or List, depending on MHD version), and Binary resources. Should require IUA (OAuth 2.0) for the MHD side and either IUA-equivalent or XUA (SAML) for the XDS.b side, and BPPC consent enforcement. Should call out that the affinity-domain OIDs (hospital and HIE) likely differ, so PIX/PIXm cross-referencing is needed to resolve the patient identifier on each side. Should defer SMART/OAuth flow details to smart-on-fhir and FHIR resource details to fhir-integration. Should warn about the operational complexity of running both stacks and the long-term direction toward MHDS.",
+      "assertions": [
+        "Proposes hybrid XDS.b + MHD aggregation backend",
+        "Maps MHD to DocumentReference / DocumentManifest / Binary / List",
+        "Requires IUA (OAuth 2.0) and/or XUA (SAML) for auth",
+        "Requires PIX/PIXm for cross-domain patient identifier",
+        "Mentions BPPC for consent",
+        "Defers OAuth flow details to smart-on-fhir",
+        "Defers FHIR resource details to fhir-integration",
+        "Mentions MHDS as the long-term FHIR-only direction"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "How do I obtain a QHIN designation under TEFCA?",
+      "expected_output": "Should recognize this as a TEFCA policy question, not an IHE technical-profile question. Should defer to the tefca-hie skill for QHIN designation requirements, Common Agreement obligations, RCE oversight, and Exchange Purposes. Should briefly note that IHE profiles (XCA, XCPD, MHD, PIXm, ATNA) are the technical building blocks beneath TEFCA exchange but are not by themselves a QHIN designation. Should not attempt to fully reproduce TEFCA designation guidance here.",
+      "assertions": [
+        "Recognizes this as a TEFCA policy question",
+        "Defers to the tefca-hie skill",
+        "Briefly notes IHE profiles as technical building blocks beneath TEFCA",
+        "Does not attempt to fully reproduce TEFCA designation guidance"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We're getting 'XDSUnknownPatientId' errors from the Registry on submission. The patient definitely exists in our system. What's happening?",
+      "expected_output": "Should diagnose: the patientId on the submission must match a patient identifier known to the Registry's Patient Identity Source feed. The patientId is in CX format `id^^^&assigning-authority-OID&ISO`, and BOTH the id AND the assigning-authority OID must match a registered patient. Common root causes: (a) ITI-8 Patient Identity Feed (or PIXm equivalent) has not been wired up, so the Registry never learned about your patients; (b) wrong assigning-authority OID on the submission (case-sensitive on the OID); (c) you're using the source-patient ID where the affinity-domain ID is expected — they are different fields; (d) PIX cross-reference hasn't been run, so the local ID isn't linked to the affinity-domain ID. Should recommend confirming ITI-8 / PIXm wiring with the Registry operator, validating the CX format and OID, and using PIX query (ITI-9 or PIXm $ihe-pix) to look up the affinity-domain identifier before submission.",
+      "assertions": [
+        "Identifies CX format with assigning-authority OID as the root pattern",
+        "Distinguishes source-patient ID vs. affinity-domain patient ID",
+        "Names ITI-8 Patient Identity Feed (or PIXm) as the prerequisite",
+        "Mentions PIX query (ITI-9 or PIXm $ihe-pix)",
+        "Warns about case-sensitive OID matching",
+        "Recommends confirming Patient Identity Source wiring with Registry operator"
+      ],
+      "files": []
+    }
+  ]
+}

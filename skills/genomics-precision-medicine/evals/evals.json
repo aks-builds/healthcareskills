@@ -1,0 +1,91 @@
+{
+  "skill_name": "genomics-precision-medicine",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're standing up a clinical hereditary-cancer germline panel report. Walk me end-to-end from FASTQ to a FHIR DiagnosticReport that lands in Epic, including classification and consent for secondary findings.",
+      "expected_output": "Should check for healthcare-context.md and ask only missing scoping questions. Should outline the pipeline: QC (FastQC/fastp), alignment (BWA-MEM2 or DRAGEN) to a pinned reference build (GRCh38 typical), BAM/CRAM post-processing including duplicates and any BQSR, germline variant calling (DeepVariant, GATK HaplotypeCaller, DRAGEN), normalization and decomposition (bcftools norm), annotation (VEP/snpEff for function; gnomAD for population frequency; ClinVar for clinical; SpliceAI / AlphaMissense / REVEL for missense and splice), classification under ACMG/AMP 2015 with ClinGen VCEP specifications via ClinGen VCI or a validated commercial tool, HGVS-correct nomenclature with versioned transcripts, optional GA4GH VRS identifiers for interoperability, and reporting via FHIR Genomics Reporting IG (DiagnosticReport + variant Observation profiles). Should address consent: capture opt-in/opt-out for ACMG secondary findings (verify current SF version) before testing, plus opt-ins for re-analysis recontact, future research use, and family-member disclosure, encoded as FHIR Consent. Should address re-analysis cadence (VUS reclassify over time). Should not invent specific variant classifications, gene-drug pairs, or the current ACMG SF version.",
+      "assertions": [
+        "Checks for healthcare-context.md",
+        "Outlines QC -> alignment -> calling -> normalization -> annotation -> classification -> reporting",
+        "Pins reference build and uses left-normalization / decomposition",
+        "Applies ACMG/AMP with ClinGen VCEP specifications",
+        "Uses HGVS with versioned transcripts and mentions GA4GH VRS",
+        "Reports via FHIR Genomics Reporting IG with discrete DiagnosticReport and Observation",
+        "Addresses consent for ACMG secondary findings, re-analysis, recontact, family disclosure",
+        "Notes re-analysis cadence for VUS",
+        "Does not invent current ACMG SF version contents or specific classifications"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How should I represent a BRCA1 c.68_69delAG variant in our report so it's unambiguous and machine-readable?",
+      "expected_output": "Should use HGVS with a versioned transcript reference sequence (e.g., NM_007294.x:c.68_69delAG - verify the correct transcript and version for the lab's clinical canonical reference) and pin the genomic coordinates with the genome build assembly identifier. Should explain HGVS conventions: c. for coding DNA, predicted protein change in parentheses (p.(...)), reject ad-hoc legacy short forms for reporting. Should recommend including a GA4GH VRS canonical identifier alongside HGVS for machine-to-machine exchange, and ClinVar Variation ID where one exists. Should remind that the assembly (GRCh37 vs GRCh38) must be carried on every variant artifact. Should not invent the specific protein consequence or ClinVar ID.",
+      "assertions": [
+        "Uses HGVS with versioned transcript reference",
+        "Carries the genome assembly identifier",
+        "Explains c. / p. conventions and parentheses for predicted protein change",
+        "Recommends GA4GH VRS identifier for interoperability",
+        "Mentions ClinVar Variation ID as a co-identifier",
+        "Does not invent specific transcript versions or ClinVar IDs as fact"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we want pgx alerts in epic when someone gets clopidogrel and has a cyp2c19 result. what's the path",
+      "expected_output": "Should trigger on casual phrasing. Should describe the PGx implementation path: call raw genotypes -> translate to CYP2C19 star alleles via a validated caller (Stargazer, PharmCAT, Aldy) -> map star alleles to phenotype (Poor / Intermediate / Normal / Rapid / Ultra-rapid metabolizer) -> store as discrete FHIR Observation (Genomics Reporting IG) -> surface via CDS Hooks (order-sign or medication-prescribe) and / or a SMART-on-FHIR sidebar. Should point to CPIC for the gene-drug guideline content and the FDA Table of Pharmacogenomic Biomarkers for label-level claims, with a 'verify against current CPIC level and FDA label' note. Should advise tuning to avoid alert fatigue and reference clinical-decision-support. Should mention pre-emptive PGx (in chart before drug is ordered) drives more value than reactive. Should not invent the current CPIC level or quote a specific dosing recommendation as fact.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Describes genotype -> star allele -> phenotype translation with a validated caller",
+        "Surfaces via CDS Hooks (order-sign / medication-prescribe) and/or SMART-on-FHIR",
+        "References CPIC and FDA biomarker table with a 'verify' caveat",
+        "Recommends pre-emptive over reactive",
+        "References clinical-decision-support for alert-fatigue tuning",
+        "Does not invent a specific CPIC level or dose"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We're launching a molecular tumor board. We have an in-house NGS panel for solid tumors (tumor-only, no matched normal). What should we set up to take a case from sequencing to a documented recommendation in the chart, and what are the failure modes I should design around?",
+      "expected_output": "Should describe the MTB workflow: case intake (path, imaging, treatment history, prior molecular) -> sequencing with normalization to a pinned reference build -> somatic variant calling (Mutect2, Strelka2, DRAGEN somatic, VarDict) -> annotation with COSMIC / OncoKB / CIViC / ClinGen CGC -> AMP/CAP/ASCO 2017 four-tier classification (Tier I/II/III/IV) contextualized by tumor type -> knowledge-base / NCCN / clinical-trials lookup -> multidisciplinary MTB discussion -> documented recommendation to chart via FHIR DiagnosticReport + CarePlan (or PDF DocumentReference fallback) -> outcome tracking. Should explicitly flag tumor-only without matched normal: germline contamination of 'somatic' calls is a real risk; recommend orthogonal filtering against population databases (gnomAD), known germline-cancer-gene lists (and patient consent to use them), and any in-silico tumor-only filters built into the caller. Should mention cBioPortal for visualization. Should mention AACR Project GENIE for federated learning. Should not invent specific clinical-trial matches or actionability tiers for a specific variant.",
+      "assertions": [
+        "Lays out the MTB workflow end-to-end with documentation in FHIR DiagnosticReport + CarePlan",
+        "Uses somatic-appropriate callers and the AMP/CAP/ASCO 2017 tier system",
+        "Flags tumor-only germline contamination risk and recommends mitigations",
+        "References OncoKB / CIViC / NCCN with appropriate 'verify' framing",
+        "Mentions cBioPortal and AACR Project GENIE",
+        "Does not invent specific clinical-trial matches or variant tiers"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our radiology team wants to add an imaging AI model that flags incidental pulmonary embolism on chest CT. Can you design that?",
+      "expected_output": "Should recognize this is a medical imaging AI task, not a genomics / precision medicine task. Should defer to or hand off to the medical-imaging-ai skill, which covers cohort building from DICOM, preprocessing for CT, training and validation, deployment via an AI orchestrator with worklist re-prioritization, and SaMD regulatory framing. Should not attempt to design the imaging model using genomics patterns.",
+      "assertions": [
+        "Recognizes this is an imaging AI task",
+        "References or defers to medical-imaging-ai skill",
+        "Does not attempt to design the imaging model using genomics workflow patterns"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We're reporting a polygenic risk score for coronary artery disease back to patients. The model was trained on UK Biobank. What do we need to be careful about?",
+      "expected_output": "Should immediately flag ancestry bias: most PRS were derived from European-ancestry cohorts and perform substantially worse in non-European populations. Should require stating the training population and the patient's genetic ancestry on every report. Should call out calibration drift across populations and over time and recommend a periodic recalibration plan. Should require communicating risk in absolute terms, not just relative, and explicitly as risk not diagnosis. Should reference the PGS Catalog as a source of validated, peer-reviewed scores. Should address consent and return-of-results posture: PRS for adult-onset conditions in asymptomatic patients carries insurance implications (GINA covers health insurance and employment for 15+ employee employers but not life / disability / long-term-care insurance), and many programs require explicit informed consent and genetic-counseling availability. Should not invent a specific score's performance numbers or recommend a clinical action threshold without citing the underlying study.",
+      "assertions": [
+        "Flags ancestry bias and worse performance in non-European populations",
+        "Requires stating training population and patient genetic ancestry on the report",
+        "Addresses calibration drift and recalibration cadence",
+        "Communicates as risk, not diagnosis, with absolute figures",
+        "References PGS Catalog",
+        "Addresses GINA scope and gaps including life / disability / long-term-care exclusions",
+        "Does not invent score performance or a clinical action threshold"
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+name: Skill Request
+description: Request a new healthcare skill
+title: "Skill Request: [skill-name]"
+labels: ["enhancement", "skill-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new healthcare skill. Please fill out the details below so we can scope the work.
+
+  - type: input
+    id: skill-name
+    attributes:
+      label: Suggested skill name
+      description: Lowercase, hyphens only (e.g., "cds-hooks-debugging")
+      placeholder: "my-skill-name"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What should this skill do?
+      description: Describe the skill's purpose and the kind of help it provides to engineers / informaticists / security teams / product builders.
+      placeholder: "This skill should help with..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: triggers
+    attributes:
+      label: When should it be used?
+      description: What trigger phrases or scenarios should activate this skill?
+      placeholder: |
+        - When the user says "..."
+        - When working on...
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example use cases
+      description: Provide 1-3 specific examples (use synthetic data — no real PHI).
+      placeholder: |
+        1. I want to...
+        2. Help me...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Which category does this skill fit into?
+      options:
+        - Clinical Informatics & EHR
+        - Interoperability (FHIR / HL7 / DICOM / CDA / IHE / TEFCA)
+        - Compliance & Security (HIPAA / GDPR / 21 CFR Part 11 / HITRUST)
+        - Digital Health & AI/ML (Telehealth / RPM / Wearables / SaMD)
+        - Revenue Cycle & Operations
+        - Public & Population Health / Research
+        - Patient Experience
+        - Specialized / Cross-cutting
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: related-skills
+    attributes:
+      label: Related existing skills
+      description: Are there existing skills this relates to or differs from?
+      placeholder: "Similar to fhir-integration but focused on..."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety acknowledgement
+      description: Healthcare content has a higher safety bar. Please acknowledge.
+      options:
+        - label: This skill will be engineering guidance, not clinical advice
+          required: true
+        - label: This skill will not invent codes, regulations, or vendor capabilities
+          required: true
+        - label: This skill will not include real PHI in any example
+          required: true
