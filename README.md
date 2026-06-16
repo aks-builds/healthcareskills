@@ -1,211 +1,241 @@
-# Healthcare Skills for AI Agents
+<div align="center">
 
-A collection of AI agent skills focused on building healthcare software. Built for engineers, informaticists, security teams, and product builders who want AI coding agents to help with EHR integration, FHIR/HL7 interoperability, HIPAA compliance, clinical AI/ML, telehealth, revenue cycle, and more. Works with Claude Code, OpenAI Codex, Cursor, Windsurf, and any agent that supports the [Agent Skills spec](https://agentskills.io).
+# 🏥 healthcareskills
 
-> **Important**: These skills are tools for *software engineering* in healthcare. They are not a substitute for clinical, legal, or regulatory advice, and they do not generate medical advice for patients. See [AGENTS.md](AGENTS.md) for safety rules.
+**Give your AI agent the domain knowledge to build healthcare software correctly.**
 
-## What are Skills?
+91 production-grade skills covering the full healthcare engineering stack —
+FHIR/HL7 interoperability, HIPAA compliance, clinical AI/ML, EHR integration,
+telehealth, revenue cycle, patient engagement, and more.
+Real-world clinical constraints built in. No hallucinated dosing.
+Works with Claude Code, Claude Desktop, Cursor, Zed, Windsurf, and any
+agent that speaks [MCP](https://modelcontextprotocol.io) or the
+[Agent Skills spec](https://agentskills.io).
 
-Skills are markdown files that give AI agents specialized knowledge and workflows for specific tasks. When you add these to your project, your agent can recognize when you're working on a healthcare task and apply the right standards, frameworks, and safety practices.
+[![Validate Skill](https://github.com/aks-builds/healthcareskills/actions/workflows/validate-skill.yml/badge.svg)](https://github.com/aks-builds/healthcareskills/actions/workflows/validate-skill.yml)
+[![Evals](https://github.com/aks-builds/healthcareskills/actions/workflows/eval-skills.yml/badge.svg)](https://github.com/aks-builds/healthcareskills/actions/workflows/eval-skills.yml)
+[![Skills: 91](https://img.shields.io/badge/skills-91-brightgreen)](#available-skills)
+[![MCP](https://img.shields.io/badge/MCP-ready-8A63D2.svg)](./mcp/)
+[![Agent Skills spec](https://img.shields.io/badge/spec-agentskills.io-blue)](https://agentskills.io/specification.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## How Skills Work Together
+<br/>
 
-Skills reference each other and build on shared context. The `healthcare-context` skill is the foundation — every other skill checks it first to understand your organization, patient population, regulatory jurisdictions, EHR systems, and security posture before doing anything.
+<!-- hero image placeholder: terminal showing /fhir-integration scaffolding a FHIR R4 patient query -->
+<img src="./.github/media/hero.svg" width="720" alt="Claude Code invoking the fhir-integration skill to scaffold a FHIR R4 patient query" />
+
+<sub>☝️ Claude Code invoking <code>fhir_validate</code> — one of 220+ typed MCP tools across healthcare domains.</sub>
+
+</div>
+
+---
+
+## Why healthcareskills
+
+Healthcare software has a higher bar than most domains — HIPAA violations carry
+real fines, HL7 message errors delay patient care, and hallucinated drug dosing
+is dangerous. General-purpose AI agents don't know the difference between a
+FHIR R4 `Patient.name.use` value set and a free-text field. These skills do.
+
+healthcareskills gives your agent accurate, up-to-date knowledge of FHIR R4/R5,
+HL7 v2, DICOM, HIPAA/HITECH, CDS Hooks, SMART on FHIR, ICD-10/SNOMED/LOINC,
+and 80+ more healthcare standards and regulations. The `healthcare-context` skill
+anchors every other skill to your specific org, patient population, EHR vendor,
+and regulatory jurisdiction — so advice is never generic.
+
+> **Important:** These skills are tools for *software engineering* in healthcare.
+> They are not a substitute for clinical, legal, or regulatory advice, and they
+> do not generate medical advice for patients. See [AGENTS.md](AGENTS.md) for
+> safety rules.
+
+## How skills work together
+
+`healthcare-context` is the foundation — every skill reads it first to understand
+your organization before offering guidance.
 
 ```
-                              ┌──────────────────────────────────────┐
-                              │         healthcare-context           │
-                              │    (read by all other skills first)  │
-                              └──────────────────┬───────────────────┘
-                                                 │
-   ┌──────────────┬───────────────┬──────────────┼──────────────┬───────────────┬──────────────┐
-   ▼              ▼               ▼              ▼              ▼               ▼              ▼
-┌──────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐
-│ Clinical │ │  Interop   │ │ Compliance │ │  Digital   │ │ Revenue    │ │  Public &  │ │  Patient   │
-│Informatics│ │            │ │ & Security │ │   Health   │ │   Cycle    │ │    Pop.    │ │ Experience │
-├──────────┤ ├────────────┤ ├────────────┤ ├────────────┤ ├────────────┤ ├────────────┤ ├────────────┤
-│ehr-integ │ │fhir-integ  │ │hipaa-comp  │ │telehealth  │ │medical-cod │ │public-hlth │ │health-cont │
-│clin-dec  │ │hl7-v2      │ │phi-handle  │ │patient-prt │ │billing-clm │ │pop-health  │ │patient-eng │
-│clin-doc  │ │dicom       │ │hc-cybersec │ │rpm         │ │prior-auth  │ │clinical-rsr│ │accessibty  │
-│cpoe      │ │cda-ccda    │ │21-cfr-11   │ │wearables   │ │value-based │ │            │ │            │
-│smart-fhir│ │ihe-profile │ │gdpr-health │ │clinical-ml │ │            │ │            │ │            │
-│med-recon │ │terminology │ │hitrust-csf │ │fda-samd    │ │            │ │            │ │            │
-│          │ │tefca-hie   │ │audit-log   │ │chatbots    │ │            │ │            │ │            │
-└────┬─────┘ └─────┬──────┘ └─────┬──────┘ └─────┬──────┘ └─────┬──────┘ └─────┬──────┘ └─────┬──────┘
-     │             │              │              │              │              │              │
-     └─────────────┴──────┬───────┴──────────────┴──────────────┴──────────────┴──────────────┘
-                          │
-       Specialized skills cross-reference broadly:
-         medical-imaging-ai ↔ dicom-imaging ↔ fda-samd ↔ clinical-ai-ml
-         genomics-precision-medicine ↔ fhir-integration ↔ terminology-services
-         health-data-lake ↔ fhir-integration ↔ population-health-analytics
+                        ┌──────────────────────────────────────┐
+                        │          healthcare-context          │
+                        │    (read by all skills first)        │
+                        └──────────────────┬───────────────────┘
+                                           │
+   ┌──────────┬───────────┬────────────────┼────────────┬──────────┬──────────┐
+   ▼          ▼           ▼                ▼            ▼          ▼          ▼
+Clinical   Interop    Compliance       Digital      Revenue    Public &   Patient
+Informatics           & Security       Health       Cycle      Pop.       Experience
 ```
 
 See each skill's **Related Skills** section for the full dependency map.
 
-## Available Skills
+## Install
 
-<!-- SKILLS:START -->
-| Skill | Description |
-|-------|-------------|
-| [healthcare-context](skills/healthcare-context/) | Create or update their healthcare context document, or whenever any other healthcare skill needs to understand the organization… |
-| [21-cfr-part-11](skills/21-cfr-part-11/) | Building, validating, or auditing a computer system that creates, modifies, maintains, archives, retrieves, or transmits… |
-| [accessibility-healthcare](skills/accessibility-healthcare/) | Design, build, audit, or remediate accessibility for healthcare apps and patient-facing systems. |
-| [audit-logging](skills/audit-logging/) | Designing, implementing, or reviewing audit logging for PHI access — including the HIPAA §164.312(b) audit controls requirement… |
-| [billing-claims](skills/billing-claims/) | Design or build software that handles US healthcare claims — submission, adjudication, remittance, denials, or appeals. |
-| [cda-ccda](skills/cda-ccda/) | Author, parse, validate, or transform Clinical Document Architecture (CDA) or Consolidated CDA (C-CDA) documents. |
-| [clinical-ai-ml](skills/clinical-ai-ml/) | Build, evaluate, deploy, or monitor machine learning models for clinical or operational healthcare use cases. |
-| [clinical-decision-support](skills/clinical-decision-support/) | Design, build, deploy, or evaluate a clinical decision support (CDS) tool. |
-| [clinical-documentation](skills/clinical-documentation/) | Design clinical documentation workflows, templates, or note ingestion. |
-| [clinical-research](skills/clinical-research/) | Design, build, or operate clinical research informatics tools and workflows. |
-| [cpoe-orders](skills/cpoe-orders/) | Design, build, or integrate with computerized provider order entry (CPOE). |
-| [dicom-imaging](skills/dicom-imaging/) | Design, integrate, or troubleshoot DICOM medical imaging systems. |
-| [ehr-integration](skills/ehr-integration/) | Integrate with a specific EHR vendor's APIs, app program, or sandbox. |
-| [fda-samd](skills/fda-samd/) | Determine if their software is FDA-regulated, plan a submission pathway, design under quality systems, or maintain a regulated… |
-| [fhir-integration](skills/fhir-integration/) | Design, implement, debug, or review FHIR integrations. |
-| [gdpr-health-data](skills/gdpr-health-data/) | Processing health, genetic, or biometric data of people in the EU/EEA, UK, or other GDPR-aligned jurisdictions, or designing… |
-| [genomics-precision-medicine](skills/genomics-precision-medicine/) | Design, build, or integrate genomics and precision-medicine informatics. |
-| [health-chatbots](skills/health-chatbots/) | Design, build, evaluate, or deploy a conversational AI / chatbot in a healthcare setting. |
-| [health-content-writing](skills/health-content-writing/) | Write, edit, or audit patient-facing health content. |
-| [health-data-lake](skills/health-data-lake/) | Design, build, or operate a clinical / healthcare data lake, lakehouse, or warehouse. |
-| [healthcare-cybersecurity](skills/healthcare-cybersecurity/) | Design, assess, or harden a healthcare cybersecurity program — covering threat-aligned safeguards, medical device security… |
-| [hipaa-compliance](skills/hipaa-compliance/) | Help applying the HIPAA Privacy, Security, or Breach Notification Rules to a healthcare product, workflow, vendor relationship… |
-| [hitrust-csf](skills/hitrust-csf/) | Preparing for, scoping, scoring, or maintaining a HITRUST CSF assessment or certification. |
-| [hl7-v2](skills/hl7-v2/) | Design, parse, generate, or troubleshoot HL7 v2.x pipe-delimited messages. |
-| [ihe-profiles](skills/ihe-profiles/) | Design, deploy, or troubleshoot IHE (Integrating the Healthcare Enterprise) integration profiles. |
-| [medical-coding](skills/medical-coding/) | Design or build software that touches medical coding — computer-assisted coding (CAC), autocoders, NLP for clinical coding… |
-| [medical-imaging-ai](skills/medical-imaging-ai/) | Design, build, validate, deploy, or monitor AI/ML on medical images. |
-| [medication-reconciliation](skills/medication-reconciliation/) | Design, build, or improve medication reconciliation workflows at transitions of care. |
-| [patient-engagement](skills/patient-engagement/) | Design, build, or evaluate a patient engagement program. |
-| [patient-portal](skills/patient-portal/) | Design or build a patient portal, patient mobile app, or patient-facing API. |
-| [phi-handling](skills/phi-handling/) | Designing or reviewing the operational controls around PHI — how to de-identify, anonymize, pseudonymize, encrypt, mask… |
-| [population-health-analytics](skills/population-health-analytics/) | Design, build, or evaluate a population health analytics platform. |
-| [prior-authorization](skills/prior-authorization/) | Design, build, integrate, or automate prior authorization workflows. |
-| [public-health-reporting](skills/public-health-reporting/) | Design, build, or troubleshoot reporting from clinical systems to public health authorities. |
-| [remote-patient-monitoring](skills/remote-patient-monitoring/) | Design, build, or bill a remote patient monitoring (RPM) program. |
-| [smart-on-fhir](skills/smart-on-fhir/) | Build a SMART on FHIR app, configure OAuth against an EHR's FHIR API, or implement Backend Services. |
-| [tefca-hie](skills/tefca-hie/) | Plan, join, or build against TEFCA or other US health information exchange networks. |
-| [telehealth-platform](skills/telehealth-platform/) | Design, build, or evaluate a telehealth platform. |
-| [terminology-services](skills/terminology-services/) | Choose, map, validate, or serve healthcare code systems and value sets. |
-| [value-based-care](skills/value-based-care/) | Design or build software for value-based care (VBC) — risk adjustment, quality measurement, ACO/REACH analytics, capitation… |
-| [wearables-integration](skills/wearables-integration/) | Integrate consumer wearables or fitness devices into a clinical or health-app workflow. |
-<!-- SKILLS:END -->
-
-## Installation
-
-### Option 1: Claude Code Plugin
+### Option 1 — Claude Code Plugin (recommended)
 
 ```bash
 /plugin marketplace add aks-builds/healthcareskills
 /plugin install healthcare-skills
 ```
 
-### Option 2: Clone and Copy
+### Option 2 — MCP Server (Claude Desktop, Cursor, Zed, Windsurf, custom agents)
+
+Add to your `mcp_servers` config (e.g. `.mcp.json` or `claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "healthcare-skills": {
+      "command": "npx",
+      "args": ["github:aks-builds/healthcareskills/mcp"]
+    }
+  }
+}
+```
+
+Or if you have it cloned locally:
+
+```json
+{
+  "mcpServers": {
+    "healthcare-skills": {
+      "command": "node",
+      "args": ["/path/to/healthcareskills/mcp/index.js"]
+    }
+  }
+}
+```
+
+### Option 3 — Clone and Copy
 
 ```bash
 git clone https://github.com/aks-builds/healthcareskills.git
 cp -r healthcareskills/skills/* .agents/skills/
 ```
 
-### Option 3: Git Submodule
+### Option 4 — Git Submodule
 
 ```bash
 git submodule add https://github.com/aks-builds/healthcareskills.git .agents/healthcareskills
 ```
 
-Then reference skills from `.agents/healthcareskills/skills/`.
-
 ## Usage
 
-Once installed, just ask your agent to help with healthcare engineering tasks:
+Once installed, ask your agent naturally:
 
 ```
 "Help me design a FHIR R4 integration for our patient portal"
-→ Uses fhir-integration, patient-portal, smart-on-fhir
+→ fhir_validate + patient-portal + smart-on-fhir
 
-"Do a HIPAA risk analysis on this architecture"
-→ Uses hipaa-compliance, healthcare-cybersecurity, audit-logging
+"Do a HIPAA risk analysis on this architecture diagram"
+→ hipaa_checklist + healthcare-cybersecurity + audit-logging
 
 "Set up an EDI 837 claims submission flow"
-→ Uses billing-claims, medical-coding
+→ billing-claims + medical-coding
 
 "Build a CDS Hook that warns on drug-drug interactions"
-→ Uses clinical-decision-support, medication-reconciliation, terminology-services
+→ clinical-decision-support + medication-reconciliation + terminology-services
+
+"Is our ambient scribe compliant with HIPAA and FDA SaMD rules?"
+→ ambient-clinical-intelligence + fda-samd + hipaa_checklist
 ```
 
-You can also invoke skills directly:
+Or invoke skills directly:
 
 ```
 /fhir-integration
 /hipaa-compliance
 /ehr-integration
+/clinical-ai-ml
 ```
+
+MCP tool calls (any MCP host):
+
+```
+fhir_validate({ resource: "Patient", payload: { ... } })
+hipaa_checklist({ component: "audit-logging", context: "patient portal" })
+hl7_troubleshoot({ message_type: "ADT^A01", error: "MSH segment missing" })
+```
+
+## Available Skills
+
+<!-- SKILLS:START -->
+<!-- auto-generated — do not edit -->
+<!-- SKILLS:END -->
 
 ## Skill Categories
 
 ### Foundation
-- `healthcare-context` — Org/patient/jurisdiction/EHR context file every other skill reads first
+- `healthcare-context` — Org/patient/jurisdiction/EHR context — every other skill reads this first
 
 ### Clinical Informatics & EHR
-- `ehr-integration` — Epic, Cerner/Oracle, Athenahealth, Meditech
-- `clinical-decision-support` — CDS Hooks, alerts, guidelines
-- `clinical-documentation` — Structured notes, SOAP, ambient scribes
-- `cpoe-orders` — Order entry, order sets, signatures
-- `smart-on-fhir` — App launch, OAuth, OIDC, scopes
-- `medication-reconciliation` — Med rec workflows, drug interactions
+- `ehr-integration` · `clinical-decision-support` · `clinical-documentation` · `cpoe-orders` · `smart-on-fhir` · `medication-reconciliation`
 
 ### Interoperability
-- `fhir-integration` — FHIR R4/R5
-- `hl7-v2` — ADT/ORM/ORU messaging
-- `dicom-imaging` — PACS, modality worklist
-- `cda-ccda` — Clinical documents
-- `ihe-profiles` — XDS, PIX/PDQ, ATNA
-- `terminology-services` — SNOMED CT, ICD-10, LOINC, RxNorm
-- `tefca-hie` — TEFCA, QHINs, HIEs
+- `fhir-integration` · `hl7-v2` · `dicom-imaging` · `cda-ccda` · `ihe-profiles` · `terminology-services` · `tefca-hie`
+- **New:** `fhir-shorthand` · `fhir-subscriptions` · `fhir-bulk-data` · `ncpdp-pharmacy` · `smart-health-cards` · `omop-cdm` · `direct-trust-messaging` · `fhirpath-cql`
 
 ### Compliance & Security
-- `hipaa-compliance`
-- `phi-handling` — De-identification, encryption
-- `healthcare-cybersecurity`
-- `21-cfr-part-11`
-- `gdpr-health-data`
-- `hitrust-csf`
-- `audit-logging`
+- `hipaa-compliance` · `phi-handling` · `healthcare-cybersecurity` · `21-cfr-part-11` · `gdpr-health-data` · `hitrust-csf` · `audit-logging`
+- **New:** `cms-interoperability-rules` · `information-blocking` · `ehr-certification-uscdi` · `42-cfr-part-2` · `nist-csf-healthcare` · `soc2-healthcare` · `fedramp-healthcare`
 
 ### Digital Health & AI/ML
-- `telehealth-platform`
-- `patient-portal`
-- `remote-patient-monitoring`
-- `wearables-integration`
-- `clinical-ai-ml`
-- `fda-samd`
-- `health-chatbots`
+- `telehealth-platform` · `patient-portal` · `remote-patient-monitoring` · `wearables-integration` · `clinical-ai-ml` · `fda-samd` · `health-chatbots`
+- **New:** `digital-therapeutics` · `mental-health-tech` · `care-coordination` · `social-determinants` · `care-plan-management` · `chronic-disease-management` · `ai-governance-healthcare` · `ambient-clinical-intelligence` · `nlp-clinical-text` · `digital-pathology` · `predictive-analytics-clinical` · `clinical-llm-safety`
 
 ### Revenue Cycle & Operations
-- `medical-coding`
-- `billing-claims` — EDI X12
-- `prior-authorization`
-- `value-based-care`
+- `medical-coding` · `billing-claims` · `prior-authorization` · `value-based-care`
+- **New:** `revenue-cycle-analytics` · `credentialing` · `remittance-processing` · `population-health-programs`
 
 ### Public & Population Health
-- `public-health-reporting`
-- `population-health-analytics`
-- `clinical-research`
+- `public-health-reporting` · `population-health-analytics` · `clinical-research`
 
 ### Patient Experience
-- `health-content-writing`
-- `patient-engagement`
-- `accessibility-healthcare`
+- `health-content-writing` · `patient-engagement` · `accessibility-healthcare`
+- **New:** `patient-matching-mpi` · `consent-management` · `health-equity-analytics`
+
+### Cloud & Engineering
+- **New:** `healthcare-cloud-aws` · `healthcare-cloud-azure` · `healthcare-cloud-gcp` · `healthcare-devops` · `healthcare-observability` · `healthcare-microservices`
+
+### Data & Analytics
+- `health-data-lake`
+- **New:** `clinical-data-warehouse` · `real-world-evidence` · `synthetic-patient-data` · `fhir-analytics` · `healthcare-data-quality`
 
 ### Specialized / Cross-cutting
-- `medical-imaging-ai`
-- `genomics-precision-medicine`
-- `health-data-lake` — OMOP, FHIR bulk export
+- `medical-imaging-ai` · `genomics-precision-medicine`
+- **New:** `oncology-informatics` · `pharmacy-informatics` · `laboratory-informatics` · `behavioral-health` · `genomics-data-standards` · `decentralized-clinical-trials` · `healthcare-iot` · `voice-healthcare` · `ar-vr-healthcare`
+
+## Repository layout
+
+```
+healthcareskills/
+├── .claude-plugin/
+│   ├── plugin.json            Claude Code plugin manifest
+│   └── marketplace.json       Claude plugin marketplace entry
+├── mcp/
+│   ├── index.js               MCP server entrypoint
+│   ├── loader.js              SKILL.md parser + skill-graph resolver
+│   └── manifest.js            Generates tool manifest from all skills
+├── skills/
+│   └── skill-name/
+│       ├── SKILL.md           Skill instructions (v2 frontmatter)
+│       ├── evals/
+│       │   └── evals.json     5–6 eval scenarios (CI-benchmarked)
+│       └── references/        Optional deep-dive docs loaded on demand
+├── AGENTS.md                  Guidelines for AI agents working in this repo
+├── CLAUDE.md                  Claude Code reminders
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+├── SECURITY.md
+└── VERSIONS.md
+```
 
 ## Contributing
 
-PRs and issues welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) — note the elevated bar for safety/accuracy in healthcare content.
+PRs and issues welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) — note the elevated
+bar for safety and accuracy in healthcare content. Clinical claims, regulatory
+references, and standard field values must be verified before merging.
 
 ## License
 
-[MIT](LICENSE) — Use these however you want, but verify before relying on them in safety-critical systems.
+[MIT](LICENSE) — use these however you want, but verify before relying on them
+in safety-critical clinical systems.
