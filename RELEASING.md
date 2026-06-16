@@ -40,7 +40,7 @@ After the GitHub Release is created:
 
 1. Verify `.claude-plugin/marketplace.json` shows `"version": "2.0.0"`
 2. Check the Anthropic plugin marketplace submission channel (check https://github.com/anthropics or Anthropic developer docs for the current process)
-3. Submit with repo URL: `https://github.com/aks-builds/quality-skills`
+3. Submit with repo URL: `https://github.com/aks-builds/healthcareskills`
 4. Reference the v2.0.0 GitHub Release URL in the submission
 
 > The marketplace submission process may change — check current Anthropic documentation for the latest instructions before submitting.
