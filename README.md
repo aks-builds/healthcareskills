@@ -26,6 +26,10 @@ agent that speaks [MCP](https://modelcontextprotocol.io) or the
 
 <sub>☝️ Claude Code invoking <code>fhir_validate</code> — one of 220+ typed MCP tools across healthcare domains.</sub>
 
+<br/>
+
+<img src=".github/media/how-it-works.png" width="900" alt="How healthcareskills works: install, load healthcare-context, pick a skill by category, resolve its skill graph, pass a clinical-accuracy gate, and return a standards-grounded response or MCP tool result" />
+
 </div>
 
 ---
